@@ -1,4 +1,4 @@
-package com.example.sdk.base.network
+package sdk.base.network
 
 object NetworkConfig {
     const val baseEndpoint = "finfree.app"

@@ -1,4 +1,4 @@
-package com.example.sdk.base
+package sdk.base
 
 import java.time.Instant
 

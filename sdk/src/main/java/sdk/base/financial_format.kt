@@ -1,4 +1,4 @@
-package com.example.sdk.base
+package sdk.base
 
 enum class IntervalTypes {
     live, quarterly, yearOverYearQuarterly, yearly, trailing
