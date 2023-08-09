@@ -14,7 +14,7 @@ data class FinancialFormat(
     val precision: Int = 0,
     val display: Boolean = true,
     val interval: IntervalTypes
-) : GenericModel() {
+) : GenericModel {
 
     fun copyWith(
         key: String? = this.key,
