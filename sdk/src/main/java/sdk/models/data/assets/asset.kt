@@ -1,5 +1,6 @@
 package sdk.models
 
+import com.sun.tools.sjavac.Log
 import sdk.base.GenericModel
 
 enum class Region {
@@ -52,6 +53,15 @@ fun AssetClass.string(): String {
     }
 }
 
+fun String.assetClass() : AssetClass {
+    return when(this) {
+        "crypto" -> AssetClass.crypto
+        "forex" -> AssetClass.forex
+        "equity" -> AssetClass.equity
+        else -> getDefaultAssetClass()
+    }
+}
+
 
 fun Region.string(): String {
     return when (this) {
@@ -97,6 +107,20 @@ fun String.region(): Region {
             AssetType.etf -> "etf"
             AssetType.forex -> "forex"
             AssetType.commodity -> "commodity"
+        }
+    }
+
+    fun String.assetType(): AssetType {
+        return when (this) {
+            "stock" -> AssetType.stock
+            "crypto" -> AssetType.crypto
+            "etf" -> AssetType.etf
+            "forex" -> AssetType.forex
+            "commodity" -> AssetType.commodity
+            else -> {
+                Log.info("Cannot get Currency for String: \"$this\"")
+                AssetType.stock
+            }
         }
     }
 
@@ -229,7 +253,7 @@ data class Asset(
     }
 
     companion object {
-        fun fromJson(json: Map<String, Any?>, type: AssetType): Asset {
+        fun fromJson(json: Map<String, Any?>): Asset {
             val regionString = json["region"] as String?
             val region = regionString?.region()
                 ?: throw IllegalArgumentException("Region is null for asset: ${json["symbol"]}")
@@ -241,7 +265,7 @@ data class Asset(
                 industryId = json["industry_id"] as IndustryId,
                 isActive = json["a"] as Boolean,
                 region = region,
-                type = type,
+                type = (json["asset_type"] as String).assetType(),
                 tradable = true /*json['tradable']*/
             )
         }
