@@ -9,7 +9,7 @@ import kotlin.math.absoluteValue
 
 interface GenericDataPoint : GenericModel {
      val index: Int
-     val time: LocalDateTime
+     val time: Instant
      val value: Double
 }
 
@@ -19,14 +19,13 @@ open class TimeSeriesDataPoint(
     override val value: Double
 ) : GenericDataPoint {
 
-    override val time = LocalDateTime.ofEpochSecond(timeStamp / 1000, 0, ZoneOffset.UTC)
-
+    override val time = Instant.ofEpochMilli(timeStamp)
     override fun toString(): String {
         return "{$index - $time - $value}"
     }
 
     override fun toJson(): Map<String, Any> =
-        mapOf("timestamp" to time.toEpochSecond(ZoneOffset.UTC) * 1000, "index" to index, "value" to value)
+        mapOf("timestamp" to time.toEpochMilli() , "index" to index, "value" to value)
 
     companion object {
         fun fromJson(data: Map<String, Any>): TimeSeriesDataPoint {
@@ -50,7 +49,7 @@ open class TimeSeries<T : TimeSeriesDataPoint>(var data: List<T>, val initialVal
     val percentChange: Double
         get() = if (absoluteChange == 0.0) 0.0 else absoluteChange / Math.abs(initialValue) * 100
 
-    val currentPrice: Double
+    open val currentPrice: Double
         get() = if (data.isNotEmpty()) data.last().value else initialValue
 
     operator fun plus(other: TimeSeries<T>): TimeSeries<T> {
@@ -66,7 +65,7 @@ open class TimeSeries<T : TimeSeriesDataPoint>(var data: List<T>, val initialVal
     }
 
     open fun multiplyBy(multiplier: Double, initialValueMultiplier: Double? = null): TimeSeries<T> {
-        val newPoints = data.map { TimeSeriesDataPoint(it.index, it.time.toEpochSecond(ZoneOffset.UTC) * 1000, it.value * multiplier) } as List<T>
+        val newPoints = data.map { TimeSeriesDataPoint(it.index, it.time.toEpochMilli(), it.value * multiplier) } as List<T>
         return TimeSeries(newPoints, initialValue * (initialValueMultiplier ?: multiplier))
     }
 
@@ -97,7 +96,7 @@ open class TimeSeries<T : TimeSeriesDataPoint>(var data: List<T>, val initialVal
             }
 
             val newValue = baseOperation(currentI.value, currentJ.value)
-            val newDataPoint = TimeSeriesDataPoint(currentI.index, currentI.time.toEpochSecond(ZoneOffset.UTC) * 1000, newValue) as T
+            val newDataPoint = TimeSeriesDataPoint(currentI.index, currentI.time.toEpochMilli(), newValue) as T
 
             newPoints.add(newDataPoint)
 
