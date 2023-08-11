@@ -1,15 +1,18 @@
 package sdk.models
 
 import sdk.base.GenericModel
+import sdk.models.core.sessions.DateTime
+import sdk.models.core.sessions.DateTime.Companion.toEpochMilliSecond
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.*
 import kotlin.math.absoluteValue
 
 interface GenericDataPoint : GenericModel {
      val index: Int
-     val time: Instant
+     val time: LocalDateTime
      val value: Double
 }
 
@@ -19,13 +22,16 @@ open class TimeSeriesDataPoint(
     override val value: Double
 ) : GenericDataPoint {
 
-    override val time = Instant.ofEpochMilli(timeStamp)
+
+
+    override val time = DateTime.fromSinceEpochMilliSecond(timeStamp)
     override fun toString(): String {
         return "{$index - $time - $value}"
     }
 
+
     override fun toJson(): Map<String, Any> =
-        mapOf("timestamp" to time.toEpochMilli() , "index" to index, "value" to value)
+        mapOf("timestamp" to time.toEpochMilliSecond() , "index" to index, "value" to value)
 
     companion object {
         fun fromJson(data: Map<String, Any>): TimeSeriesDataPoint {
@@ -65,7 +71,7 @@ open class TimeSeries<T : TimeSeriesDataPoint>(var data: List<T>, val initialVal
     }
 
     open fun multiplyBy(multiplier: Double, initialValueMultiplier: Double? = null): TimeSeries<T> {
-        val newPoints = data.map { TimeSeriesDataPoint(it.index, it.time.toEpochMilli(), it.value * multiplier) } as List<T>
+        val newPoints = data.map { TimeSeriesDataPoint(it.index, it.time.toEpochMilliSecond(), it.value * multiplier) } as List<T>
         return TimeSeries(newPoints, initialValue * (initialValueMultiplier ?: multiplier))
     }
 
@@ -96,7 +102,7 @@ open class TimeSeries<T : TimeSeriesDataPoint>(var data: List<T>, val initialVal
             }
 
             val newValue = baseOperation(currentI.value, currentJ.value)
-            val newDataPoint = TimeSeriesDataPoint(currentI.index, currentI.time.toEpochMilli(), newValue) as T
+            val newDataPoint = TimeSeriesDataPoint(currentI.index, currentI.time.toEpochMilliSecond(), newValue) as T
 
             newPoints.add(newDataPoint)
 
