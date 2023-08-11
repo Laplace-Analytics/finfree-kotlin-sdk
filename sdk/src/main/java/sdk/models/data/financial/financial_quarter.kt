@@ -1,5 +1,6 @@
 package sdk.models
 
+import java.time.LocalDateTime
 import java.util.*
 
 class FinancialQuarter(val year: Int, month: Int) {
@@ -86,18 +87,17 @@ class FinancialQuarter(val year: Int, month: Int) {
     }
 
     companion object {
-        fun fromDate(date: Date): FinancialQuarter {
-            val calendar = Calendar.getInstance()
-            calendar.time = date
-            var year = calendar.get(Calendar.YEAR)
-            var month = calendar.get(Calendar.MONTH)
-            month = when{
+        fun fromDate(date: LocalDateTime): FinancialQuarter {
+            val year = date.year
+            val month = date.monthValue
+
+            val adjustedMonth = when{
                 month > 9 -> 12
                 month > 6 -> 9
                 month > 3 -> 6
                 else -> 3
             }
-            return FinancialQuarter(year, month)
+            return FinancialQuarter(year, adjustedMonth)
         }
 
         fun fromFormatOfYYYYQQ(date: String): FinancialQuarter {
