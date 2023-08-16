@@ -179,7 +179,7 @@ class ApiResponseHandler {
 
         private fun <T : Any> defaultErrorResponse(): ResponseHandlerFunction<T> = { response ->
             var responseBody: String? = null
-            responseBody = response.body.toString()
+            responseBody = response.body?.string()
             val statusCode = response.code
             logger.error("Error with API call, received status code $statusCode.\n$responseBody\n$response")
 
@@ -196,7 +196,7 @@ class ApiResponseHandler {
         private fun <T: Any> defaultSuccessResponse(): ResponseHandlerFunction<T> = { response ->
             var responseBody: String? = null
 
-            responseBody = response.body.toString()
+            responseBody = response.body?.string()
 
             BasicResponse(data = null, responseType = BasicResponseTypes.Success, message = responseBody)
         }

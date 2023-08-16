@@ -15,12 +15,12 @@ import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
 class HTTPHandler(
-    private val httpURL: String,
-    private val timeOut: Int = 10,
-    private val isHttps: Boolean = true
+     val httpURL: String,
+     val timeOut: Int = 10,
+     val isHttps: Boolean = true
 ) {
-    private var token: String? = null
-    private val constantHeaders = mutableMapOf(
+    var token: String? = null
+    val constantHeaders = mutableMapOf(
         "Content-Type" to "application/json; charset=utf-8"
     )
     private val client: OkHttpClient
