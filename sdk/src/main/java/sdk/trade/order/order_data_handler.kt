@@ -1,0 +1,239 @@
+package sdk.trade
+
+import jdk.internal.org.jline.utils.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import sdk.base.logger
+import sdk.models.core.SessionProvider
+import sdk.models.core.sessions.DateTime
+import sun.security.ssl.SSLLogger.severe
+import java.lang.Integer.max
+import java.time.Duration
+import java.util.*
+
+val realTradeNonFinalOrderStatus = listOf(
+    OrderStatus.SentCancelRequestToExchange,
+    OrderStatus.SendingCancelRequestToExchange,
+    OrderStatus.IncorrectCorrection,
+    OrderStatus.MainOrderIsBeingCorrected,
+    OrderStatus.OrderIsBeingCorrected,
+    OrderStatus.TransmittingToExchange,
+    OrderStatus.TransmittedToExchange,
+    OrderStatus.OrderCancellationRefused,
+    OrderStatus.PartialFill
+)
+
+class OrdersDataHandler(
+    private val showOrderUpdatedMessage: (OrderData) -> Unit,
+    private val ordersRepository: OrdersRepository,
+    private val fetchUserStockDataCallback: AsyncCallback,
+    private val fetchUserEquityDataCallback: AsyncCallback,
+    private val ordersDBHandler: OrdersDBHandler,
+    private val sessionProvider: SessionProvider,
+    private val notifyListeners: () -> Unit
+) {
+
+
+    private var timer: Timer? = null
+    var isTimerActive = false
+
+
+    suspend fun updateOrders() {
+        notifyListeners()
+    }
+
+    /**
+     * Initializes a timer to fetch recent orders and check for any change.
+     */
+    suspend fun initialFetch() {
+        val numTransactions = ordersDBHandler.getNumberOfOrders()
+        if (numTransactions == 0) {
+            fetchAll()
+        } else {
+            val orders = ordersDBHandler.filterOrders(limit = 1)
+            val firstOrder = orders.first()
+            val limitDate = sessionProvider.getDayStart(
+                date = sessionProvider.getDayStart(
+                    date = sessionProvider.getPreviousTradingDay(
+                        date = firstOrder.placed.minus(Duration.ofDays(1))
+                    )
+                )
+            )
+            val index = ordersDBHandler.getOrdersSinceDate(limitDate).size
+            if (index >= 1) {
+                fetchN(N = index)
+            }
+        }
+        isTimerActive = true
+        timer?.scheduleAtFixedRate(object: TimerTask() {
+
+            override fun run() {
+                CoroutineScope(Dispatchers.IO).launch {
+                    fetchPeriodic()
+                }
+            }
+        },0,Duration.ofMinutes(1).toMillis())
+    }
+
+    suspend fun fetchPeriodic() {
+        var limitDate = sessionProvider.getDayStart(
+            date = DateTime.now().minusHours(10)
+        )
+        val oldestPendingOrder = ordersDBHandler.getOldestPendingOrder()?.placed ?: DateTime.now()
+        if (oldestPendingOrder.isBefore(limitDate)) {
+            limitDate = oldestPendingOrder
+        }
+        timer?.let {
+            if (isTimerActive && ordersDBHandler.isOpen) {
+                val index = ordersDBHandler.getOrdersSinceDate(limitDate).size
+                if (index != 0) {
+                    fetchN(N = index)
+                } else {
+                    fetchN(N = 5)
+                }
+            }
+        }
+    }
+
+    suspend fun fetchAll() {
+        val res = ordersRepository.getData(null)
+        if (res != null) {
+            ordersDBHandler.insertOrders(res)
+            updateOrders()
+        } else {
+            Log.error("Transaction data is null")
+        }
+    }
+
+    suspend fun fetchN(from: Int = 0, N: Int? = null) {
+        val nValue = max(N ?: 5, 5)
+        Log.info("Fetching last $nValue orders")
+        val orders = ordersRepository.getData(PaginatedOrdersFilter(from, from + nValue))
+        if (orders != null) {
+            processFetchedData(orders, realTradeNonFinalOrderStatus)
+        } else {
+            Log.info("No orders returned")
+        }
+    }
+    suspend fun getDailyOrders(): List<OrderData> {
+        val previousClose = sessionProvider
+            .getDayStart(date = sessionProvider.getPreviousTradingDay(date = DateTime.now()))
+            .minusHours(16)
+        return ordersDBHandler.getOrdersSinceDate(previousClose)
+    }
+
+    suspend fun processFetchedData(orders: List<OrderData>, pendingStatus: List<OrderStatus>) {
+        insertFetchedData(orders, pendingStatus)
+    }
+
+    private fun getMapFromOrderList(orders: List<OrderData>): Map<OrderId, OrderData> {
+        return orders.associateBy { it.orderId }
+    }
+    private suspend fun checkIfAnyOrderUpdated(orders: List<OrderData>): TransactionCheckResult {
+        if (orders.isEmpty()) {
+            return TransactionCheckResult(updateUI = false, fetchData = false)
+        }
+
+        if (orders.size == 1 && realTradeNonFinalOrderStatus.contains(orders.first().status)) {
+            return TransactionCheckResult(updateUI = true, fetchData = false)
+        }
+
+        val ordersSincePlacedDate = ordersDBHandler.getOrdersSincePlacedDate(
+            orders.first().placed.minusMinutes(5)
+        )
+
+        val filteredTransactionMap = getMapFromOrderList(ordersSincePlacedDate)
+
+        for (order in orders) {
+            val correspondingTransaction = filteredTransactionMap[order.orderId]
+            if (correspondingTransaction == null) {
+                return TransactionCheckResult(updateUI = true, fetchData = true)
+            }
+            if (order.status != correspondingTransaction.status ||
+                order.quantity != correspondingTransaction.quantity ||
+                order.remainingQuantity != correspondingTransaction.remainingQuantity) {
+                return TransactionCheckResult(updateUI = true, fetchData = true)
+            }
+        }
+
+        return TransactionCheckResult(updateUI = false, fetchData = false)
+    }
+    suspend fun insertFetchedData(orders: List<OrderData>, pendingStatus: List<Any>) {
+        if (ordersDBHandler.isOpen) {
+            val matchedTransactions = ordersDBHandler.filterOrders(
+                ids = orders.filterNot { pendingStatus.contains(it.status) }.map { it.orderId },
+                limit = orders.size
+            )
+
+            matchedTransactions.filter { pendingStatus.contains(it.status) }.forEach { oldOrder ->
+                val matchedOrder = orders.firstOrNull { order -> order.orderId == oldOrder.orderId }
+                if (matchedOrder != null && oldOrder.status != matchedOrder.status) {
+                    orderStatusChanged(oldOrder, matchedOrder)
+                }
+            }
+            val checkResult = checkIfAnyOrderUpdated(orders)
+            if (checkResult.updateUI && ordersDBHandler.isOpen) {
+                ordersDBHandler.insertOrders(orders)
+                updateOrders()
+                if (checkResult.fetchData) {
+                    fetchUserStockDataCallback()
+                    fetchUserEquityDataCallback()
+                }
+            }
+        }
+    }
+
+    fun orderStatusChanged(oldTransaction: OrderData, newTransaction: OrderData) {
+        if (oldTransaction.status == OrderStatus.TransmittingToExchange) {
+            when (newTransaction.status) {
+                OrderStatus.OrderPeriodOver -> {}
+                OrderStatus.OrderExecuted -> showTransactionStatusChangedMessage(newTransaction)
+            }
+        } else {
+            Log.info("Transaction status changed from type ${oldTransaction.status} to type ${newTransaction.status}")
+        }
+    }
+
+    fun showTransactionStatusChangedMessage(order: OrderData) {
+        showOrderUpdatedMessage(order)
+    }
+
+    fun dispose() {
+        timer?.cancel()
+        ordersDBHandler.dispose()
+    }
+
+    suspend fun improveOrderUpdateDB(orderId: OrderId, newQuantity: Number, newPrice: Double, remainingQuantity: Number) {
+        ordersDBHandler.updateOrderFields(orderId = orderId, newQuantity = newQuantity,newPrice =  newPrice, remainingQuantity =  remainingQuantity)
+        updateOrders()
+    }
+
+    suspend fun cancelOrderUpdateDB(orderID: OrderId) {
+        ordersDBHandler.updateOrderFields(orderID, status = OrderStatus.OrderCancelled)
+        updateOrders()
+    }
+
+    suspend fun updateOrder(updatedOrder: OrderData, fetchUserStock: Boolean = false) {
+        ordersDBHandler.insertOrders(listOf(updatedOrder))
+        updateOrders()
+        if (fetchUserStock) {
+            fetchUserStockDataCallback()
+            fetchUserEquityDataCallback()
+        }
+    }
+
+    suspend fun checkIfRealOrderStatusChanged(order: OrderData) {
+        val updatedOrder = ordersRepository.getOrderByID(order.orderId.id)
+            if (updatedOrder != null && !realTradeNonFinalOrderStatus.contains(updatedOrder.status)) {
+                updateOrder(updatedOrder, fetchUserStock = true)
+            }
+    }
+}
+
+typealias AsyncCallback = suspend () -> Unit
+
+private data class TransactionCheckResult(
+    val updateUI: Boolean,
+    val fetchData: Boolean
+)
