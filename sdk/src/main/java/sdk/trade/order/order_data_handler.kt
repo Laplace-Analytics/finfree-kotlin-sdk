@@ -29,7 +29,7 @@ class OrdersDataHandler(
     private val ordersRepository: OrdersRepository,
     private val fetchUserStockDataCallback: AsyncCallback,
     private val fetchUserEquityDataCallback: AsyncCallback,
-    private val ordersDBHandler: OrdersDBHandler,
+    val ordersDBHandler: OrdersDBHandler,
     private val sessionProvider: SessionProvider,
     private val notifyListeners: () -> Unit
 ) {
