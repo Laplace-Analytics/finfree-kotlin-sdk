@@ -4,10 +4,10 @@ import jdk.internal.org.jline.utils.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import sdk.base.logger
 import sdk.models.core.SessionProvider
 import sdk.models.core.sessions.DateTime
-import sun.security.ssl.SSLLogger.severe
+import sdk.trade.repositories.repos.OrdersRepository
+import sdk.trade.repositories.repos.PaginatedOrdersFilter
 import java.lang.Integer.max
 import java.time.Duration
 import java.util.*
@@ -25,13 +25,13 @@ val realTradeNonFinalOrderStatus = listOf(
 )
 
 class OrdersDataHandler(
-    private val showOrderUpdatedMessage: (OrderData) -> Unit,
+    private val showOrderUpdatedMessage: (OrderData) -> Any,
     private val ordersRepository: OrdersRepository,
     private val fetchUserStockDataCallback: AsyncCallback,
     private val fetchUserEquityDataCallback: AsyncCallback,
     val ordersDBHandler: OrdersDBHandler,
     private val sessionProvider: SessionProvider,
-    private val notifyListeners: () -> Unit
+    private val notifyListeners: () -> Any
 ) {
 
 
@@ -66,14 +66,14 @@ class OrdersDataHandler(
             }
         }
         isTimerActive = true
-        timer?.scheduleAtFixedRate(object: TimerTask() {
+        timer?.scheduleAtFixedRate(object : TimerTask() {
 
             override fun run() {
                 CoroutineScope(Dispatchers.IO).launch {
                     fetchPeriodic()
                 }
             }
-        },0,Duration.ofMinutes(1).toMillis())
+        }, 0, Duration.ofMinutes(1).toMillis())
     }
 
     suspend fun fetchPeriodic() {
@@ -116,6 +116,7 @@ class OrdersDataHandler(
             Log.info("No orders returned")
         }
     }
+
     suspend fun getDailyOrders(): List<OrderData> {
         val previousClose = sessionProvider
             .getDayStart(date = sessionProvider.getPreviousTradingDay(date = DateTime.now()))
@@ -130,6 +131,7 @@ class OrdersDataHandler(
     private fun getMapFromOrderList(orders: List<OrderData>): Map<OrderId, OrderData> {
         return orders.associateBy { it.orderId }
     }
+
     private suspend fun checkIfAnyOrderUpdated(orders: List<OrderData>): TransactionCheckResult {
         if (orders.isEmpty()) {
             return TransactionCheckResult(updateUI = false, fetchData = false)
@@ -152,13 +154,15 @@ class OrdersDataHandler(
             }
             if (order.status != correspondingTransaction.status ||
                 order.quantity != correspondingTransaction.quantity ||
-                order.remainingQuantity != correspondingTransaction.remainingQuantity) {
+                order.remainingQuantity != correspondingTransaction.remainingQuantity
+            ) {
                 return TransactionCheckResult(updateUI = true, fetchData = true)
             }
         }
 
         return TransactionCheckResult(updateUI = false, fetchData = false)
     }
+
     suspend fun insertFetchedData(orders: List<OrderData>, pendingStatus: List<Any>) {
         if (ordersDBHandler.isOpen) {
             val matchedTransactions = ordersDBHandler.filterOrders(
@@ -204,8 +208,18 @@ class OrdersDataHandler(
         ordersDBHandler.dispose()
     }
 
-    suspend fun improveOrderUpdateDB(orderId: OrderId, newQuantity: Number, newPrice: Double, remainingQuantity: Number) {
-        ordersDBHandler.updateOrderFields(orderId = orderId, newQuantity = newQuantity,newPrice =  newPrice, remainingQuantity =  remainingQuantity)
+    suspend fun improveOrderUpdateDB(
+        orderId: OrderId,
+        newQuantity: Number,
+        newPrice: Double,
+        remainingQuantity: Number
+    ) {
+        ordersDBHandler.updateOrderFields(
+            orderId = orderId,
+            newQuantity = newQuantity,
+            newPrice = newPrice,
+            remainingQuantity = remainingQuantity
+        )
         updateOrders()
     }
 
@@ -225,9 +239,9 @@ class OrdersDataHandler(
 
     suspend fun checkIfRealOrderStatusChanged(order: OrderData) {
         val updatedOrder = ordersRepository.getOrderByID(order.orderId.id)
-            if (updatedOrder != null && !realTradeNonFinalOrderStatus.contains(updatedOrder.status)) {
-                updateOrder(updatedOrder, fetchUserStock = true)
-            }
+        if (updatedOrder != null && !realTradeNonFinalOrderStatus.contains(updatedOrder.status)) {
+            updateOrder(updatedOrder, fetchUserStock = true)
+        }
     }
 }
 

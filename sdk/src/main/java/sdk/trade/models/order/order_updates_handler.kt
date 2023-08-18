@@ -10,6 +10,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import sdk.base.logger
 import sdk.models.core.AssetProvider
+import sdk.trade.repositories.repos.OrdersRepository
 import java.time.LocalDateTime
 
 class OrderUpdatesHandler(

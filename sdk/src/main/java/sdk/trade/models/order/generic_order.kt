@@ -53,7 +53,7 @@ abstract class OrderId(val type: OrderIdType) {
 
         fun fromInt(id: Int): OrderId = IntOrderId(id)
 
-        fun fromValue(value: Any): OrderId {
+        fun fromValue(value: Any?): OrderId {
             return when (value) {
                 is String -> StringOrderId(value)
                 is Int -> IntOrderId(value)
@@ -82,16 +82,16 @@ enum class OrderType {
 
 data class OrderData(
     val orderId: OrderId,
-    val orderNo: String,
+    val orderNo: String?,
     val orderType: OrderType,
     val status: OrderStatus,
-    val errorCode: String,
-    val statusMessage: String,
+    val errorCode: String?,
+    val statusMessage: String?,
     val asset: Asset,
     val quantity: Number,
     val remainingQuantity: Number,
-    val price: Double,
-    val limitPrice: Double,
+    val price: Double?,
+    val limitPrice: Double?,
     val placed: LocalDateTime,
     val executed: LocalDateTime?
 ) : GenericModel {
@@ -108,7 +108,7 @@ data class OrderData(
         return "${asset.symbol}: $orderType, $quantity, $status"
     }
 
-    override fun toJson(): Map<String, Any> {
+    override fun toJson(): Map<String, Any?> {
         return mapOf(
             "id" to orderId.id,
             "symbol" to asset.symbol,

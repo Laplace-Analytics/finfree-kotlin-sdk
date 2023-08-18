@@ -1,5 +1,6 @@
 package sdk.trade
 
+import io.reactivex.Flowable
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
 import sdk.base.logger
@@ -12,7 +13,9 @@ import jdk.internal.org.jline.utils.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.subscribe
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
@@ -24,12 +27,8 @@ class OrderUpdatesListener(private val orderApiProvider: GenericOrderAPIProvider
 
     suspend fun openConnection(token: String) {
         val response = orderApiProvider.listenOrders(UUID.randomUUID().toString())
-        val responseStream = Observable.create<StreamData> { emitter ->
-            response.data?.forEach {
-                emitter.onNext(it)
-            } ?: emitter.onError(NullPointerException("No data"))
-            emitter.onComplete()
-        }
+        val responseFlowable = response?.data?.asFlowable()
+
         if (response.responseType != BasicResponseTypes.Success || response.data == null) {
             delay(60000)  // wait for 60 seconds
             Log.info("Trying to open websocket connection again!")
@@ -38,8 +37,7 @@ class OrderUpdatesListener(private val orderApiProvider: GenericOrderAPIProvider
             return
         }
 
-        subscription = responseStream
-            .subscribe(
+        subscription = responseFlowable?.subscribe(
                 { event ->
                     try {
                         val data = event.data
