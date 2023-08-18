@@ -1,10 +1,13 @@
 package sdk.trade
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import sdk.base.network.*
-import java.util.stream.Stream
+import sdk.models.AssetSymbol
 import kotlin.math.absoluteValue
 
 class DriveWealthOrderAPIProvider(
@@ -14,7 +17,7 @@ class DriveWealthOrderAPIProvider(
 ): GenericOrderAPIProvider(httpHandler,basePath){
     override suspend fun postLimitOrder(
         quantity: Int,
-        symbol: String,
+        symbol: AssetSymbol,
         limitPrice: Double
     ): BasicResponse<Map<String, Any>> {
         val params: Map<String,Any> = mapOf(
@@ -47,7 +50,7 @@ class DriveWealthOrderAPIProvider(
 
     override suspend fun postMarketOrder(
         quantity: Number,
-        symbol: String
+        symbol: AssetSymbol
     ): BasicResponse<Map<String, Any>> {
         val params: Map<String,Any> = mapOf(
             "orderType" to  "MARKET",
@@ -81,7 +84,7 @@ class DriveWealthOrderAPIProvider(
 
     override suspend fun putImproveOrder(
         orderId: String,
-        symbol: String,
+        symbol: AssetSymbol,
         newPrice: Double,
         newQuantity: Int
     ): BasicResponse<Map<String, Any>> {
@@ -166,14 +169,55 @@ class DriveWealthOrderAPIProvider(
         ) as BasicResponse<List<Map<String, Any>>>
     }
 
-    override suspend fun listenOrders(streamUUID: String): BasicResponse<Stream<StreamData>> {
+    override suspend fun listenOrders(streamUUID: String): BasicResponse<Flow<StreamData>> {
+        val endpoint = "$basePath/listen"
+        val response = httpHandler.getStreamedRequest(
+            path = endpoint,
+            data = mapOf("stream" to streamUUID)
+        )
 
+        return ApiResponseHandler.handleStreamedResponse<Flow<StreamData>>(
+            response = response,
+            onSuccess = { response ->
+                var currentMessage = ""
+
+                val transformedFlow = flow {
+                    response.body?.byteStream()?.bufferedReader()?.use { reader ->
+                        for (line in reader.lineSequence()) {
+                            currentMessage += line
+                            val currentLines = currentMessage.split("\n")
+                            val idLine = currentLines.firstOrNull { it.startsWith("id: ") }
+                            val dataLine = currentLines.firstOrNull { it.startsWith("data: ") }
+                            val eventLine = currentLines.firstOrNull { it.startsWith("event: ") }
+
+                            if (idLine != null && dataLine != null && eventLine != null) {
+                                val current = "$idLine\n$dataLine\n$eventLine"
+                                val streamData = StreamData(current)
+                                currentMessage = ""
+                                emit(streamData)
+                            }
+                        }
+                    }
+                }
+
+                BasicResponse(
+                    responseType = BasicResponseTypes.Success,
+                    data = transformedFlow
+                )
+            },
+            onError = {
+                BasicResponse(
+                    responseType = BasicResponseTypes.Error
+                )
+            }
+        ) as BasicResponse<Flow<StreamData>>
     }
+
 
 
     suspend fun postLimitOrder(
         amount: Double,
-        symbol: String,
+        symbol: AssetSymbol,
     ): BasicResponse<Map<String, Any>> {
         val params: Map<String,Any> = mapOf(
             "orderType" to  "MARKET",
@@ -200,6 +244,39 @@ class DriveWealthOrderAPIProvider(
             }
         ) as BasicResponse<Map<String, Any>>
     }
+    suspend fun postNotionalMarketOrder(
+        amount: Double,
+        symbol: AssetSymbol,
+    ): BasicResponse<Map<String, Any>> {
+        val params: Map<String,Any> = mapOf(
+            "orderType" to  "MARKET",
+            "symbol" to  symbol,
+            "side" to if (amount > 0) "BUY" else "SELL",
+            "amountCash" to amount.absoluteValue.toString()
+        )
+
+        val response = httpHandler.post(path = basePath, body = Json.encodeToString(params))
+
+        return ApiResponseHandler.handleResponse(
+            response,
+            onSuccess = { res ->
+                val data:Map<String,Any>  = Json.decodeFromString(res.body!!.string())
+                BasicResponse(
+                    responseType = BasicResponseTypes.Success,
+                    data = data,
+                )
+            },
+            onError = { res ->
+                BasicResponse(
+                    responseType = BasicResponseTypes.Error
+                )
+            }
+        ) as BasicResponse<Map<String, Any>>
+    }
+    fun unit8Transformer(input: Flow<ByteArray>): Flow<List<Int>> {
+        return input.map { byteArray -> byteArray.map { it.toInt() } }
+    }
+
 
 
 

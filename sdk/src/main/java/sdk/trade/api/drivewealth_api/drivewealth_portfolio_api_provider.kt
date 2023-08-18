@@ -2,6 +2,7 @@ package sdk.trade.generic_api
 
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import sdk.api.StockDataPeriods
 import sdk.base.network.ApiResponseHandler
 import sdk.base.network.BasicResponse
 import sdk.base.network.BasicResponseTypes
@@ -29,10 +30,10 @@ class DriveWealthPortfolioApiProvider(
         ) as BasicResponse<Map<String, Any>>
     }
 
-    override suspend fun getEquityData(period: String): BasicResponse<List<Map<String, Any>>> {
+    override suspend fun getEquityData(period: StockDataPeriods): BasicResponse<List<Map<String, Any>>> {
         val path = "$basePath/account/portfolio/history"
         val params:Map<String,String> = mapOf(
-            "type" to period
+            "type" to period.period
         )
 
         val response = httpHandler.get(path = path, data = params, tryAgainOnTimeout = false)
