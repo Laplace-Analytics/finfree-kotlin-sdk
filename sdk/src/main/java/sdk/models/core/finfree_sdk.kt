@@ -6,11 +6,15 @@ import sdk.api.AccessToken
 import sdk.api.CoreApiProvider
 import sdk.api.StockDataApiProvider
 import sdk.base.GenericStorage
+import sdk.base.exceptions.CoreDataNotInitializedException
+import sdk.base.exceptions.NotAuthorizedException
+import sdk.base.exceptions.SDKNotInitializedException
 import sdk.base.network.HTTPHandler
 import sdk.models.Region
 import sdk.repositories.*
 import sdk.trade.*
-import sdk.trade.generic_api.DriveWealthPortfolioApiProvider
+import sdk.trade.models.portfolio.PortfolioHandler
+import sdk.trade.models.portfolio.PortfolioProvider
 import sdk.base.network.NetworkConfig as network_config
 
 class FinfreeSDK {
@@ -19,8 +23,15 @@ class FinfreeSDK {
         private var _initialized = false
         val initialized get() = _initialized
 
-        private var _authorized = false
-        val authorized get() = _authorized
+        private var _storage: GenericStorage? = null
+        val storage: GenericStorage
+            get() {
+                _storage?.let { return it } ?: throw SDKNotInitializedException()
+            }
+
+        private var _accessToken: AccessToken? = null
+        val authorized: Boolean
+            get() = _accessToken != null
 
         private var _coreInitialized = false
         val coreInitialized get() = _coreInitialized
@@ -85,27 +96,18 @@ class FinfreeSDK {
             notifyListeners: () -> Unit,
             showOrderUpdatedMessage: (OrderData) -> Any
         ) {
-            authorizationHandler = AuthorizationHandler(storage, HttpHandlers.baseHttpHandler)
+            _storage = storage
+            authorizationHandler = AuthorizationHandler(storage,baseHttpHandler)
 
             initializeCoreRepos(storage, getLocalTimezone)
             _assetProvider = AssetProvider(assetRepo = coreRepos.assetRepo, assetCollectionRepo = coreRepos.assetCollectionRepo)
             _sessionProvider = SessionProvider(sessionsRepo = coreRepos.sessionsRepo)
 
-            // TODO: Gerçek DB handler oluştur
-            val ordersDBHandler = MockOrdersDBHandler(_assetProvider!!)
-
-            initializePortfolioHandler(
-                notifyListeners = notifyListeners,
-                showOrderUpdatedMessage = showOrderUpdatedMessage,
-                ordersDBHandler = ordersDBHandler,
-                storage = storage
-            )
-
             _initialized = true
         }
 
         private fun initializeCoreRepos(storage: GenericStorage, getLocalTimezone: GetLocalTimezone) {
-            val coreApiProvider = CoreApiProvider(HttpHandlers.baseHttpHandler)
+            val coreApiProvider = CoreApiProvider(baseHttpHandler)
             coreRepos = CoreRepos(
                 assetRepo = AssetRepo(storage, coreApiProvider),
                 assetCollectionRepo = AssetCollectionRepo(storage, coreApiProvider),
@@ -119,9 +121,7 @@ class FinfreeSDK {
             ordersDBHandler: OrdersDBHandler,
             storage: GenericStorage
         ) {
-            val orderAPIProvider = DriveWealthOrderAPIProvider(HttpHandlers.dwHttpHandler, "order")
-            val stockDataApiProvider = StockDataApiProvider(HttpHandlers.baseHttpHandler, "stock")
-            val portfolioAPIProvider = DriveWealthPortfolioApiProvider(HttpHandlers.dwHttpHandler, "/api/v1/tr")
+            val stockDataApiProvider = StockDataApiProvider(baseHttpHandler, "stock")
             val priceDataRepo = PriceDataRepo(storage, stockDataApiProvider, sessionProvider, assetProvider)
 
             portfolioHandler.init(
@@ -129,11 +129,10 @@ class FinfreeSDK {
                 showOrderUpdatedMessage = showOrderUpdatedMessage,
                 ordersDBHandler = ordersDBHandler,
                 storage = storage,
-                orderAPIProvider = orderAPIProvider,
                 assetProvider = assetProvider,
                 sessionProvider = sessionProvider,
                 priceDataRepo = priceDataRepo,
-                portfolioAPIProvider = portfolioAPIProvider
+                token = _accessToken!!
             )
         }
 
@@ -141,8 +140,7 @@ class FinfreeSDK {
             if (!initialized) throw SDKNotInitializedException()
             val response = authorizationHandler.login(identifier, password)
             response.accessToken?.let {
-                HttpHandlers.setAccessToken(it)
-                _authorized = true
+                setAccessToken(response.accessToken)
             }
             return response
         }
@@ -151,8 +149,7 @@ class FinfreeSDK {
             if (!initialized) throw SDKNotInitializedException()
             val response = authorizationHandler.authenticateWithRefreshToken()
             response.accessToken?.let {
-                HttpHandlers.setAccessToken(it)
-                _authorized = true
+                setAccessToken(response.accessToken)
             }
             return response
         }
@@ -171,7 +168,22 @@ class FinfreeSDK {
             _coreInitialized = true
         }
 
-        suspend fun initializePortfolioData(livePriceDataEnabled: Boolean) {
+        suspend fun initializePortfolioData(
+            livePriceDataEnabled: Boolean,
+            notifyListeners: () -> Unit,
+            showOrderUpdatedMessage:  (OrderData) -> Any,
+            ordersDBHandler: OrdersDBHandler
+        ) {
+            val ordersDBHandler = MockOrdersDBHandler(_assetProvider!!)
+
+            initializePortfolioHandler(
+                notifyListeners = notifyListeners,
+                showOrderUpdatedMessage = showOrderUpdatedMessage,
+                ordersDBHandler = ordersDBHandler,
+                storage = storage
+            )
+
+
             if (!initialized) throw SDKNotInitializedException()
             if (!authorized) throw NotAuthorizedException()
             if (!coreInitialized) throw CoreDataNotInitializedException()
@@ -184,41 +196,22 @@ class FinfreeSDK {
                 true
             )
         }
+        val baseHttpHandler: HTTPHandler = HTTPHandler(httpURL = network_config.baseEndpoint)
+        fun setAccessToken(accessToken: AccessToken) {
+            _accessToken = accessToken
+            baseHttpHandler.token = accessToken
+        }
     }
 }
 
 private data class CoreRepos(
     val assetRepo: AssetRepo,
     val assetCollectionRepo: AssetCollectionRepo,
-    val sessionsRepo: SessionsRepo
-)
+    val sessionsRepo: SessionsRepo)
 
-class HttpHandlers {
-    companion object {
-        val baseHttpHandler: HTTPHandler = HTTPHandler(httpURL = network_config.baseEndpoint)
 
-        val dwHttpHandler: HTTPHandler = HTTPHandler(httpURL = network_config.driveWealthProdURL).apply {
-            constantHeaders["X-GEDIK-ACCOUNT-ID"] = "941380"
-        }
 
-        fun setAccessToken(accessToken: AccessToken) {
-            baseHttpHandler.token = accessToken
-            dwHttpHandler.token = accessToken
-        }
-    }
-}
 
-open class InitializationException(override val message: String) : Exception() {
-    override fun toString(): String {
-        return "InitializationException[${this::class.simpleName}]: $message"
-    }
-}
-
-class SDKNotInitializedException : InitializationException("SDK not initialized, should call FinfreeSDK.initSDK() first")
-
-class NotAuthorizedException : InitializationException("SDK not authorized for user yet, should call FinfreeSDK.userLogin() or FinfreeSDK.authenticateWithRefreshToken() first")
-
-class CoreDataNotInitializedException : InitializationException("Core data not initialized, should call FinfreeSDK.initializeCoreData() first")
 
 
 

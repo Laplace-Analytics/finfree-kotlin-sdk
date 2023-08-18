@@ -71,6 +71,14 @@ fun Region.string(): String {
     }
 }
 
+fun Region.localeString(): String {
+    return when (this) {
+        Region.american -> "en"
+        Region.turkish -> "tr"
+        Region.test -> "test"
+    }
+}
+
 fun Region.defaultCurrency(): Currency {
     return when (this) {
         Region.american -> Currency.usd

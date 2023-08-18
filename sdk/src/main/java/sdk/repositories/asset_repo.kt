@@ -17,7 +17,7 @@ open class AssetRepo(
     override suspend fun fetchData(region: Region?): List<Asset>? {
         if (region == null) return null
         return try {
-            val response = apiProvider.getAllStocks(region.string())
+            val response = apiProvider.getAllStocks(region)
 
             if (response.responseType != BasicResponseTypes.Success || response.data == null) {
                 null

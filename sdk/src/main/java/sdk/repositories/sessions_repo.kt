@@ -29,8 +29,8 @@ open class SessionsRepo(
         val assetClass = identifier?.assetClass
         try {
             val response = apiProvider.getSessions(
-                region = region?.string(),
-                assetClass = assetClass?.string()
+                region = region,
+                assetClass = assetClass
             )
 
             if (response.responseType != BasicResponseTypes.Success || response.data == null) {

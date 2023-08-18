@@ -19,8 +19,8 @@ open class AssetCollectionRepo(
         if (identifier == null) return null
         return try {
             val response = when (identifier.collectionType) {
-                CollectionType.collection -> apiProvider.getPredefinedCollections(identifier.region.string())
-                else -> apiProvider.getCollections(identifier.region.string(), identifier.collectionType.string())
+                CollectionType.collection -> apiProvider.getPredefinedCollections(identifier.region)
+                else -> apiProvider.getCollections(identifier.region, identifier.collectionType)
             }
 
             if (response.responseType != BasicResponseTypes.Success || response.data == null) {

@@ -76,6 +76,11 @@ enum class StockDataPeriods(val period: String, val periodMinutes: Int) {
     Price1Y("1Y", 1440),
     Price5Y("5Y", 7200),
     PriceAllTime("all_time", 60);
+    companion object {
+        fun fromPeriodString(periodString: String): StockDataPeriods? {
+            return values().find { it.period == periodString }
+        }
+    }
 }
 
     fun getPeriodFromString(period: String?): StockDataPeriods? {

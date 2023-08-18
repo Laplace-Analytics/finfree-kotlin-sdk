@@ -19,7 +19,7 @@ abstract class GenericRepository<T, V, K : GenericApiProvider>(
     abstract fun getFromJson(json: Map<String, Any>): T
     abstract fun toJson(data: T): Map<String, Any>
 
-    suspend fun getData(identifier: V?): T? {
+    open suspend fun getData(identifier: V?): T? {
         try {
             val data = readData(identifier)
             data?.let { return it }

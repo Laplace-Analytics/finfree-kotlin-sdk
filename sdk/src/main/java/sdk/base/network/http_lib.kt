@@ -9,17 +9,18 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
+import sdk.api.AccessToken
 import sdk.base.logger
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
 class HTTPHandler(
-     val httpURL: String,
+     var httpURL: String,
      val timeOut: Int = 10,
      val isHttps: Boolean = true
 ) {
-    var token: String? = null
+    var token: AccessToken? = null
     val constantHeaders = mutableMapOf(
         "Content-Type" to "application/json; charset=utf-8"
     )
@@ -310,7 +311,7 @@ class HTTPHandler(
         fields: Map<String, String> = mapOf(),
         additionalHeaders: Map<String, String>? = null,
     ): Response {
-        val uri = getURL(path, data) // Assuming you have a similar function in Kotlin
+        val uri = getURL(path, data)
 
         try {
             val headers = mutableMapOf<String, String>("Content-Type" to "multipart/form-data")
