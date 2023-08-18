@@ -1,6 +1,8 @@
 package sdk.trade
 
+import kotlinx.coroutines.flow.Flow
 import sdk.base.network.*
+import sdk.models.AssetSymbol
 import java.util.stream.Stream
 
 abstract class GenericOrderAPIProvider(
@@ -8,11 +10,11 @@ abstract class GenericOrderAPIProvider(
     open val basePath: String
 ) : GenericApiProvider(httpHandler) {
 
-    abstract suspend fun postLimitOrder(quantity: Int, symbol: String, limitPrice: Double): BasicResponse<Map<String, Any>>
+    abstract suspend fun postLimitOrder(quantity: Int, symbol: AssetSymbol, limitPrice: Double): BasicResponse<Map<String, Any>>
 
-    abstract suspend fun postMarketOrder(quantity: Number, symbol: String): BasicResponse<Map<String, Any>>
+    abstract suspend fun postMarketOrder(quantity: Number, symbol: AssetSymbol): BasicResponse<Map<String, Any>>
 
-    abstract suspend fun putImproveOrder(orderId: String, symbol: String, newPrice: Double, newQuantity: Int): BasicResponse<Map<String, Any>>
+    abstract suspend fun putImproveOrder(orderId: String, symbol: AssetSymbol, newPrice: Double, newQuantity: Int): BasicResponse<Map<String, Any>>
 
     abstract suspend fun deleteOrder(orderId: String): DeleteOrderResponse
 
@@ -60,7 +62,7 @@ abstract class GenericOrderAPIProvider(
 
     abstract suspend fun getTransactionsBetween(from: Int, to: Int): BasicResponse<List<Map<String, Any>>>
 
-    abstract suspend fun listenOrders(streamUUID: String): BasicResponse<Stream<StreamData>>
+    abstract suspend fun listenOrders(streamUUID: String): BasicResponse<Flow<StreamData>>
 }
 
 enum class DeleteOrderResponseTypes {
