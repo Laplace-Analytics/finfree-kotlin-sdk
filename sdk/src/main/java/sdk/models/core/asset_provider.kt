@@ -1,6 +1,5 @@
 package sdk.models.core
 
-import jdk.internal.net.http.common.Log
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -213,7 +212,7 @@ class AssetProvider(
                 delay(500L)
             }
         } while (!initialized)
-        jdk.internal.org.jline.utils.Log.info("Assets initialized in ${Duration.between(start, LocalDateTime.now()).toMillis()} ms")
+        logger.info("Assets initialized in ${Duration.between(start, LocalDateTime.now()).toMillis()} ms")
     }
     private suspend fun fetchStocks(region: Region) {
 

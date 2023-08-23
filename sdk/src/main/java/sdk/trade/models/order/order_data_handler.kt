@@ -1,9 +1,9 @@
 package sdk.trade
 
-import jdk.internal.org.jline.utils.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import sdk.base.logger
 import sdk.models.core.SessionProvider
 import sdk.models.core.sessions.DateTime
 import sdk.trade.repositories.repos.OrdersRepository
@@ -102,18 +102,18 @@ class OrdersDataHandler(
             ordersDBHandler.insertOrders(res)
             updateOrders()
         } else {
-            Log.error("Transaction data is null")
+            logger.error("Transaction data is null")
         }
     }
 
     suspend fun fetchN(from: Int = 0, N: Int? = null) {
         val nValue = max(N ?: 5, 5)
-        Log.info("Fetching last $nValue orders")
+        logger.info("Fetching last $nValue orders")
         val orders = ordersRepository.getData(PaginatedOrdersFilter(from, from + nValue))
         if (orders != null) {
             processFetchedData(orders, realTradeNonFinalOrderStatus)
         } else {
-            Log.info("No orders returned")
+            logger.info("No orders returned")
         }
     }
 
@@ -195,7 +195,7 @@ class OrdersDataHandler(
                 OrderStatus.OrderExecuted -> showTransactionStatusChangedMessage(newTransaction)
             }
         } else {
-            Log.info("Transaction status changed from type ${oldTransaction.status} to type ${newTransaction.status}")
+            logger.info("Transaction status changed from type ${oldTransaction.status} to type ${newTransaction.status}")
         }
     }
 

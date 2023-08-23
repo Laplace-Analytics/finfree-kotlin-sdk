@@ -1,10 +1,8 @@
 package sdk.base.network
 
-import jdk.internal.org.jline.utils.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -240,14 +238,14 @@ class HTTPHandler(
                 val response = client.newCall(request).execute()
 
                 if (response.code == 408 && tryAgainOnTimeout) { // 408 is HTTP timeout
-                    Log.info("Request to $path timed out, trying again.")
+                    logger.info("Request to $path timed out, trying again.")
                      put(path, data, body, additionalHeaders, timeoutSeconds)
                 }
                  response
             }
         } catch (e: TimeoutCancellationException) {
             if (tryAgainOnTimeout) {
-                Log.info("Request to $path timed out, trying again.")
+                logger.info("Request to $path timed out, trying again.")
                 return put(path, data, body, additionalHeaders, timeoutSeconds)
             } else {
                 return Response.Builder()

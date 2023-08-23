@@ -1,7 +1,7 @@
 package sdk.models
 
-import com.sun.tools.sjavac.Log
 import sdk.base.GenericModel
+import sdk.base.logger
 
 enum class Region {
     american,
@@ -126,7 +126,7 @@ fun String.region(): Region {
             "forex" -> AssetType.forex
             "commodity" -> AssetType.commodity
             else -> {
-                Log.info("Cannot get Currency for String: \"$this\"")
+                logger.info("Cannot get Currency for String: \"$this\"")
                 AssetType.stock
             }
         }

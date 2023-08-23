@@ -1,6 +1,5 @@
 package sdk.base.network
 
-import jdk.internal.org.jline.utils.Log
 import kotlinx.serialization.json.Json
 import okhttp3.Response
 import sdk.base.logger

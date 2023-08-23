@@ -9,7 +9,6 @@ import sdk.base.network.StreamData
 import java.util.*
 import java.util.stream.Stream
 import io.reactivex.Observable
-import jdk.internal.org.jline.utils.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -31,7 +30,7 @@ class OrderUpdatesListener(private val orderApiProvider: GenericOrderAPIProvider
 
         if (response.responseType != BasicResponseTypes.Success || response.data == null) {
             delay(60000)  // wait for 60 seconds
-            Log.info("Trying to open websocket connection again!")
+            logger.info("Trying to open websocket connection again!")
             openConnection(token)
             delay(1000)
             return
@@ -58,7 +57,7 @@ class OrderUpdatesListener(private val orderApiProvider: GenericOrderAPIProvider
                     CoroutineScope(Dispatchers.IO).launch{
                         closeChannel()
                         delay(15000) // 15 seconds delay
-                        Log.info("Trying to open websocket connection again!")
+                        logger.info("Trying to open websocket connection again!")
                         openConnection(token)
                         delay(1000)
                     }

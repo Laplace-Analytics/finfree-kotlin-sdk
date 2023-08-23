@@ -2,7 +2,6 @@ package sdk.trade
 
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
-import jdk.internal.org.jline.utils.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,7 +35,7 @@ class OrderUpdatesHandler(
                 val sequenceNo = rawData.get("sequence_number") ?: rawData.get("order_id")
                 if ((_orderSequenceNumbers[orderId] ?: -1) <= sequenceNo as Int) {
                     _orderSequenceNumbers[orderId] = sequenceNo
-                    Log.info("Update for order $orderId\n$rawData")
+                    logger.info("Update for order $orderId\n$rawData")
 
                     val orderData = getOrderData(rawData)
                     CoroutineScope(Dispatchers.IO).launch {
