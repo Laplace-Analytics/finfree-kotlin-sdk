@@ -1,5 +1,7 @@
 package sdk.trade
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -11,14 +13,17 @@ class DriveWealthAccountApiProvider(
 ): GenericApiProvider(httpHandler){
 
     suspend fun getDriveWealthStatements(): BasicResponse<List<Map<String, Any>>> {
-        val path:String = "$basePath/account/statements"
+        val path = "$basePath/account/statements"
         val response = httpHandler.get(path = path)
 
         return ApiResponseHandler.handleResponse(
             response,
             onSuccess = {
                 res ->
-                val data = Json.decodeFromString<List<Map<String, Any>>>(res.body!!.string())
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<List<Map<String, Any>>>() {}.type
+
+                val data: List<Map<String, Any>> = Gson().fromJson(responseBodyStr,type)
                 BasicResponse(
                     responseType = BasicResponseTypes.Success,
                     data = data
@@ -37,7 +42,7 @@ class DriveWealthAccountApiProvider(
         val path:String = "$basePath/fund/withdrawal"
         val response = httpHandler.post(
             path = path,
-            body = Json.encodeToString(
+            body = Gson().toJson(
                 mapOf(
                     "amount" to amount,
                     "iban" to iban,
@@ -64,7 +69,11 @@ class DriveWealthAccountApiProvider(
         return ApiResponseHandler.handleResponse(
             response,
             onSuccess = { res ->
-                val data: Map<String, Any>  = Json.decodeFromString(res.body!!.string())
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+
+                val data: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
                 val ibans: List<String> = data["ibans"] as List<String>
                 BasicResponse(
                     responseType = BasicResponseTypes.Success,
@@ -91,7 +100,11 @@ class DriveWealthAccountApiProvider(
         return ApiResponseHandler.handleResponse(
             response,
             onSuccess = { res ->
-                val data: Map<String, Any>  = Json.decodeFromString(res.body!!.string())
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+
+                val data: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
                 BasicResponse(
                     responseType = BasicResponseTypes.Success,
                     data = data["token"] as String
@@ -116,7 +129,11 @@ class DriveWealthAccountApiProvider(
         return ApiResponseHandler.handleResponse(
             response,
             onSuccess = { res ->
-                val data: Map<String, Any>  = Json.decodeFromString(res.body!!.string())
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+
+                val data: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
                 BasicResponse(
                     responseType = BasicResponseTypes.Success,
                     data = data["url"] as String

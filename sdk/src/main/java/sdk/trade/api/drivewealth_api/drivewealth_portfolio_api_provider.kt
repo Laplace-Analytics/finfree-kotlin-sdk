@@ -1,5 +1,7 @@
 package sdk.trade.generic_api
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import sdk.api.StockDataPeriods
@@ -21,10 +23,14 @@ class DriveWealthPortfolioApiProvider(
         return ApiResponseHandler.handleResponse(
             response,
             onSuccess = { res ->
-                val data: Map<String, Any>  = Json.decodeFromString(res.body!!.string())
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+
+                val resultMap: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
                 BasicResponse(
                     responseType = BasicResponseTypes.Success,
-                    data = data
+                    data = resultMap
                 )
             }
         ) as BasicResponse<Map<String, Any>>
@@ -41,10 +47,14 @@ class DriveWealthPortfolioApiProvider(
         return ApiResponseHandler.handleResponse(
             response,
             onSuccess = { res ->
-                val data:List<Map<String,Any>>?  = Json.decodeFromString(res.body!!.string())
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<List<Map<String, Any>>>() {}.type
+
+                val resultMap: List<Map<String, Any>>? = Gson().fromJson(responseBodyStr,type)
                 BasicResponse(
                     responseType = BasicResponseTypes.Success,
-                    data = data ?: emptyList(),
+                    data = resultMap ?: emptyList(),
                     message = null
                 )
             },

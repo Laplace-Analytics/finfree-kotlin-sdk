@@ -1,5 +1,7 @@
 package sdk.api
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.sun.net.httpserver.HttpHandler
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -9,10 +11,9 @@ import sdk.base.network.ApiResponseObject
 import sdk.base.network.GenericApiProvider
 import sdk.base.network.HTTPHandler
 
-class AuthApiProvider(
+ class AuthApiProvider(
     override val httpHandler: HTTPHandler
     ) : GenericApiProvider(httpHandler) {
-
     suspend fun postLogin(identifier: String, password: String): LoginResponse{
         val response = httpHandler.post(
             path = "v3/login",
@@ -26,36 +27,42 @@ class AuthApiProvider(
         return ApiResponseHandler.handleResponse(
             response = response,
             onSuccess = { res ->
-                val responseBody = Json.decodeFromString<Map<String, Any>>(res.body!!.string())
-                val accessToken = responseBody["access_token"] as String
-                val refreshToken = responseBody["refresh_token"] as String
-                val tokenId = responseBody["token_id"] as String
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+
+                val resultMap: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
+
+                val accessToken = resultMap["access_token"] as String
+                val refreshToken = resultMap["refresh_token"] as String
+                val tokenId = resultMap["token_id"] as String
 
                 val data = LoginResponseData(
                     accessToken = accessToken,
                     refreshToken = refreshToken,
                     tokenId = tokenId
                 )
+
                  LoginResponse(
                     data = data,
                     responseType = LoginResponseTypes.SUCCESS,
-                    message = res.body?.string()
+                    message = responseBodyStr
                 )
             },
             onUnauthorized = { res ->
-                val responseBody = try {
-                    Json.decodeFromString<String>(res.body!!.string())
-                } catch (e: Exception) {
-                    null
-                }
+                val responseBodyStr = res.body?.string()
+
                 LoginResponse(
                     responseType = LoginResponseTypes.UNAUTHORIZED,
-                    message = responseBody
+                    message = responseBodyStr
                 )
             },
             onServerError = { res ->
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<String>() {}.type
+
+                val result: String = Gson().fromJson(responseBodyStr,type)
                 val responseBody = try {
-                    Json.decodeFromString<String>(res.body!!.string())
+                    result
                 } catch (e: Exception) {
                     null
                 }
@@ -86,10 +93,15 @@ class AuthApiProvider(
             )
         )
 
+
+
         return ApiResponseHandler.handleResponse(
             response = response,
             onSuccess = { res ->
-                val accessToken = Json.decodeFromString<Map<String, String>>(res.body!!.string())["access_token"] ?: ""
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<Map<String, String>>() {}.type
+                val resultMap: Map<String, String> = Gson().fromJson(responseBodyStr,type)
+                val accessToken = resultMap["access_token"] ?: ""
                 AccessTokenResponse(
                     data = accessToken,
                     responseType = AccessTokenResponseTypes.Success

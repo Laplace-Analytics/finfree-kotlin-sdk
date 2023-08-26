@@ -1,5 +1,7 @@
 package sdk.models.core
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -33,7 +35,7 @@ class AuthorizationHandler(
 
                 storage.save(
                     _authPath,
-                    Json.encodeToString(
+                    Gson().toJson(
                         response.data.toJson()
                     )
                 )
@@ -65,8 +67,11 @@ class AuthorizationHandler(
         val savedLoginDataJson = storage.read(_authPath)
 
         savedLoginDataJson?.let {
-            val savedLoginData: Map<String, Any> = Json.decodeFromString(savedLoginDataJson)
-            val savedLogin = LoginResponseData.fromJson(savedLoginData)
+
+            val type = object : TypeToken<Map<String, Any>>() {}.type
+
+            val data: Map<String, Any> = Gson().fromJson(savedLoginDataJson,type)
+            val savedLogin = LoginResponseData.fromJson(data)
 
             val response = authApiProvider.getAccessToken(
                 refreshToken = savedLogin.refreshToken,

@@ -1,5 +1,7 @@
 package sdk.api
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -24,8 +26,13 @@ class CoreApiProvider(
         return ApiResponseHandler.handleResponse(
             response = response,
             onSuccess = { res ->
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<List<Map<String, Any>>>() {}.type
+
+                val result: List<Map<String, Any>> = Gson().fromJson(responseBodyStr,type)
                 BasicResponse(
-                    data = Json.decodeFromString<List<Map<String, Any>>>(res.body!!.string()),
+                    data = result,
                     responseType = BasicResponseTypes.Success,
                     message = null
                 )
@@ -41,7 +48,7 @@ class CoreApiProvider(
     }
 
     suspend fun getAllStocks(region: Region, secondsSinceEpoch: Int? = null): BasicResponse<List<Map<String, Any>>> {
-        val path = "stock/all/${region.localeString()}"
+        val path = "stock/all/${region.string()}"
         val response = httpHandler.get(
             path = path,
             data = secondsSinceEpoch?.let {
@@ -54,8 +61,13 @@ class CoreApiProvider(
         return ApiResponseHandler.handleResponse(
             response = response,
             onSuccess = { res ->
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<List<Map<String, Any>>>() {}.type
+
+                val result: List<Map<String, Any>> = Gson().fromJson(responseBodyStr,type)
                 BasicResponse(
-                    data = Json.decodeFromString<List<Map<String, Any>>>(res.body!!.string()),
+                    data = result,
                     responseType = BasicResponseTypes.Success,
                     message = null
                 )
@@ -78,8 +90,13 @@ class CoreApiProvider(
         return ApiResponseHandler.handleResponse(
             response = response,
             onSuccess = { res ->
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<List<Any>>() {}.type
+
+                val result: List<Any> = Gson().fromJson(responseBodyStr,type)
                 BasicResponse(
-                    data = Json.decodeFromString<List<Any>>(res.body!!.string()),
+                    data = result,
                     responseType = BasicResponseTypes.Success,
                     message = null
                 )
@@ -95,8 +112,13 @@ class CoreApiProvider(
         return ApiResponseHandler.handleResponse(
             response = response,
             onSuccess = { res ->
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<List<Map<String, Any>>>() {}.type
+
+                val result: List<Map<String, Any>> = Gson().fromJson(responseBodyStr,type)
                 BasicResponse(
-                    data = Json.decodeFromString<List<Map<String, Any>>>(res.body!!.string()),
+                    data = result,
                     responseType = BasicResponseTypes.Success,
                     message = null
                 )
@@ -114,8 +136,13 @@ class CoreApiProvider(
         return ApiResponseHandler.handleResponse(
             response = response,
             onSuccess = { res ->
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+
+                val result: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
                 BasicResponse(
-                    data = Json.decodeFromString<Map<String, Any>>(res.body!!.string()),
+                    data = result,
                     responseType = BasicResponseTypes.Success
                 )
             }
@@ -157,8 +184,13 @@ class CoreApiProvider(
         return ApiResponseHandler.handleResponse(
             response = response,
             onSuccess = { res ->
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+
+                val result: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
                 BasicResponse(
-                    data = Json.decodeFromString<Map<String, Any>>(res.body!!.string()),
+                    data = result,
                     responseType = BasicResponseTypes.Success,
                     message = null
                 )
