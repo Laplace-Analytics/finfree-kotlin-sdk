@@ -3,11 +3,9 @@ package sdk.models.core
 import sdk.models.*
 import sdk.models.core.sessions.DateTime
 import java.time.*
-import java.time.temporal.ChronoUnit
-import java.util.*
 
 fun HourMinuteSecond.getDateTime(date: LocalDateTime? = null): LocalDateTime {
-    val date = date ?: DateTime.now()
+    val date = date ?: LocalDateTime.now()
 
     var weekDaySinceMonday = (hour / 24)
 
@@ -25,6 +23,7 @@ fun HourMinuteSecond.getDateTime(date: LocalDateTime? = null): LocalDateTime {
         minute,
         second
     )
+    println(resultingDateTime)
     return resultingDateTime
 
 }
@@ -106,7 +105,7 @@ class Sessions(
             ).getDateTime(date = date)
         } catch (ex: Exception) {
             return _points.last().getDateTime(
-                date = date?.minus(7, ChronoUnit.DAYS)
+                date = date?.minusDays(7)
             )
         }
     }
@@ -138,27 +137,28 @@ class Sessions(
             ).getDateTime(date = date)
         } catch (ex: Exception) {
             return _points.first().getDateTime(
-                date = date?.plus(7, ChronoUnit.DAYS)
+                date = date?.plusDays(7)
             )
         }
     }
 
     private fun _getLastOpenPoint(): HourMinuteSecond {
-        for (point in _points.reversed()) {
-            if (point is OpenPoint) {
-                return point
+            for (i in _points.size - 1  downTo 0) {
+                if (_points[i] is OpenPoint) {
+                    return _points[i]
+                }
             }
-        }
-        throw DateNotFound()
+            throw DateNotFound()
     }
 
     private fun _getLastClosePoint(): HourMinuteSecond {
-        for (point in _points.reversed()) {
-            if (point is ClosePoint) {
-                return point
+            for (i in _points.size - 1 downTo 0) {
+                if (_points[i] is ClosePoint) {
+                    return _points[i]
+                }
             }
-        }
-        throw DateNotFound()
+            throw DateNotFound()
+
     }
 
     private fun _getRange(hms: HourMinuteSecond): List<HourMinuteSecond> {

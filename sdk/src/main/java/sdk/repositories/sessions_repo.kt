@@ -1,8 +1,5 @@
 package sdk.repositories
 
-import org.threeten.bp.ZoneId
-import org.threeten.bp.ZonedDateTime
-import org.threeten.bp.zone.ZoneRulesProvider
 import sdk.api.CoreApiProvider
 import sdk.base.GenericRepository
 import sdk.base.GenericStorage
@@ -13,7 +10,11 @@ import sdk.models.core.ClosePoint
 import sdk.models.core.HourMinuteSecond
 import sdk.models.core.OpenPoint
 import sdk.models.core.Sessions
+import sdk.models.core.sessions.DateTime
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.zone.ZoneRulesProvider
 
 typealias GetLocalTimezone = suspend () -> String
 
@@ -37,8 +38,6 @@ open class SessionsRepo(
                 return null
             }
 
-            ZoneRulesProvider.getAvailableZoneIds()//control
-            ZoneId.systemDefault()//uygulma baslatildigina AnroidThreeTen.init(this) cagirilmali!!
 
             val sessions = processRawData(mapOf("data" to response.data))
             return sessions
@@ -62,16 +61,18 @@ open class SessionsRepo(
                 return@forEach
             }
 
-            val zoneId = ZoneId.of(timeZone)
-            val now = ZonedDateTime.now(zoneId)
+            val now = ZonedDateTime.now()
+            val zone = ZoneId.of(timeZone) // Örnek olarak New York zaman dilimi
+            val zonedNow = now.withZoneSameInstant(zone)
             val openHour = timeOpen.substring(0, 2).toIntOrNull()
             val openMinute = timeOpen.substring(3).toIntOrNull()
+            println(openMinute)
             if (openHour == null || openMinute == null) {
                 return@forEach
             }
 
-            val openDate = LocalDateTime.of(now.year, now.monthValue, now.dayOfMonth, openHour, openMinute)
-                .minusDays((now.dayOfWeek.value - 1).toLong())
+            val openDate = zonedNow.with(LocalDateTime.of(now.year, now.monthValue, now.dayOfMonth, openHour, openMinute)
+                .minusDays((now.dayOfWeek.value - 1).toLong()))
 
             val closeHour = timeClose.substring(0, 2).toIntOrNull()
             val closeMinute = timeClose.substring(3).toIntOrNull()
@@ -79,17 +80,18 @@ open class SessionsRepo(
                 return@forEach
             }
 
-            val closeDate = LocalDateTime.of(now.year, now.monthValue, now.dayOfMonth, closeHour, closeMinute)
-                .minusDays((now.dayOfWeek.value - 1).toLong())
+            val closeDate = zonedNow.with(LocalDateTime.of(now.year, now.monthValue, now.dayOfMonth, closeHour, closeMinute)
+                .minusDays((now.dayOfWeek.value - 1).toLong()))
 
-            val openDateConverted = openDate
-            val closeDateConverted = closeDate
+            val openDateConverted = openDate.withZoneSameInstant(ZoneId.systemDefault())
+            val closeDateConverted = closeDate.withZoneSameInstant(ZoneId.systemDefault())
 
             val weekDayToSession = mutableListOf<HourMinuteSecond>()
 
             daysOpen.forEach { day ->
-                weekDayToSession.add(OpenPoint.fromDateTime(openDateConverted.plusDays(day.toLong())))
-                weekDayToSession.add(ClosePoint.fromDateTime(closeDateConverted.plusDays(day.toLong())))
+                weekDayToSession.add(OpenPoint.fromDateTime(openDateConverted.plusDays(day.toLong()).toLocalDateTime()))
+                weekDayToSession.add(ClosePoint.fromDateTime(closeDateConverted.plusDays(day.toLong()).toLocalDateTime()))
+                println(weekDayToSession)
             }
 
             sessions.add(

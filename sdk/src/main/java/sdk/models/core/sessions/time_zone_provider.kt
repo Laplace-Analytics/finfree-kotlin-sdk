@@ -2,7 +2,9 @@ package sdk.models.core.sessions
 
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 
 
 class DateTime {
@@ -18,7 +20,12 @@ class DateTime {
         }
 
         fun fromSinceEpochMilliSecond(epochMilli: Long): LocalDateTime {
-            return LocalDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), ZoneOffset.UTC)
+            val instant = Instant.ofEpochMilli(epochMilli)
+            val zonedDateTimeUTC = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC"))
+
+            val zonedDateTimeGMTPlus3 = zonedDateTimeUTC.withZoneSameInstant(ZoneId.of("GMT+3"))
+
+            return zonedDateTimeGMTPlus3.toLocalDateTime()
         }
     }
 }
