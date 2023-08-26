@@ -41,7 +41,7 @@ open class AssetCollectionRepo(
     }
 
     override fun getIdentifier(data: List<AssetCollection>): AssetCollectionRepoIdentifier? {
-        throw NotImplementedError()
+        throw NotImplementedError("Not implemented yet")
     }
 
     override fun getPath(identifier: AssetCollectionRepoIdentifier?): String {
