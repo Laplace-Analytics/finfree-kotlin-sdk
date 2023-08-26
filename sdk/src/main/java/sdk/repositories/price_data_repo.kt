@@ -45,7 +45,7 @@ open class PriceDataRepo(
             if (it.isEmpty()) {
                 return emptyList()
             }
-            val date = DateTime.fromSinceEpochMilliSecond(rawData.last()[dateKey] as Long)
+            val date = DateTime.fromSinceEpochMilliSecond((rawData.last()[dateKey] as Double).toLong())
 
             val periodStart = getPeriodStartDate(
                 period,
@@ -53,7 +53,7 @@ open class PriceDataRepo(
                 region,
                 assetClass
             )
-            val firstDateTime = DateTime.fromSinceEpochMilliSecond(rawData.first()[dateKey] as Long)
+            val firstDateTime = DateTime.fromSinceEpochMilliSecond((rawData.first()[dateKey] as Double).toLong())
             val diffInMinutes = Duration.between(firstDateTime, periodStart).toMinutes()
 
             val diff = if (period == StockDataPeriods.Price1W) {
@@ -66,14 +66,14 @@ open class PriceDataRepo(
             var index = 0
 
             return rawData.mapNotNull { dataPoint ->
-                val date = DateTime.fromSinceEpochMilliSecond(dataPoint[dateKey] as Long)
+                val date = DateTime.fromSinceEpochMilliSecond((dataPoint[dateKey] as Double).toLong())
                 index++
                 if (date.isBefore(periodStart) && !isIndex) {
                     null
                 } else {
                     PriceDataPoint(
                         index + diff,
-                        dataPoint[dateKey] as Long,
+                        (dataPoint[dateKey] as Double).toLong(),
                         dataPoint[closeKey] as Double,
                         dataPoint[openKey]?.let { it as? Double }
                             ?: dataPoint[closeKey] as Double,
@@ -182,9 +182,9 @@ open class PriceDataRepo(
 
         val assets = identifier.assets
         val periods = identifier.periods
-        val response = apiProvider.getStockData(
-            locale = identifier.region.string(),
-            assetClass = identifier.assetClass.string(),
+        val response = apiProvider.getStockPriceData(
+            locale = identifier.region,
+            assetClass = identifier.assetClass,
             symbols = assets.map { it.symbol },
             fields = periods
         )
