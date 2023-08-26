@@ -1,11 +1,14 @@
 package sdk.base
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import sdk.base.network.GenericApiProvider
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDateTime
 
 abstract class GenericRepository<T, V, K : GenericApiProvider>(
     open val storageHandler: GenericStorage,
@@ -23,7 +26,10 @@ abstract class GenericRepository<T, V, K : GenericApiProvider>(
         try {
             val data = readData(identifier)
             data?.let { return it }
-        } catch (ex: Exception) {
+        } catch (e: NotImplementedError) {
+            // do nothing
+        }
+        catch (ex: Exception) {
             logger.error("Error reading data from local storage", ex)
         }
 
@@ -31,7 +37,10 @@ abstract class GenericRepository<T, V, K : GenericApiProvider>(
         response?.let {
             try {
                 saveData(it)
-            } catch (ex: Exception) {
+            } catch (e: NotImplementedError) {
+                // do nothing
+            }
+            catch (ex: Exception) {
                 logger.error("Error saving data to local storage", ex)
             }
         }
@@ -43,13 +52,20 @@ abstract class GenericRepository<T, V, K : GenericApiProvider>(
             val path = getPath(identifier)
             val lastUpdated = storageHandler.getLastModified(path)
 
-            if (lastUpdated == null || lastUpdated.isBefore(Instant.now().minus(cacheDuration))) {
+            if (lastUpdated == null || lastUpdated.isBefore(LocalDateTime.now().minus(cacheDuration))) {
                 return null
             }
 
             val data = storageHandler.read(path) ?: return null
-            return getFromJson(Json.decodeFromString(data)) // Replace with appropriate Kotlin JSON parsing method
-        } catch (ex: Exception) {
+            val type = object : TypeToken<Map<String, Any>>() {}.type
+
+            val resultMap: Map<String, Any> = Gson().fromJson(data,type)
+
+            return getFromJson(resultMap) // Replace with appropriate Kotlin JSON parsing method
+        } catch (e: NotImplementedError) {
+            // do nothing
+        }
+        catch (ex: Exception) {
             logger.error("Error reading data from local storage", ex)
         }
         return null
@@ -57,8 +73,11 @@ abstract class GenericRepository<T, V, K : GenericApiProvider>(
 
     suspend fun saveData(data: T) {
         try {
-            storageHandler.save(getPath(getIdentifier(data)), Json.encodeToString(toJson(data))) // Replace with appropriate Kotlin JSON encoding method
-        } catch (ex: Exception) {
+            storageHandler.save(getPath(getIdentifier(data)), Gson().toJson(toJson(data)))
+        } catch (e: NotImplementedError) {
+            // do nothing
+        }
+        catch (ex: Exception) {
             logger.error("Error saving data to local storage", ex)
         }
     }
