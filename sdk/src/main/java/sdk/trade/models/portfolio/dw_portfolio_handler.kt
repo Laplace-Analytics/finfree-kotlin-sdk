@@ -7,7 +7,7 @@ import sdk.base.network.HTTPHandler
 import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
 import sdk.repositories.PriceDataRepo
-import sdk.trade.DriveWealthOrderAPIProvider
+import sdk.trade.api.drivewealth_api.DriveWealthOrderAPIProvider
 import sdk.trade.repositories.drivewealth_repos.DriveWealthOrdersRepository
 import sdk.trade.repositories.drivewealth_repos.DriveWealthUserEquityRepo
 import sdk.trade.repositories.drivewealth_repos.DriveWealthUserPortfolioRepo
