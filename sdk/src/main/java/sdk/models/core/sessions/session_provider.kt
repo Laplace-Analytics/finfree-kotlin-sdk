@@ -17,6 +17,7 @@ class SessionProvider(private val sessionsRepo: SessionsRepo) {
     private val _defaultAsset = AssetClass.equity
 
     private fun _getSession(region: Region, assetClass: AssetClass): Sessions {
+        println(_sessions[assetClass]?.get(region))
         return _sessions[assetClass]?.get(region)
             ?: _sessions[AssetClass.equity]?.get(Region.turkish)
             ?: _sessions.values.first().values.first()
@@ -78,8 +79,11 @@ class SessionProvider(private val sessionsRepo: SessionsRepo) {
             try {
                 val sessions = sessionsRepo.getData(null) ?: throw Exception("Sessions is null")
                 for (session in sessions) {
-                    _sessions.getOrPut(session.assetClass) { mutableMapOf() }[session.region] = session
-                }
+                    _sessions[session.assetClass]?.let {
+                        it[session.region] = session
+                    } ?: run {
+                        _sessions[session.assetClass] = mutableMapOf(session.region to session)
+                    }                }
             } catch (e: Exception) {
                 delay(500L)
             }
