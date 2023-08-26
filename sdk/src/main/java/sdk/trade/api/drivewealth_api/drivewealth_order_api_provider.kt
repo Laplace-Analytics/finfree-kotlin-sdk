@@ -1,5 +1,7 @@
-package sdk.trade
+package sdk.trade.api.drivewealth_api
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -8,6 +10,10 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import sdk.base.network.*
 import sdk.models.AssetSymbol
+import sdk.trade.DeleteOrderResponse
+import sdk.trade.DeleteOrderResponseTypes
+import sdk.trade.GenericOrderAPIProvider
+import java.util.Locale
 import kotlin.math.absoluteValue
 
 class DriveWealthOrderAPIProvider(
@@ -28,12 +34,16 @@ class DriveWealthOrderAPIProvider(
             "quantity" to quantity.absoluteValue.toString()
         )
 
-        val response = httpHandler.post(path = basePath, body = Json.encodeToString(params))
+        val response = httpHandler.post(path = basePath, body = Gson().toJson(params))
 
         return ApiResponseHandler.handleResponse(
             response,
             onSuccess = { res ->
-                val data:Map<String,Any>  = Json.decodeFromString(res.body!!.string())
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+
+                val data: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
                 BasicResponse(
                     responseType = BasicResponseTypes.Success,
                     data = data,
@@ -58,17 +68,22 @@ class DriveWealthOrderAPIProvider(
             "side" to if (quantity.toDouble() > 0) "BUY" else "SELL",
             "quantity" to when {
                 quantity is Int -> quantity.absoluteValue.toString()
-                quantity is Double -> String.format("%.3f", quantity.absoluteValue)
+                quantity is Double -> String.format(Locale.US,"%.3f", quantity.absoluteValue)
                 else -> throw IllegalArgumentException("Unsupported type for quantity")
             }
         )
 
-        val response = httpHandler.post(path = basePath, body = Json.encodeToString(params))
+        val response = httpHandler.post(path = basePath, body = Gson().toJson(params))
+        println(Gson().toJson(params))
 
         return ApiResponseHandler.handleResponse(
             response,
             onSuccess = { res ->
-                val data:Map<String,Any>  = Json.decodeFromString(res.body!!.string())
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+
+                val data: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
                 BasicResponse(
                     responseType = BasicResponseTypes.Success,
                     data = data,
@@ -125,7 +140,11 @@ class DriveWealthOrderAPIProvider(
         return ApiResponseHandler.handleResponse(
             response,
             onSuccess = { res ->
-                val data:Map<String,Any>  = Json.decodeFromString(res.body!!.string())
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+
+                val data: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
                 BasicResponse(
                     responseType = BasicResponseTypes.Success,
                     data = data,
@@ -155,10 +174,15 @@ class DriveWealthOrderAPIProvider(
         return ApiResponseHandler.handleResponse(
             response,
             onSuccess = { res ->
-                val data:List<Map<String,Any>>  = Json.decodeFromString(res.body!!.string())
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<List<Map<String, Any>>>() {}.type
+
+                val result: List<Map<String, Any>> = Gson().fromJson(responseBodyStr,type)
+
                 BasicResponse(
                     responseType = BasicResponseTypes.Success,
-                    data = data,
+                    data = result,
                 )
             },
             onError = { res ->
@@ -226,15 +250,19 @@ class DriveWealthOrderAPIProvider(
             "amountCash" to amount.absoluteValue.toString()
         )
 
-        val response = httpHandler.post(path = basePath, body = Json.encodeToString(params))
+        val response = httpHandler.post(path = basePath, body = Gson().toJson(params))
 
         return ApiResponseHandler.handleResponse(
             response,
             onSuccess = { res ->
-                val data:Map<String,Any>  = Json.decodeFromString(res.body!!.string())
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+
+                val result: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
                 BasicResponse(
                     responseType = BasicResponseTypes.Success,
-                    data = data,
+                    data = result,
                 )
             },
             onError = { res ->
@@ -252,15 +280,18 @@ class DriveWealthOrderAPIProvider(
             "orderType" to  "MARKET",
             "symbol" to  symbol,
             "side" to if (amount > 0) "BUY" else "SELL",
-            "amountCash" to amount.absoluteValue.toString()
+            "amountCash" to amount.absoluteValue
         )
 
-        val response = httpHandler.post(path = basePath, body = Json.encodeToString(params))
+        val response = httpHandler.post(path = basePath, body = Gson().toJson(params))
 
         return ApiResponseHandler.handleResponse(
             response,
             onSuccess = { res ->
-                val data:Map<String,Any>  = Json.decodeFromString(res.body!!.string())
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+
+                val data: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
                 BasicResponse(
                     responseType = BasicResponseTypes.Success,
                     data = data,
@@ -276,8 +307,4 @@ class DriveWealthOrderAPIProvider(
     fun unit8Transformer(input: Flow<ByteArray>): Flow<List<Int>> {
         return input.map { byteArray -> byteArray.map { it.toInt() } }
     }
-
-
-
-
 }
