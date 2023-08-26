@@ -3,10 +3,13 @@ package sdk.base
 import sdk.api.StockDataPeriods
 import sdk.models.Currency
 import sdk.models.currencySuffix
+import sdk.models.string
 import java.text.NumberFormat
+import java.time.Duration
 import java.time.LocalDateTime
 import java.util.Locale
 import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 val decimalLimit = 6
 
@@ -67,11 +70,20 @@ fun formatDouble(
         }
     }
 
-    val format = NumberFormat.getCurrencyInstance(Locale("eu"))
-    format.currency = java.util.Currency.getInstance(currency ?: "")
-    format.maximumFractionDigits = adjustedPrecision
+    val format = NumberFormat.getInstance(Locale("eu","EU"))
 
-    return "${prefix ?: ""} ${format.format(number)} ${suffix ?: ""}".trim()
+
+
+    if (currency != null){
+        format.currency = java.util.Currency.getInstance(currency)
+    }
+    if (adjustedPrecision == 0) {
+        return "${prefix ?: ""} ${number.roundToInt()} ${currency?.let {format.currency.symbol} ?: ""}${suffix ?: ""}".trim()
+    } else {
+        format.maximumFractionDigits = adjustedPrecision
+        format.minimumFractionDigits = adjustedPrecision
+        return "${prefix ?: ""} ${format.format(number)} ${currency?.let {format.currency.symbol} ?: ""}${suffix ?: ""}".trim()
+    }
 
 }
 fun formatCurrencyDouble(
@@ -93,20 +105,23 @@ fun formatCurrencyDouble(
         precision
     }
 
-    val format = NumberFormat.getCurrencyInstance(Locale("eu"))
+    val format = NumberFormat.getInstance(Locale("eu"))
     format.maximumFractionDigits = adjustedPrecision
-    val currencySymbol = "${suffix ?: ""} ${currency?.currencySuffix() ?: ""}"
-    format.currency = java.util.Currency.getInstance(currencySymbol.trim())
-    return "${prefix ?: ""} ${format.format(number)}"
+    format.minimumFractionDigits = adjustedPrecision
+    if (currency != null) {
+        format.currency = java.util.Currency.getInstance(currency.string())
+    }
+
+    return "${prefix ?: ""} ${format.format(number)} ${suffix ?: ""}${currency?.currencySuffix() ?: ""}"
 }
 
 fun formatPriceDouble(
-    number: Double?,
+    number: Double? = null,
     precision: Int = 2,
-    suffix: String?,
-    prefix: String?,
+    suffix: String? = null,
+    prefix: String? = null,
     nullValue: String = "-",
-    currency: Currency?,
+    currency: Currency? = null,
     adjustPrecision: Boolean = false
 ): String {
     if (number == null) {
@@ -140,7 +155,7 @@ fun formatPriceDouble(
     }
 
     for (decimalPoint in 0 until decimalLimit) {
-        val nDecimalPoints = "%.${decimalPoint}f".format(number).toDouble()
+        val nDecimalPoints = "%.${decimalPoint}f".format(Locale.US,number).toDouble()
 
         if (Math.abs((nDecimalPoints - number) / number) < thresholdRatio) {
             return formatCurrencyDouble(
@@ -176,13 +191,15 @@ fun getDoubleFromDynamic(value: Any?): Double? {
 }
 
 fun getOwnedStockCountText(quantity: Number): String {
+    println(quantity.toInt())
+
     return when (quantity) {
         is Int -> quantity.toString()
         is Double -> {
             val precision = when {
-                (quantity - quantity.toInt()).absoluteValue < 0.00001 -> 0
-                (quantity - String.format("%.1f", quantity).toDouble()).absoluteValue < 0.00001 -> 1
-                (quantity - String.format("%.2f", quantity).toDouble()).absoluteValue < 0.00001 -> 1
+                (quantity - quantity.roundToInt()).absoluteValue < 0.00001 -> 0
+                (quantity - String.format(Locale.US,"%.1f", quantity).toDouble()).absoluteValue < 0.00001 -> 1
+                (quantity - String.format(Locale.US,"%.2f", quantity).toDouble()).absoluteValue < 0.00001 -> 1
                 else -> 3
             }
             return formatDouble(quantity, precision = precision)
@@ -205,16 +222,14 @@ fun formatLeaguePrize(prize: Double): String {
     val multiplier: Double
     val suffix: String
 
-    if (prize.toLong().toDouble() == prize) {
+    if (prize.roundToInt().toDouble() == prize) {
         if (prize >= 1000) {
-            if ((prize / 10) == (prize / 10).toLong().toDouble()) {
-                precision = 2
-            } else if ((prize / 10) == (prize / 10).toLong().toDouble()) {
-                precision = 1
-            } else {
-                precision = 0
+            precision = when {
+                (prize / 10) == (prize / 10).roundToInt().toDouble() -> 2
+                (prize / 10) == (prize / 10).roundToInt().toDouble() -> 1
+                else -> 0
             }
-            multiplier = 1.0 / 1000
+            multiplier = 1.0 / 1000.0
             suffix = "b ₺"
         } else {
             precision = 0
@@ -227,9 +242,9 @@ fun formatLeaguePrize(prize: Double): String {
         suffix = "₺"
     }
 
-    val number = formatDouble(prize * multiplier, precision = precision, suffix = "")
+    val number = formatDouble(prize* multiplier, precision = precision, suffix = "")
 
-    return number.substring(0, number.length - 1) + suffix
+    return number.substring(0, number.length) + suffix
 }
 
 fun formatFinancialValue(
@@ -282,7 +297,7 @@ fun turkishToEnglishChars(str: String): String {
 }
 
 fun getAllTimePeriod(start: LocalDateTime, end: LocalDateTime): StockDataPeriods {
-    val difference = start.compareTo(end)
+    val difference = Duration.between(end, start).toDays()
     return when {
         difference < 2 -> StockDataPeriods.Price1D
         difference < 14 -> StockDataPeriods.Price1W
@@ -294,7 +309,7 @@ fun getAllTimePeriod(start: LocalDateTime, end: LocalDateTime): StockDataPeriods
 }
 
 fun getTimePeriod(start: LocalDateTime, end: LocalDateTime): StockDataPeriods {
-    val difference = start.compareTo(end)
+    val difference = Duration.between(end, start).toDays()
     return when {
         difference < 1 -> StockDataPeriods.Price1D
         difference < 7 -> StockDataPeriods.Price1W
