@@ -93,20 +93,20 @@ class FinfreeSDK {
         fun initSDK(
             getLocalTimezone: GetLocalTimezone,
             storage: GenericStorage,
-            notifyListeners: () -> Unit,
-            showOrderUpdatedMessage: (OrderData) -> Any
+            portfolioHandler: PortfolioHandler
         ) {
             _storage = storage
+            _portfolioHandler = portfolioHandler
             authorizationHandler = AuthorizationHandler(storage,baseHttpHandler)
 
-            initializeCoreRepos(storage, getLocalTimezone)
+            initializeCoreRepos(getLocalTimezone)
             _assetProvider = AssetProvider(assetRepo = coreRepos.assetRepo, assetCollectionRepo = coreRepos.assetCollectionRepo)
             _sessionProvider = SessionProvider(sessionsRepo = coreRepos.sessionsRepo)
 
             _initialized = true
         }
 
-        private fun initializeCoreRepos(storage: GenericStorage, getLocalTimezone: GetLocalTimezone) {
+        private fun initializeCoreRepos(getLocalTimezone: GetLocalTimezone) {
             val coreApiProvider = CoreApiProvider(baseHttpHandler)
             coreRepos = CoreRepos(
                 assetRepo = AssetRepo(storage, coreApiProvider),
@@ -172,7 +172,6 @@ class FinfreeSDK {
             livePriceDataEnabled: Boolean,
             notifyListeners: () -> Unit,
             showOrderUpdatedMessage:  (OrderData) -> Any,
-            ordersDBHandler: OrdersDBHandler
         ) {
             val ordersDBHandler = MockOrdersDBHandler(_assetProvider!!)
 
