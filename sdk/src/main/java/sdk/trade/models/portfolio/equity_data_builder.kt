@@ -31,7 +31,7 @@ class EquityDataBuilder private constructor(
 ) {
 
     companion object {
-        fun EquityDataBuilder(
+        fun createEquityDataBuilder(
             orders: List<OrderData>,
             // bonuses: List<BonusData>,
             balance: Double,
