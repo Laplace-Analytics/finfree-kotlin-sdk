@@ -7,7 +7,9 @@ import sdk.api.CoreApiProvider
 import sdk.api.StockDataApiProvider
 import sdk.base.GenericStorage
 import sdk.base.exceptions.CoreDataNotInitializedException
+import sdk.base.exceptions.InvalidPortfolioTypeException
 import sdk.base.exceptions.NotAuthorizedException
+import sdk.base.exceptions.PortfolioHandlerNotInitializedException
 import sdk.base.exceptions.SDKNotInitializedException
 import sdk.base.network.HTTPHandler
 import sdk.models.Region
@@ -17,6 +19,7 @@ import sdk.trade.models.portfolio.PortfolioHandler
 import sdk.trade.models.portfolio.PortfolioProvider
 import sdk.base.network.NetworkConfig as network_config
 
+typealias PortfolioType = String
 class FinfreeSDK {
 
     companion object {
@@ -36,35 +39,32 @@ class FinfreeSDK {
         private var _coreInitialized = false
         val coreInitialized get() = _coreInitialized
 
+
+
         private lateinit var authorizationHandler: AuthorizationHandler
 
-        private var _portfolioHandler: PortfolioHandler? = null
+        private var _portfolioHandlers: Map<PortfolioType, PortfolioHandler>? = null
 
-        val portfolioHandler: PortfolioHandler
-            get() {
-                if (_portfolioHandler == null) {
-                    throw SDKNotInitializedException()
+        fun portfolioHandler(portfolioType: PortfolioType): PortfolioHandler {
+            _portfolioHandlers?.let {
+                if (!it.containsKey(portfolioType)) {
+                    throw InvalidPortfolioTypeException(portfolioType)
+                } else if (it[portfolioType] == null) {
+                    throw PortfolioHandlerNotInitializedException()
                 }
-                return _portfolioHandler!!
-            }
+                return it[portfolioType]!!
+            } ?: throw PortfolioHandlerNotInitializedException()
+        }
 
-        val portfolioProvider: PortfolioProvider
-            get() {
 
-                if (portfolioHandler.portfolioProvider == null) {
-                    throw SDKNotInitializedException()
-                }
-                return portfolioHandler.portfolioProvider!!
-            }
+        fun portfolioProvider(portfolioType: PortfolioType): PortfolioProvider =
+            portfolioHandler(portfolioType).portfolioProvider
 
-        val ordersDataHandler: OrdersDataHandler
-            get() {
+        fun ordersDataHandler(portfolioType: PortfolioType): OrdersDataHandler =
+            portfolioHandler(portfolioType).ordersDataHandler
+        fun orderHandler(portfolioType: PortfolioType): OrderHandler =
+            portfolioHandler(portfolioType).orderHandler
 
-                if (portfolioHandler.ordersDataHandler == null) {
-                    throw SDKNotInitializedException()
-                }
-                return portfolioHandler.ordersDataHandler!!
-            }
 
         private var _assetProvider: AssetProvider? = null
         private var _sessionProvider: SessionProvider? = null
@@ -87,16 +87,15 @@ class FinfreeSDK {
 
         private lateinit var coreRepos: CoreRepos
 
-        val orderHandler: OrderHandler
-            get() = portfolioHandler.orderHandler
+
 
         fun initSDK(
             getLocalTimezone: GetLocalTimezone,
             storage: GenericStorage,
-            portfolioHandler: PortfolioHandler
+            portfolioHandlers: Map<PortfolioType, PortfolioHandler>
         ) {
             _storage = storage
-            _portfolioHandler = portfolioHandler
+            _portfolioHandlers = portfolioHandlers
             authorizationHandler = AuthorizationHandler(storage,baseHttpHandler)
 
             initializeCoreRepos(getLocalTimezone)
@@ -119,21 +118,23 @@ class FinfreeSDK {
             notifyListeners: () -> Unit,
             showOrderUpdatedMessage: (OrderData) -> Any,
             ordersDBHandler: OrdersDBHandler,
-            storage: GenericStorage
         ) {
             val stockDataApiProvider = StockDataApiProvider(baseHttpHandler, "stock")
             val priceDataRepo = PriceDataRepo(storage, stockDataApiProvider, sessionProvider, assetProvider)
 
-            portfolioHandler.init(
-                notifyListeners = notifyListeners,
-                showOrderUpdatedMessage = showOrderUpdatedMessage,
-                ordersDBHandler = ordersDBHandler,
-                storage = storage,
-                assetProvider = assetProvider,
-                sessionProvider = sessionProvider,
-                priceDataRepo = priceDataRepo,
-                token = _accessToken!!
-            )
+            _portfolioHandlers?.keys?.forEach { portfolioType ->
+                portfolioHandler(portfolioType).init(
+                    notifyListeners = notifyListeners,
+                    showOrderUpdatedMessage = showOrderUpdatedMessage,
+                    ordersDBHandler = ordersDBHandler,
+                    storage = storage,
+                    assetProvider = assetProvider,
+                    sessionProvider = sessionProvider,
+                    priceDataRepo = priceDataRepo,
+                    token = _accessToken!!
+                )
+            }
+
         }
 
         suspend fun userLogin(identifier: String, password: String): AuthenticationResponse {
@@ -173,13 +174,12 @@ class FinfreeSDK {
             notifyListeners: () -> Unit,
             showOrderUpdatedMessage:  (OrderData) -> Any,
         ) {
-            val ordersDBHandler = MockOrdersDBHandler(_assetProvider!!)
+            val ordersDBHandler = MockOrdersDBHandler(assetProvider)
 
             initializePortfolioHandler(
                 notifyListeners = notifyListeners,
                 showOrderUpdatedMessage = showOrderUpdatedMessage,
                 ordersDBHandler = ordersDBHandler,
-                storage = storage
             )
 
 
@@ -188,12 +188,16 @@ class FinfreeSDK {
             if (!coreInitialized) throw CoreDataNotInitializedException()
 
             // TODO insert DB id
-            ordersDataHandler.ordersDBHandler.initDatabase("dbID")
-            portfolioProvider.getUserPortfolio()
-            portfolioProvider.getUserEquityData(
-                ordersDataHandler.getDailyOrders(),
-                true
-            )
+            _portfolioHandlers?.keys?.forEach { portfolioType ->
+                // TODO insert DB id
+                    ordersDataHandler(portfolioType).ordersDBHandler.initDatabase("dbID")
+                    portfolioProvider(portfolioType).getUserPortfolio()
+                    portfolioProvider(portfolioType).getUserEquityData(
+                        ordersDataHandler(portfolioType).getDailyOrders(),
+                        true
+                    )
+            }
+
         }
         val baseHttpHandler: HTTPHandler = HTTPHandler(httpURL = network_config.baseEndpoint)
         fun setAccessToken(accessToken: AccessToken) {
