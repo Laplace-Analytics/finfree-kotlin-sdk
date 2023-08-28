@@ -12,7 +12,9 @@ import sdk.trade.OrderStatus
 import sdk.trade.OrderType
 import sdk.trade.repositories.repos.OrdersRepository
 import sdk.trade.repositories.repos.PaginatedOrdersFilter
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 
 class DriveWealthOrdersRepository(
     storageHandler: GenericStorage,
@@ -54,7 +56,8 @@ class DriveWealthOrdersRepository(
 
         val remainingQuantity = quantity - executedQuantity
 
-        val placed = json["created_at"]?.let { LocalDateTime.parse(it as String) }
+        val placed = json["created_at"]?.let { val instant = Instant.parse(it as String)
+            instant.atZone(ZoneId.systemDefault()).toLocalDateTime() }
             ?: throw Exception("Placed date was null: $json")
 
         return OrderData(
@@ -70,7 +73,8 @@ class DriveWealthOrdersRepository(
             remainingQuantity = remainingQuantity,
             limitPrice = getDoubleFromDynamic(json["order_price"]),
             placed = placed,
-            executed = json["order_date"]?.let { LocalDateTime.parse(it as String) }
+            executed = json["order_date"]?.let { val instant = Instant.parse(it as String)
+                instant.atZone(ZoneId.systemDefault()).toLocalDateTime() }
         )
     }
 
