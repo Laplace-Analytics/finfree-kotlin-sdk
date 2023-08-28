@@ -247,7 +247,7 @@ class DriveWealthOrderAPIProvider(
             "orderType" to  "MARKET",
             "symbol" to  symbol,
             "side" to if (amount > 0) "BUY" else "SELL",
-            "amountCash" to amount.absoluteValue.toString()
+            "amountCash" to amount.absoluteValue
         )
 
         val response = httpHandler.post(path = basePath, body = Gson().toJson(params))
