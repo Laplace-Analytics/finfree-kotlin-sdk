@@ -2,14 +2,17 @@ import sdk.base.GenericStorage
 import sdk.models.Region
 import sdk.models.core.AuthenticationResponseTypes
 import sdk.models.core.FinfreeSDK
+import sdk.models.core.PortfolioType
 import sdk.trade.models.portfolio.DWPortfolioHandler
 import java.time.LocalDateTime
 
-suspend fun initSDK() {
+suspend fun initSDK(portfolioType: PortfolioType) {
     FinfreeSDK.initSDK(
         storage = MockStorage(),
         getLocalTimezone = suspend { "Europe/Istanbul" },
-        portfolioHandler = DWPortfolioHandler(driveWealthUATURL)
+        portfolioHandlers = mapOf(
+            portfolioType to DWPortfolioHandler(driveWealthUATURL)
+        )
     )
 
     if (!FinfreeSDK.initialized) {
