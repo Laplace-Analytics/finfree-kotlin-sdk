@@ -13,3 +13,5 @@ class NotAuthorizedException : InitializationException("SDK not authorized for u
 class CoreDataNotInitializedException : InitializationException("Core data not initialized, should call FinfreeSDK.initializeCoreData() first")
 
 class PortfolioHandlerNotInitializedException : InitializationException("Portfolio handler not initialized, should call FinfreeSDK.initializePortfolioHandler() first")
+
+class InvalidPortfolioTypeException(type: String) : InitializationException("Invalid portfolio type provided, no portfolio provider with type $type found")
