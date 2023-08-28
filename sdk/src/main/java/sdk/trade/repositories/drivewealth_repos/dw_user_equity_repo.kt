@@ -9,7 +9,7 @@ import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
 import sdk.repositories.PriceDataRepo
 import sdk.trade.generic_api.DriveWealthPortfolioApiProvider
-import sdk.trade.models.portfolio.EquityDataBuilder.Companion.EquityDataBuilder
+import sdk.trade.models.portfolio.EquityDataBuilder.Companion.createEquityDataBuilder
 import sdk.trade.models.portfolio.PortfolioSpecificDetails
 import sdk.trade.models.portfolio.USDPortfolioDetails
 import sdk.trade.models.portfolio.UserEquityData
@@ -57,7 +57,7 @@ class DriveWealthUserEquityRepo(
         val goodFaithViolationCount = data["good_faith_violation_count"] as? Int
         val patternDayTraderViolationCount = data["pattern_day_trades_violation_count"] as? Int
 
-        val eq = EquityDataBuilder(
+        val eq = createEquityDataBuilder(
             orders = identifier.orderData,
             balance = usdBalance,
             priceDataRepo = priceDataRepo,
