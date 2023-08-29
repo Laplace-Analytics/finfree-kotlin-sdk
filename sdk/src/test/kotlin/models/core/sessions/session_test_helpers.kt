@@ -198,7 +198,16 @@ val sessionsString = listOf(
         "points" to listOf(
             mapOf("hour" to 0, "minute" to 0, "second" to 0, "type" to "open"),
             mapOf("hour" to 23, "minute" to 59, "second" to 0, "type" to "close"),
-            // ... (the rest of the points)
+            mapOf("hour" to 24, "minute" to 0, "second" to 0, "type" to "open"),
+            mapOf("hour" to 47, "minute" to 59, "second" to 0, "type" to "close"),
+            mapOf("hour" to 48, "minute" to 0, "second" to 0, "type" to "open"),
+            mapOf("hour" to 71, "minute" to 59, "second" to 0, "type" to "close"),
+            mapOf("hour" to 72, "minute" to 0, "second" to 0, "type" to "open"),
+            mapOf("hour" to 95, "minute" to 59, "second" to 0, "type" to "close"),
+            mapOf("hour" to 96, "minute" to 0, "second" to 0, "type" to "open"),
+            mapOf("hour" to 119, "minute" to 59, "second" to 0, "type" to "close"),
+            mapOf("hour" to 120, "minute" to 0, "second" to 0, "type" to "open"),
+            mapOf("hour" to 143, "minute" to 59, "second" to 0, "type" to "close"),
             mapOf("hour" to 144, "minute" to 0, "second" to 0, "type" to "open"),
             mapOf("hour" to 167, "minute" to 59, "second" to 0, "type" to "close")
         )
@@ -209,7 +218,12 @@ val sessionsString = listOf(
         "points" to listOf(
             mapOf("hour" to 10, "minute" to 0, "second" to 0, "type" to "open"),
             mapOf("hour" to 18, "minute" to 0, "second" to 0, "type" to "close"),
-            // ... (the rest of the points)
+            mapOf("hour" to 34, "minute" to 0, "second" to 0, "type" to "open"),
+            mapOf("hour" to 42, "minute" to 0, "second" to 0, "type" to "close"),
+            mapOf("hour" to 58, "minute" to 0, "second" to 0, "type" to "open"),
+            mapOf("hour" to 66, "minute" to 0, "second" to 0, "type" to "close"),
+            mapOf("hour" to 82, "minute" to 0, "second" to 0, "type" to "open"),
+            mapOf("hour" to 90, "minute" to 0, "second" to 0, "type" to "close"),
             mapOf("hour" to 106, "minute" to 0, "second" to 0, "type" to "open"),
             mapOf("hour" to 114, "minute" to 0, "second" to 0, "type" to "close")
         )
