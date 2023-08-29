@@ -359,6 +359,11 @@ fun String.slug(): String {
     return str.replace(Regex("[^a-z0-9 -]"), "").replace(Regex("\\s+"), "-").replace(Regex("-+"), "-")
 }
 
+fun mod(a: Int, b: Int): Int {
+    val result = a % b
+    return if (result < 0) result + b else result
+}
+
 
 
 
