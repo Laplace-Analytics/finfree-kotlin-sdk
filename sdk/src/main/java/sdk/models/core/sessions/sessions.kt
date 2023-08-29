@@ -1,5 +1,6 @@
 package sdk.models.core
 
+import sdk.base.mod
 import sdk.models.*
 import sdk.models.core.sessions.DateTime
 import java.time.*
@@ -13,7 +14,7 @@ fun HourMinuteSecond.getDateTime(date: LocalDateTime? = null): LocalDateTime {
         weekDaySinceMonday++
     }
 
-    val realHour = hour % 24
+    val realHour = mod(hour,24)
 
     val resultingDateTime = LocalDateTime.of(
         date.year,
@@ -23,7 +24,6 @@ fun HourMinuteSecond.getDateTime(date: LocalDateTime? = null): LocalDateTime {
         minute,
         second
     )
-    println(resultingDateTime)
     return resultingDateTime
 
 }
@@ -77,6 +77,7 @@ class Sessions(
         }
     }
     fun getPreviousClosestActiveDate(date: LocalDateTime? = null): LocalDateTime {
+
         return try {
             val hourMinuteSecond = HourMinuteSecond.fromDateTime(date ?: DateTime.now())
             val range = _getRange(hourMinuteSecond)
@@ -276,7 +277,7 @@ class ClosePoint(hour: Int, minute: Int, second: Int) : HourMinuteSecond(hour, m
 
     companion object {
         fun fromDateTime(date: LocalDateTime): HourMinuteSecond {
-            val weekdayValue = date.dayOfWeek.value // 1 (Monday) to 7 (Sunday)
+            val weekdayValue = date.dayOfWeek.value
             val hour = date.hour + ((weekdayValue - 1) * 24)
             return HourMinuteSecond(hour, date.minute, date.second)
         }
