@@ -101,7 +101,7 @@ class SessionTests{
             //zamanda sıkıntı var
             val cDate = HourMinuteSecond(hour = 18, minute = 30, second = 0)
             val date = cDate.getDateTime()
-            val now = LocalDateTime.of(2023, 8, 26, 18, 30, 0)
+            val now = LocalDateTime.of(2023, 8, 28, 18, 30, 0)
             assertEquals(LocalDateTime.of(now.year, now.monthValue, now.dayOfMonth, cDate.hour, cDate.minute, cDate.second), date)
         }
 
@@ -140,9 +140,8 @@ fun sessionsTest(sessions: Sessions) {
 
     val dateGetter = DateGetter.create(sessions.assetClass, sessions.region)
 
-    repeat(100) {
+    for (i in 0 until 100) {
         val date = LocalDateTime.of(randomDate.year, randomDate.monthValue, randomDate.dayOfMonth, randomGenerator.nextInt(23), randomGenerator.nextInt(59))
-
         val comp = compareToMarketHours(date, sessions.region)
         when (date.dayOfWeek) {
             DayOfWeek.MONDAY -> {
