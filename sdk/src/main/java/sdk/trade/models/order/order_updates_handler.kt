@@ -1,5 +1,7 @@
 package sdk.trade
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
 import kotlinx.coroutines.CoroutineScope
@@ -20,12 +22,15 @@ class OrderUpdatesHandler(
 ) {
     private val orderStream = BehaviorSubject.create<OrderData>()
     private val _orderSequenceNumbers = mutableMapOf<OrderId, Int>()
-    private var _subscription: Disposable? = null
+    private var _subscription: Disposable
 
     init {
         _subscription = orderUpdatesListener.listen(onData = { value ->
             try {
-                val rawData : MutableMap<String, Any> = Json.decodeFromString(value)
+
+                val type = object : TypeToken<MutableMap<String, Any>>() {}.type
+
+                val rawData: MutableMap<String, Any> = Gson().fromJson(value,type)
                 val orderId:OrderId = OrderId.fromValue(
                     rawData.get("order_number")
                         ?: rawData.get("dw_order_id")
@@ -51,7 +56,8 @@ class OrderUpdatesHandler(
             } catch (ex: Exception) {
                 logger.error("Could not update the order data: $value\n $ex")
             }
-        })
+        },
+        )
     }
 
     private fun getOrderData(rawData: MutableMap<String, Any>): OrderData? {
