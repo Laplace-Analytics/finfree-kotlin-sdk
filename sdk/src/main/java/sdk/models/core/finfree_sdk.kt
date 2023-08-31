@@ -39,6 +39,9 @@ class FinfreeSDK {
         private var _coreInitialized = false
         val coreInitialized get() = _coreInitialized
 
+        val baseHttpHandler: HTTPHandler = HTTPHandler(httpURL = network_config.baseEndpoint)
+
+
 
 
         private lateinit var authorizationHandler: AuthorizationHandler
@@ -88,6 +91,12 @@ class FinfreeSDK {
         private lateinit var coreRepos: CoreRepos
 
 
+        fun setAccessToken(accessToken: AccessToken) {
+            _accessToken = accessToken
+            baseHttpHandler.token = accessToken
+        }
+
+
 
         fun initSDK(
             getLocalTimezone: GetLocalTimezone,
@@ -121,6 +130,7 @@ class FinfreeSDK {
         ) {
             val stockDataApiProvider = StockDataApiProvider(baseHttpHandler, "stock")
             val priceDataRepo = PriceDataRepo(storage, stockDataApiProvider, sessionProvider, assetProvider)
+
 
             _portfolioHandlers?.keys?.forEach { portfolioType ->
                 portfolioHandler(portfolioType).init(
@@ -181,8 +191,7 @@ class FinfreeSDK {
                 showOrderUpdatedMessage = showOrderUpdatedMessage,
                 ordersDBHandler = ordersDBHandler,
             )
-
-
+            println("ben buraya geldim")
             if (!initialized) throw SDKNotInitializedException()
             if (!authorized) throw NotAuthorizedException()
             if (!coreInitialized) throw CoreDataNotInitializedException()
@@ -198,11 +207,6 @@ class FinfreeSDK {
                     )
             }
 
-        }
-        val baseHttpHandler: HTTPHandler = HTTPHandler(httpURL = network_config.baseEndpoint)
-        fun setAccessToken(accessToken: AccessToken) {
-            _accessToken = accessToken
-            baseHttpHandler.token = accessToken
         }
     }
 }
