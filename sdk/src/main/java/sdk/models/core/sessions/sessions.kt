@@ -15,15 +15,9 @@ fun HourMinuteSecond.getDateTime(date: LocalDateTime? = null): LocalDateTime {
     }
 
     val realHour = mod(hour,24)
+    val daysToAdd = weekDaySinceMonday - date.dayOfWeek.value
+    val resultingDateTime = date.plusDays(daysToAdd.toLong()).withHour(realHour).withMinute(minute).withSecond(second).withNano(0)
 
-    val resultingDateTime = LocalDateTime.of(
-        date.year,
-        date.month,
-        date.dayOfMonth + (weekDaySinceMonday - date.dayOfWeek.value),
-        realHour,
-        minute,
-        second
-    )
     return resultingDateTime
 
 }
