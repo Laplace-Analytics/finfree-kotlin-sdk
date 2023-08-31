@@ -8,12 +8,57 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import sdk.base.network.ApiResponseHandler
 import sdk.base.network.ApiResponseObject
+import sdk.base.network.BasicResponse
+import sdk.base.network.BasicResponseTypes
 import sdk.base.network.GenericApiProvider
 import sdk.base.network.HTTPHandler
 
  class AuthApiProvider(
     override val httpHandler: HTTPHandler
     ) : GenericApiProvider(httpHandler) {
+
+     suspend fun getAccountData(
+         requestedFields: List<String> = listOf(
+             "username",
+             "email",
+             "phone",
+             "first_name",
+             "last_name",
+             "referral_code",
+             "referral_points",
+             "referred_code",
+             "referred_users",
+             "account_id",
+             "dw_account_id",
+             "dw_account_no"
+         )
+     ): BasicResponse<Map<String, Any>> {
+
+         val path = "account"
+         val data = mapOf("fields" to requestedFields.joinToString(","))
+
+         val response = httpHandler.get(
+             path = path,
+             data = data,
+             tryAgainOnTimeout = true
+         )
+
+         return ApiResponseHandler.handleResponse(
+             response = response,
+             onSuccess = { res ->
+
+                 val responseBodyStr = res.body?.string() ?: ""
+                 val type = object : TypeToken<Map<String, Any>>() {}.type
+
+                 val data: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
+                 BasicResponse(
+                     data = data,
+                     responseType = BasicResponseTypes.Success,
+                     message = null
+                 )
+             }
+         ) as BasicResponse<Map<String, Any>>
+     }
     suspend fun postLogin(identifier: String, password: String): LoginResponse{
         val response = httpHandler.post(
             path = "v3/login",

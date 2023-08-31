@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import sdk.api.AccessTokenResponse
@@ -15,6 +16,8 @@ import sdk.api.AuthApiProvider
 import sdk.api.LoginResponse
 import sdk.api.LoginResponseData
 import sdk.api.LoginResponseTypes
+import sdk.base.network.BasicResponse
+import sdk.base.network.BasicResponseTypes
 import sdk.base.network.HTTPHandler
 import sdk.models.core.sessions.DateTime
 import java.util.Base64
@@ -68,44 +71,81 @@ class AuthenticationApiProviderTests {
             assertNotNull(decodedJWTToken["username"])
         }
     }
-    @Test
-    fun `successScenario`() {
-        runBlocking {
-            val loginResponse = authApiProvider.postLogin("test44", "1234qwer")
-            testLoginResponses.add(loginResponse)
+    @Nested
+    inner class GetAccessTokenTest{
+        @Test
+        fun `successScenario`() {
+            runBlocking {
+                val loginResponse = authApiProvider.postLogin("test44", "1234qwer")
+                testLoginResponses.add(loginResponse)
 
-            if (loginResponse.responseType != LoginResponseTypes.SUCCESS) {
-                fail("Could not login to Finfree Account")
+                if (loginResponse.responseType != LoginResponseTypes.SUCCESS) {
+                    fail("Could not login to Finfree Account")
+                }
+
+                val loginData = loginResponse.data!!
+                val accessTokenResponse = authApiProvider.getAccessToken(
+                    refreshToken = loginData.refreshToken,
+                    tokenId = loginData.tokenId
+                )
+                testAccessTokenResponses.add(accessTokenResponse)
+
+                assertEquals(AccessTokenResponseTypes.Success, accessTokenResponse.responseType)
+                assertTrue(accessTokenResponse.data is String)
+                assertNotNull(accessTokenResponse.data)
+                val decodedJWTToken = decodeToken(accessTokenResponse.data ?: "")
+                assertNotNull(decodedJWTToken["username"])
             }
 
-            val loginData = loginResponse.data!!
-            val accessTokenResponse = authApiProvider.getAccessToken(
-                refreshToken = loginData.refreshToken,
-                tokenId = loginData.tokenId
-            )
-            testAccessTokenResponses.add(accessTokenResponse)
-
-            assertEquals(AccessTokenResponseTypes.Success, accessTokenResponse.responseType)
-            assertTrue(accessTokenResponse.data is String)
-            assertNotNull(accessTokenResponse.data)
-            val decodedJWTToken = decodeToken(accessTokenResponse.data ?: "")
-            assertNotNull(decodedJWTToken["username"])
         }
 
+        @Test
+        fun `wrongOrExpiredTokenScenario`() {
+            runBlocking {
+
+                val accessTokenResponse = authApiProvider.getAccessToken(
+                    refreshToken = "wrongOrExpiredRefreshToken",
+                    tokenId = "tokenId"
+                )
+                testAccessTokenResponses.add(accessTokenResponse)
+                assertEquals(AccessTokenResponseTypes.ClientError, accessTokenResponse.responseType)
+                assertNull(accessTokenResponse.data)
+
+                val loginResponse = authApiProvider.postLogin("test44", "1234qwer")
+                testLoginResponses.add(loginResponse)
+
+                if (loginResponse.responseType != LoginResponseTypes.SUCCESS) {
+                    fail("Could not login to Finfree Account")
+                }
+
+                val loginData = loginResponse.data!!
+                val accessTokenResponse2 = authApiProvider.getAccessToken(
+                    refreshToken = loginData.refreshToken,
+                    tokenId = loginData.tokenId
+                )
+                testAccessTokenResponses.add(accessTokenResponse2)
+                assertEquals(AccessTokenResponseTypes.Success, accessTokenResponse2.responseType)
+                assertNotNull(accessTokenResponse2.data)
+
+                val decodedJWTToken = decodeToken(accessTokenResponse2.data ?: "")
+                val accessTokenExpireDate = DateTime.fromSinceEpochMilliSecond((decodedJWTToken["exp"] as Double * 1000).toLong())
+                assertNotNull(decodedJWTToken["username"])
+                assertTrue(accessTokenExpireDate.isAfter(DateTime.now()))
+            }
+        }
     }
+    @Nested
+    inner class GetAccountDataTest{
+        @Test
+        fun `Fetch without token scenario`() = runBlocking {
+            val getAccountDataResponse: BasicResponse<Map<String, Any>> = authApiProvider.getAccountData()
 
-    @Test
-    fun `wrongOrExpiredTokenScenario`() {
-        runBlocking {
+            assertEquals(BasicResponseTypes.Error, getAccountDataResponse.responseType)
+            assertNull(getAccountDataResponse.data)
+        }
 
-            val accessTokenResponse = authApiProvider.getAccessToken(
-                refreshToken = "wrongOrExpiredRefreshToken",
-                tokenId = "tokenId"
-            )
-            testAccessTokenResponses.add(accessTokenResponse)
-            assertEquals(AccessTokenResponseTypes.ClientError, accessTokenResponse.responseType)
-            assertNull(accessTokenResponse.data)
-
+        @Test
+        fun `Success scenario`() = runBlocking {
             val loginResponse = authApiProvider.postLogin("test44", "1234qwer")
             testLoginResponses.add(loginResponse)
 
@@ -114,18 +154,11 @@ class AuthenticationApiProviderTests {
             }
 
             val loginData = loginResponse.data!!
-            val accessTokenResponse2 = authApiProvider.getAccessToken(
-                refreshToken = loginData.refreshToken,
-                tokenId = loginData.tokenId
-            )
-            testAccessTokenResponses.add(accessTokenResponse2)
-            assertEquals(AccessTokenResponseTypes.Success, accessTokenResponse2.responseType)
-            assertNotNull(accessTokenResponse2.data)
+            baseHttpHandler.token = loginData.accessToken
+            val getAccountDataResponse: BasicResponse<Map<String, Any>> = authApiProvider.getAccountData()
 
-            val decodedJWTToken = decodeToken(accessTokenResponse2.data ?: "")
-            val accessTokenExpireDate = DateTime.fromSinceEpochMilliSecond((decodedJWTToken["exp"] as Double * 1000).toLong())
-            assertNotNull(decodedJWTToken["username"])
-            assertTrue(accessTokenExpireDate.isAfter(DateTime.now()))
+            assertEquals(BasicResponseTypes.Success, getAccountDataResponse.responseType)
+            assertNotNull(getAccountDataResponse.data)
         }
     }
 }
