@@ -55,11 +55,14 @@ data class AssetCollection(
 
     companion object {
         fun fromJson(json: Map<String, Any>, type: CollectionType): AssetCollection {
-            val stocks = (json["stocks"] as? List<Any>)?.mapNotNull { it as? String } ?: emptyList()
             return AssetCollection(
                 id = json["id"] as CollectionId,
                 title = json["title"] as String,
-                stocks = stocks,
+                stocks = if (json["stocks"] == null || json["stocks"] !is List<*>) {
+                    emptyList()
+                } else {
+                    (json["stocks"] as List<*>).map { it.toString() }
+                },
                 type = type,
                 region = if (json["region"] is String) (json["region"] as String).region() else null,
                 assetClass = (json["asset_class"] as String).assetClass(),
@@ -80,7 +83,6 @@ data class AssetCollection(
         assetClass?.let { json["asset_class"] = it.string() }
         imageUrl?.let { json["image_url"] = it }
         description?.let { json["description"] = it }
-
         return json
     }
 }
