@@ -98,7 +98,6 @@ class SessionTests{
     inner class SessionBasicUnitTests{
         @Test
         fun `getDateTime extension`() {
-            //zamanda sıkıntı var
             val cDate = HourMinuteSecond(hour = 18, minute = 30, second = 0)
             val date = cDate.getDateTime()
             val now = LocalDateTime.of(2023, 8, 28, 18, 30, 0)
@@ -140,7 +139,7 @@ fun sessionsTest(sessions: Sessions) {
 
     val dateGetter = DateGetter.create(sessions.assetClass, sessions.region)
 
-    for (i in 0 until 100) {
+    repeat(100) {
         val date = LocalDateTime.of(randomDate.year, randomDate.monthValue, randomDate.dayOfMonth, randomGenerator.nextInt(23), randomGenerator.nextInt(59))
         val comp = compareToMarketHours(date, sessions.region)
         when (date.dayOfWeek) {
