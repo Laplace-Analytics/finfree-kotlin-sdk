@@ -71,8 +71,8 @@ class OrderUpdatesListener(private val orderApiProvider: GenericOrderAPIProvider
 
     fun listen(
         onData: (String) -> Unit,
-        onError: ((Throwable) -> Unit)? = null,
-        onComplete: (() -> Unit)? = null,
+        onError: ((Throwable) -> Unit)? = { error -> logger.error("An error occurred", error) },
+        onComplete: (() -> Unit)?  = { logger.info("Stream completed.") }
     ): Disposable {
         return stream.subscribe(
             onData,
