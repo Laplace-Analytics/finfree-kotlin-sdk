@@ -65,7 +65,7 @@ data class AssetCollection(
                 },
                 type = type,
                 region = if (json["region"] is String) (json["region"] as String).region() else null,
-                assetClass = (json["asset_class"] as String).assetClass(),
+                assetClass = if (json["asset_class"] is String)(json["asset_class"] as String).assetClass() else null,
                 imageUrl = json["image_url"] as String?,
                 description = json["description"] as String?
             )
