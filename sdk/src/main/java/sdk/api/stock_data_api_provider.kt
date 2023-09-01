@@ -79,14 +79,14 @@ class StockDataApiProvider(
                 val type = object : TypeToken<List<Map<String, Any>>>() {}.type
 
                 val result: List<Map<String, Any>> = Gson().fromJson(responseBodyStr,type)
-                BasicResponse(
+                StockStatisticsResponse(
                     data = result,
                     responseType = BasicResponseTypes.Success,
                     message = null
                 )
             },
             onError = { res ->
-                BasicResponse(
+                StockStatisticsResponse(
                     data = null,
                     responseType = BasicResponseTypes.Error,
                     message = "${res.body} - ${res.code} - ${res.request} - ${res.message}"
@@ -110,14 +110,14 @@ class StockDataApiProvider(
                 val type = object : TypeToken<Map<String, Any>>() {}.type
 
                 val data: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
-                BasicResponse(
+                CryptoStatisticsResponse(
                     data = data,
                     responseType = BasicResponseTypes.Success,
                     message = null
                 )
             },
             onError = { res ->
-                BasicResponse(
+                CryptoStatisticsResponse(
                     data = null,
                     responseType = BasicResponseTypes.Error,
                     message = "${res.body} - ${res.code} - ${res.request} - ${res.message}"
