@@ -22,7 +22,6 @@ class AssetProviderTests {
     private lateinit var assetProvider: AssetProvider
     private lateinit var coreApiProvider: CoreApiProvider
     private lateinit var assetRepo: AssetRepo
-    private lateinit var assetCollectionRepo: AssetCollectionRepo
 
     @BeforeEach
     fun setup() {
@@ -30,8 +29,7 @@ class AssetProviderTests {
         authApiProvider = AuthApiProvider(baseHttpHandler)
         coreApiProvider = CoreApiProvider(baseHttpHandler)
         assetRepo = AssetRepo(MockStorage(),coreApiProvider)
-        assetCollectionRepo = AssetCollectionRepo(MockStorage(),coreApiProvider)
-        assetProvider = AssetProvider(assetRepo = assetRepo, assetCollectionRepo = assetCollectionRepo)
+        assetProvider = AssetProvider(assetRepo = assetRepo)
     }
     @Test
     fun `Basic usage tests`() = runBlocking {
@@ -48,7 +46,6 @@ class AssetProviderTests {
 
         assertTrue(assetProvider.allAssets.isNotEmpty())
         assertEquals(true, assetProvider.initialized)
-        assertTrue(assetProvider.allSectors.isNotEmpty())
     }
 
 }

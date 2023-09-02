@@ -33,7 +33,6 @@ class DriveWealthUserPortfolioRepoTests {
     private lateinit var assetProvider: AssetProvider
     private lateinit var coreApiProvider: CoreApiProvider
     private lateinit var assetRepo: AssetRepo
-    private lateinit var assetCollectionRepo: AssetCollectionRepo
     private lateinit var driveWealthHttpHandler: HTTPHandler
     private lateinit var driveWealthPortfolioApiProvider: DriveWealthPortfolioApiProvider
     private lateinit var driveWealthUserPortfolioRepo: DriveWealthUserPortfolioRepo
@@ -46,8 +45,7 @@ class DriveWealthUserPortfolioRepoTests {
         authApiProvider = AuthApiProvider(baseHttpHandler)
         coreApiProvider = CoreApiProvider(baseHttpHandler)
         assetRepo = AssetRepo(MockStorage(),coreApiProvider)
-        assetCollectionRepo = AssetCollectionRepo(MockStorage(),coreApiProvider)
-        assetProvider = AssetProvider(assetRepo = assetRepo, assetCollectionRepo = assetCollectionRepo)
+        assetProvider = AssetProvider(assetRepo = assetRepo)
         driveWealthPortfolioApiProvider = DriveWealthPortfolioApiProvider(driveWealthHttpHandler, "api/v1/tr")
         driveWealthUserPortfolioRepo = DriveWealthUserPortfolioRepo(
             MockStorage(),

@@ -26,7 +26,7 @@ open class AssetCollectionRepo(
             if (response.responseType != BasicResponseTypes.Success || response.data == null) {
                 null
             } else {
-                getFromJson(mapOf("data" to response.data, "type" to identifier.collectionType.string()))
+                getFromJson(mapOf("data" to response.data, "type" to identifier.collectionType))
             }
         } catch (ex: Exception) {
             logger.error("error occured trying to get all stocks", ex)
@@ -36,7 +36,7 @@ open class AssetCollectionRepo(
 
     override fun getFromJson(json: Map<String, Any>): List<AssetCollection> {
         return (json["data"] as List<Map<String, Any>>).map { data ->
-            AssetCollection.fromJson(data, (json["type"] as String).collectionType())
+            AssetCollection.fromJson(data, (json["type"] as CollectionType))
         }
     }
 
@@ -60,12 +60,3 @@ data class AssetCollectionRepoIdentifier(
     val region: Region,
     val collectionType: CollectionType
 )
-
-    private fun String.collectionType(): CollectionType {
-    return when (this) {
-        "industry" -> CollectionType.industry
-        "sector" -> CollectionType.sector
-        "collection" -> CollectionType.collection
-        else -> throw IllegalArgumentException("Unknown collection type: $this")
-    }
-}

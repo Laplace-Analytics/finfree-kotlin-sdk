@@ -11,13 +11,19 @@ enum class CollectionType {
 data class AssetCollection(
     val id: CollectionId,
     val title: String,
-    val stocks: List<String>,
+    val stocks: List<String>? = null,
     val type: CollectionType,
-    val region: Region? = null,
-    val assetClass: AssetClass? = null,
-    val imageUrl: String? = null,
+    val region: Region,
+    val assetClass: AssetClass,
+    val imageUrl: CollectionImageUrl? = null,
     val description: String? = null
 ) : GenericModel {
+    val hasStocks: Boolean
+        get() = stocks != null && stocks.isNotEmpty()
+
+    val hasImage: Boolean
+        get() = imageUrl != null && imageUrl.avatarUrl != null
+
 
     fun copyWith(
         id: CollectionId? = null,
@@ -26,7 +32,7 @@ data class AssetCollection(
         type: CollectionType? = null,
         region: Region? = null,
         assetClass: AssetClass? = null,
-        imageUrl: String? = null,
+        imageUrl: CollectionImageUrl? = null,
         description: String? = null
     ): AssetCollection {
         return AssetCollection(
@@ -41,7 +47,7 @@ data class AssetCollection(
         )
     }
 
-    fun withImageUrl(imageUrl: String): AssetCollection =
+    fun withImageUrl(imageUrl: CollectionImageUrl): AssetCollection =
         AssetCollection(
             id = id,
             title = title,
@@ -54,38 +60,94 @@ data class AssetCollection(
         )
 
     companion object {
-        fun fromJson(json: Map<String, Any>, type: CollectionType): AssetCollection {
+        fun fromShortJson(
+            json: Map<String, Any>,
+            region: Region,
+            assetClass: AssetClass
+        ): AssetCollection {
+            val value = json["value"] as Map<String, Any>
+
             return AssetCollection(
-                id = json["id"] as CollectionId,
+                id = json["id"] as String,
+                title = value["title"] as String,
+                imageUrl = CollectionImageUrl.fromJson(value),
+                type = (json["type"] as String).collectionType(),
+                region = region,
+                assetClass = assetClass
+            )
+        }
+        fun fromJson(json: Map<String, Any>, type: CollectionType): AssetCollection {
+            val region = if (json["region"] is String) (json["region"] as String).region() else null
+            val assetClass = if (json["asset_class"] is String) (json["asset_class"] as String).assetClass() else null
+
+            if (region == null || assetClass == null) {
+                throw Exception("Invalid region or asset class: $region, $assetClass")
+            }
+
+            val stocks = if (json["stocks"] == null || json["stocks"] !is List<*>) null else
+                (json["stocks"] as List<String>).map { it }
+
+            return AssetCollection(
+                id = json["id"] as String,
                 title = json["title"] as String,
-                stocks = if (json["stocks"] == null || json["stocks"] !is List<*>) {
-                    emptyList()
-                } else {
-                    (json["stocks"] as List<*>).map { it.toString() }
-                },
+                stocks = stocks,
                 type = type,
-                region = if (json["region"] is String) (json["region"] as String).region() else null,
-                assetClass = if (json["asset_class"] is String)(json["asset_class"] as String).assetClass() else null,
-                imageUrl = json["image_url"] as String?,
-                description = json["description"] as String?
+                region = region,
+                assetClass = assetClass,
+                imageUrl = CollectionImageUrl.fromJson(json),
+                description = json["description"] as String
             )
         }
     }
+    override fun toJson(): Map<String, Any> {
+        val resultMap: MutableMap<String, Any> = mutableMapOf(
+            "id" to id,
+            "title" to title,
+            "type" to type.string(),
+            "region" to region.string(),
+            "asset_class" to assetClass.string(),
+            "description" to description as String
+        )
 
-    override fun toJson(): MutableMap<String, Any> {
-        val json = mutableMapOf<String, Any>()
+        stocks?.let { resultMap["stocks"] = it }
+        imageUrl?.let { resultMap["image_url"] = it.toJson() }
 
-        json["id"] = id
-        json["title"] = title
-        json["stocks"] = stocks.map { it }
-        json["type"] = type.string()
-        region?.let { json["region"] = it.string() }
-        assetClass?.let { json["asset_class"] = it.string() }
-        imageUrl?.let { json["image_url"] = it }
-        description?.let { json["description"] = it }
-        return json
+        return resultMap
     }
 }
+
+class CollectionImageUrl(
+    val imageUrl: String?,
+    private val _downScaledImageUrl: String?,
+    private val _avatarUrl: String?
+) {
+    val avatarUrl: String?
+        get() = _avatarUrl ?: _downScaledImageUrl ?: imageUrl
+
+    val downScaledImageUrl: String?
+        get() = _downScaledImageUrl ?: imageUrl
+
+    fun toJson(): Map<String, Any?> {
+        return mapOf(
+            "image_url" to imageUrl,
+            "downscaled_image_url" to _downScaledImageUrl,
+            "avatar_url" to _avatarUrl
+        )
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any?>?): CollectionImageUrl {
+            json ?: throw Exception("CollectionImageUrl.fromJson: json is null")
+
+            return CollectionImageUrl(
+                json["image_url"]?.takeIf { it is String && it.isNotEmpty() } as? String,
+                json["downscaled_image_url"]?.takeIf { it is String && it.isNotEmpty() } as? String,
+                json["avatar_url"]?.takeIf { it is String && it.isNotEmpty() } as? String
+            )
+        }
+    }
+}
+
 
 
 fun CollectionType.string(): String {
@@ -95,6 +157,16 @@ fun CollectionType.string(): String {
         CollectionType.collection -> "collection"
     }
 }
+
+fun String.collectionType(): CollectionType {
+    return when (this) {
+        "industry" -> CollectionType.industry
+        "sector" -> CollectionType.sector
+        "collection" -> CollectionType.collection
+        else -> throw IllegalArgumentException("Unknown collection type: $this")
+    }
+}
+
 
 typealias CollectionId = String
 typealias SectorId = CollectionId

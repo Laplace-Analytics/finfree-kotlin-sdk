@@ -108,7 +108,7 @@ class FinfreeSDK {
             authorizationHandler = AuthorizationHandler(storage,baseHttpHandler)
 
             initializeCoreRepos(getLocalTimezone)
-            _assetProvider = AssetProvider(assetRepo = coreRepos.assetRepo, assetCollectionRepo = coreRepos.assetCollectionRepo)
+            _assetProvider = AssetProvider(assetRepo = coreRepos.assetRepo)
             _sessionProvider = SessionProvider(sessionsRepo = coreRepos.sessionsRepo)
 
             _initialized = true
@@ -118,7 +118,6 @@ class FinfreeSDK {
             val coreApiProvider = CoreApiProvider(baseHttpHandler)
             coreRepos = CoreRepos(
                 assetRepo = AssetRepo(storage, coreApiProvider),
-                assetCollectionRepo = AssetCollectionRepo(storage, coreApiProvider),
                 sessionsRepo = SessionsRepo(storage, coreApiProvider, getLocalTimezone)
             )
         }
@@ -213,7 +212,6 @@ class FinfreeSDK {
 
 private data class CoreRepos(
     val assetRepo: AssetRepo,
-    val assetCollectionRepo: AssetCollectionRepo,
     val sessionsRepo: SessionsRepo)
 
 
