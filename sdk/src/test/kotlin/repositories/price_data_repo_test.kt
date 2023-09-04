@@ -35,7 +35,6 @@ class PriceDataRepoTests {
     private lateinit var stockDataApiProvider: StockDataApiProvider
     private lateinit var sessionProvider: SessionProvider
     private lateinit var assetProvider: AssetProvider
-    private lateinit var  assetCollectionRepo: AssetCollectionRepo
     private lateinit var priceDataRepo: PriceDataRepo
     private lateinit var sessionsRepo: SessionsRepo
 
@@ -65,7 +64,6 @@ class PriceDataRepoTests {
             }
         }
         assetRepo = AssetRepo(MockStorage(), coreApiProvider)
-        assetCollectionRepo = AssetCollectionRepo(MockStorage(), coreApiProvider)
         sessionsRepo = SessionsRepo(
             MockStorage(),
             coreApiProvider,
@@ -74,7 +72,7 @@ class PriceDataRepoTests {
         }
         stockDataApiProvider = StockDataApiProvider(baseHttpHandler, "stock")
         sessionProvider = SessionProvider(sessionsRepo = sessionsRepo)
-        assetProvider = AssetProvider(assetRepo = assetRepo, assetCollectionRepo = assetCollectionRepo)
+        assetProvider = AssetProvider(assetRepo = assetRepo)
         priceDataRepo = PriceDataRepo(MockStorage(), stockDataApiProvider, sessionProvider, assetProvider)
 
     }

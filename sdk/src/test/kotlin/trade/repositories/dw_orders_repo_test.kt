@@ -25,7 +25,6 @@ class DriveWealthOrdersRepoTests {
     private lateinit var assetProvider: AssetProvider
     private lateinit var coreApiProvider: CoreApiProvider
     private lateinit var assetRepo: AssetRepo
-    private lateinit var assetCollectionRepo: AssetCollectionRepo
     private lateinit var driveWealthHttpHandler: HTTPHandler
     private lateinit var driveWealthOrdersRepo: DriveWealthOrdersRepository
     private lateinit var driveWealthOrderAPIProvider: DriveWealthOrderAPIProvider
@@ -37,8 +36,7 @@ class DriveWealthOrdersRepoTests {
         authApiProvider = AuthApiProvider(baseHttpHandler)
         coreApiProvider = CoreApiProvider(baseHttpHandler)
         assetRepo = AssetRepo(MockStorage(),coreApiProvider)
-        assetCollectionRepo = AssetCollectionRepo(MockStorage(),coreApiProvider)
-        assetProvider = AssetProvider(assetRepo = assetRepo, assetCollectionRepo = assetCollectionRepo)
+        assetProvider = AssetProvider(assetRepo = assetRepo)
         driveWealthOrderAPIProvider = DriveWealthOrderAPIProvider(driveWealthHttpHandler, "api/v1/tr/order")
         driveWealthOrdersRepo = DriveWealthOrdersRepository(MockStorage(), driveWealthOrderAPIProvider, assetProvider)
     }

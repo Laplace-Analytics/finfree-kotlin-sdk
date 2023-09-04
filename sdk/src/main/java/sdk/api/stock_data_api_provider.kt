@@ -6,6 +6,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import sdk.base.network.*
 import sdk.models.AssetClass
+import sdk.models.AssetId
 import sdk.models.AssetSymbol
 import sdk.models.Region
 import sdk.models.string
@@ -54,9 +55,9 @@ class StockDataApiProvider(
     suspend fun getStockStatistics(
         locale: Region,
         assetClass: AssetClass,
-        symbols: List<String>,
+        symbols: List<AssetSymbol>,
         fields: List<StockStatistics>
-    ): BasicResponse<List<Map<String, Any>>> {
+    ): StockStatisticsResponse<List<Map<String, Any>>> {
         val path = "$basePath/${assetClass.string()}/${locale.string()}"
         val fieldList = fields.map { it.slug }.toMutableList()
         if (fieldList.contains(StockDataPeriods.Price1D.period) && assetClass != AssetClass.crypto) {
@@ -78,25 +79,25 @@ class StockDataApiProvider(
                 val type = object : TypeToken<List<Map<String, Any>>>() {}.type
 
                 val result: List<Map<String, Any>> = Gson().fromJson(responseBodyStr,type)
-                BasicResponse(
+                StockStatisticsResponse(
                     data = result,
                     responseType = BasicResponseTypes.Success,
                     message = null
                 )
             },
             onError = { res ->
-                BasicResponse(
+                StockStatisticsResponse(
                     data = null,
                     responseType = BasicResponseTypes.Error,
                     message = "${res.body} - ${res.code} - ${res.request} - ${res.message}"
                 )
             }
-        ) as BasicResponse<List<Map<String, Any>>>
+        ) as StockStatisticsResponse<List<Map<String, Any>>>
     }
 
     suspend fun getCryptoStatistics(
         symbol: AssetSymbol
-    ): BasicResponse<Map<String, Any>> {
+    ): CryptoStatisticsResponse<Map<String, Any>> {
         val path = "$basePath/stats/${AssetClass.crypto.string()}/$symbol"
 
         val response = httpHandler.get(path = path,tryAgainOnTimeout = false)
@@ -108,24 +109,85 @@ class StockDataApiProvider(
                 val responseBodyStr = res.body?.string() ?: ""
                 val type = object : TypeToken<Map<String, Any>>() {}.type
 
-                val result: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
-                BasicResponse(
-                    data = result,
+                val data: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
+                CryptoStatisticsResponse(
+                    data = data,
                     responseType = BasicResponseTypes.Success,
                     message = null
                 )
             },
             onError = { res ->
-                BasicResponse(
+                CryptoStatisticsResponse(
                     data = null,
                     responseType = BasicResponseTypes.Error,
                     message = "${res.body} - ${res.code} - ${res.request} - ${res.message}"
                 )
             }
-        ) as BasicResponse<Map<String, Any>>
+        ) as CryptoStatisticsResponse<Map<String, Any>>
     }
 
+    suspend fun getSimilarlyTradedStocks(symbol: AssetSymbol): SimilarlyStocksResponse<List<Map<String, Any>>> {
+        val path = "stocks/similar/$symbol"
+
+        val response = httpHandler.get(path = path, tryAgainOnTimeout = true)
+
+        return ApiResponseHandler.handleResponse(
+            response = response,
+            onSuccess = { res ->
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<List<Map<String, Any>>>() {}.type
+
+                val data: List<Map<String, Any>> = Gson().fromJson(responseBodyStr,type)
+                SimilarlyStocksResponse(
+                    data = data,
+                    responseType = BasicResponseTypes.Success,
+                    message = null
+                )
+            }
+        ) as SimilarlyStocksResponse<List<Map<String, Any>>>
+    }
+
+    suspend fun getStockDetail(id: AssetId): BasicResponse<Map<String, Any>> {
+        val path = "stock/detail/$id"
+
+        val response = httpHandler.get(path = path)
+
+        return ApiResponseHandler.handleResponse<Map<String, Any>>(
+            response = response,
+            onSuccess = { res ->
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+
+                val data: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
+                BasicResponse(
+                    data = data,
+                    responseType = BasicResponseTypes.Success,
+                    message = null
+                )
+            }
+        ) as BasicResponse<Map<String, Any>>
+    }
 }
+
+class SimilarlyStocksResponse<T>(
+    override val data: T? = null,
+    override val responseType: BasicResponseTypes,
+    override val message: String? = null
+) : ApiResponseObject<T, BasicResponseTypes>
+
+class StockStatisticsResponse<T>(
+    override val data: T? = null,
+    override val responseType: BasicResponseTypes,
+    override val message: String? = null
+) : ApiResponseObject<T, BasicResponseTypes>
+
+class CryptoStatisticsResponse<T>(
+    override val data: T? = null,
+    override val responseType: BasicResponseTypes,
+    override val message: String? = null
+) : ApiResponseObject<T, BasicResponseTypes>
 
 enum class StockStatistics(val slug: String) {
     peRatio("fk"),
