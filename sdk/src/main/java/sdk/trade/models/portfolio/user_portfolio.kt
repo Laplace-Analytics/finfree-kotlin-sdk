@@ -45,7 +45,7 @@ class UserPortfolio(
         fun fromJSON(json: Map<String, Any>, assetProvider: AssetProvider): UserPortfolio {
             val ownedStocks = mutableMapOf<AssetId, PortfolioAssetData>()
 
-            val positions = json["positions"] as List<Map<String, Any>>
+            val positions: List<Map<String, Any>> = (json["positions"] as? List<Map<String, Any>>)?.toList() ?: emptyList()
 
             for (element in positions) {
                 val reformattedJSON = mapOf(
