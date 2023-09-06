@@ -200,7 +200,6 @@ class CoreApiProviderTest {
 
             val secondsSinceEpoch = LocalDateTime.now().minusDays(1).second.toLong()
 
-            println(secondsSinceEpoch)
 
             val getAllStocksResponse = coreApiProvider.getAllStocks(
                 Region.turkish,

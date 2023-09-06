@@ -74,7 +74,6 @@ class DriveWealthOrderAPIProvider(
         )
 
         val response = httpHandler.post(path = basePath, body = Gson().toJson(params))
-        println(Gson().toJson(params))
 
         return ApiResponseHandler.handleResponse(
             response,
