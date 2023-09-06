@@ -1,4 +1,4 @@
-package repositories
+package sdk.repositories
 
 import sdk.api.CoreApiProvider
 import sdk.base.GenericRepository
@@ -28,7 +28,7 @@ open class AssetCollectionDetailRepo(
                 return null
             }
 
-            getFromJson(mapOf("data" to response.data!!, "type" to type))
+            getFromJson(mapOf("data" to response.data, "type" to type))
         } catch (e: Exception) {
             logger.error("AssetCollectionRepo.getData exception", e)
             null
@@ -37,7 +37,7 @@ open class AssetCollectionDetailRepo(
 
     override fun getFromJson(json: Map<String, Any>): AssetCollection {
         val typeString = json["type"] as CollectionType
-        return AssetCollection.fromJson(json["data"] as Map<String, Any>, typeString)
+        return AssetCollection.fromJson((json["data"] as Map<String, Any>)["collection"] as Map<String, Any>, typeString)
     }
 
     override fun getIdentifier(data: AssetCollection): AssetCollectionDetailRepoIdentifier? {
