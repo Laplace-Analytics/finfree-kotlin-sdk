@@ -1,6 +1,7 @@
 package sdk.models.data.time_series
 
 import sdk.api.StockDataPeriods
+import sdk.api.getPeriodFromString
 import sdk.models.*
 import sdk.models.core.SessionProvider
 import sdk.models.core.sessions.DateTime.Companion.toEpochMilliSecond
@@ -266,7 +267,7 @@ class UserEquityTimeSeries(
      override fun toJson(): Map<String, Any> {
         return mapOf(
             "data" to data.map { it.toJson() },
-            "period" to period,
+            "period" to period.period,
             "initialValue" to initialValue
         )
     }
@@ -283,10 +284,21 @@ class UserEquityTimeSeries(
         fun fromJSON(json: Map<String, Any>): UserEquityTimeSeries {
             return UserEquityTimeSeries(
                 (json["data"] as List<Map<String, Any>>).map { EquityDataPoint.fromJSON(it) },
-                json["initialValue"] as Double,
-                json["period"] as StockDataPeriods,
+                period = getPeriodFromString(json["period"] as String) ?: StockDataPeriods.Price1D,
+                initialValue = json["initialValue"] as Double,
             )
         }
+    }
+    fun copyWith(
+        data: List<EquityDataPoint>? = this.data,
+        period: StockDataPeriods? = this.period,
+        initialValue: Double? = this.initialValue
+    ): UserEquityTimeSeries {
+        return UserEquityTimeSeries(
+            data = data ?: this.data,
+            period = period ?: this.period,
+            initialValue = initialValue ?: this.initialValue
+        )
     }
 
 
