@@ -28,7 +28,7 @@ suspend fun initSDK(portfolioType: PortfolioType) {
         throw Exception("SDK is not authorized")
     }
 
-    FinfreeSDK.initializeCoreData(setOf(Region.turkish))
+    FinfreeSDK.initializeCoreData(setOf(Region.turkish,Region.american))
 
     if (!FinfreeSDK.coreInitialized) {
         throw Exception("Core is not initialized")
