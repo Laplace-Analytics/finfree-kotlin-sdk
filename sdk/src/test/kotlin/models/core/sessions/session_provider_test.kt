@@ -49,8 +49,6 @@ class SessionProviderTest{
 
         val now = LocalDateTime.now()
         val dayStartDateDefaultValues = sessionProvider.getDayStart()
-        println(dayStartDateDefaultValues.dayOfMonth)
-        println(dayStartDateDefaultValues.hour)
         assertEquals(10, dayStartDateDefaultValues.hour)
         assertEquals(25, dayStartDateDefaultValues.dayOfMonth)
         assertEquals(now.month, dayStartDateDefaultValues.month)
