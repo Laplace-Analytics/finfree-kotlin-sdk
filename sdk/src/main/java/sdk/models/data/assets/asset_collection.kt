@@ -104,7 +104,7 @@ data class AssetCollection(
                 region = region,
                 assetClass = assetClass,
                 imageUrl = CollectionImageUrl.fromJson(json),
-                description = json["description"] as String
+                description = if (json["description"] == null)  null else json["description"] as String
             )
         }
     }
