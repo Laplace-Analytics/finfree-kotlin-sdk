@@ -47,7 +47,7 @@ class CoreApiProvider(
         ) as BasicResponse<List<Map<String, Any>>>
     }
 
-    suspend fun getAllStocks(region: Region, secondsSinceEpoch: Int? = null): BasicResponse<List<Map<String, Any>>> {
+    suspend fun getAllStocks(region: Region, secondsSinceEpoch: Long? = null): BasicResponse<List<Map<String, Any>>> {
         val path = "stock/all/${region.string()}"
         val response = httpHandler.get(
             path = path,

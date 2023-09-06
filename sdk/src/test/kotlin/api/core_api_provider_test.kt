@@ -198,7 +198,7 @@ class CoreApiProviderTest {
             val loginData = loginResponse.data!!
             baseHttpHandler.token = loginData.accessToken
 
-            val secondsSinceEpoch = LocalDateTime.now().minusDays(1).second
+            val secondsSinceEpoch = LocalDateTime.now().minusDays(1).second.toLong()
 
             println(secondsSinceEpoch)
 

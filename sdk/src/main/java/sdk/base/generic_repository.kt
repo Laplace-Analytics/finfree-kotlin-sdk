@@ -47,7 +47,7 @@ abstract class GenericRepository<T, V, K : GenericApiProvider>(
         return response
     }
 
-    suspend fun readData(identifier: V?): T? {
+    open suspend fun readData(identifier: V?): T? {
         try {
             val path = getPath(identifier)
             val lastUpdated = storageHandler.getLastModified(path)
