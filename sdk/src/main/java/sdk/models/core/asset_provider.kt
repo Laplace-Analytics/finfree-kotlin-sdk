@@ -95,7 +95,10 @@ class AssetProvider(
         get() = idsBySymbol.values.fold(
             mutableListOf(),
             { previousValue, element -> previousValue.apply { addAll(element.keys) } }
-        )
+    )
+    fun assetsForRegion(region: Region): Map<String, Asset>? {
+        return assetsById[region]
+    }
 
     val initialized: Boolean
         get() = assetsById.values.fold(
