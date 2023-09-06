@@ -1,9 +1,11 @@
 package sdk.trade
 
 import kotlinx.coroutines.delay
+import sdk.base.logger
 import sdk.base.network.BasicResponse
 import sdk.base.network.BasicResponseTypes
 import sdk.models.Asset
+import java.lang.Exception
 
 class OrderHandler(
     val orderAPIProvider: GenericOrderAPIProvider
@@ -21,17 +23,25 @@ class OrderHandler(
     }
 
     private suspend fun handleOrderResponse(orderResponse: BasicResponse<Map<String, Any>>): OrderResponse {
-        val id = orderResponse.data?.get("orderID") as OrderId
-        val message = orderResponse.message
-        val responseType = orderStatusFromResponse(orderResponse.responseType, message)
+        try {
+            val id = OrderId.fromValue((orderResponse.data ?: emptyMap())["orderID"])
+            val message = orderResponse.message
+            val responseType = orderStatusFromResponse(orderResponse.responseType, message)
 
-        fetchPeriodic()
+            fetchPeriodic()
 
-        return OrderResponse(
-            id = id,
-            responseType = responseType,
-            message = message
-        )
+            return OrderResponse(
+                id = id,
+                responseType = responseType,
+                message = message
+            )
+        }catch (ex:Exception){
+            logger.error("Order response couldn't be handled", ex)
+            return OrderResponse(
+                responseType = OrderStatus.ServerError,
+            )
+        }
+
     }
     suspend fun postMarketOrder(
         quantity: Double,
@@ -93,7 +103,7 @@ class OrderHandler(
 }
 
 data class OrderResponse(
-    val id:OrderId,
+    val id:OrderId? = null,
     val responseType: OrderStatus,
     val message: String? = null
 )
