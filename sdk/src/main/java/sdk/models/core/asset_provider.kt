@@ -8,6 +8,7 @@ import sdk.models.*
 import sdk.repositories.AssetCollectionRepo
 import sdk.repositories.AssetCollectionRepoIdentifier
 import sdk.repositories.AssetRepo
+import sdk.repositories.AssetsRepoIdentifier
 import java.time.Duration
 import java.time.LocalDateTime
 
@@ -94,7 +95,10 @@ class AssetProvider(
         get() = idsBySymbol.values.fold(
             mutableListOf(),
             { previousValue, element -> previousValue.apply { addAll(element.keys) } }
-        )
+    )
+    fun assetsForRegion(region: Region): Map<String, Asset>? {
+        return assetsById[region]
+    }
 
     val initialized: Boolean
         get() = assetsById.values.fold(
@@ -130,7 +134,10 @@ class AssetProvider(
                 }
 
 
-        val stocksJson: List<Asset> = assetRepo.getData(region)
+        val stocksJson: List<Asset> = assetRepo.getData(
+            AssetsRepoIdentifier(
+            region =  region,
+        ),)
             ?: throw Exception("Stocks cannot be fetched for region: $region")
 
 

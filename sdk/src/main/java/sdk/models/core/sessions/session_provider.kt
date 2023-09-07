@@ -17,7 +17,6 @@ class SessionProvider(private val sessionsRepo: SessionsRepo) {
     private val _defaultAsset = AssetClass.equity
 
     private fun _getSession(region: Region, assetClass: AssetClass): Sessions {
-        println(_sessions[assetClass]?.get(region))
         return _sessions[assetClass]?.get(region)
             ?: _sessions[AssetClass.equity]?.get(Region.turkish)
             ?: _sessions.values.first().values.first()

@@ -29,6 +29,53 @@ enum class Currency {
     eur
 }
 
+enum class PortfolioType {
+    RealPortfolio,
+    VirtualPortfolio,
+    DriveWealthPortfolio,
+}
+enum class Content { TrEquity, UsEquity, TrCrypto }
+
+val Asset.contentType: Content?
+    get() = getContentType(region, assetClass)
+
+val Asset.notionalMarketOrderEnabled: Boolean
+    get() = contentType == Content.UsEquity
+
+
+
+fun getContentType(region: Region?, assetClass: AssetClass?): Content? {
+    if (region == null || assetClass == null) {
+        return null
+    }
+    when (region) {
+        Region.turkish -> {
+            when (assetClass) {
+                AssetClass.equity -> return Content.TrEquity
+                AssetClass.crypto -> return Content.TrCrypto
+                AssetClass.forex -> {
+                    // throw Exception("Forex is not supported in Turkey")
+                }
+            }
+        }
+        Region.american -> {
+            when (assetClass) {
+                AssetClass.equity -> return Content.UsEquity
+                AssetClass.crypto -> {
+                    // throw Exception("Crypto is not supported in US")
+                }
+                AssetClass.forex -> {
+                    // throw Exception("Forex is not supported in US")
+                }
+            }
+        }
+        Region.test -> {
+        }
+    }
+    logger.error("Content type is not supported for given region and asset class: $region, $assetClass")
+    return null
+}
+
 fun getMarketType(source:String):Region {
     return Region.turkish
 }

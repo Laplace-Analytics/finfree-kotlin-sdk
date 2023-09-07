@@ -191,7 +191,6 @@ fun getDoubleFromDynamic(value: Any?): Double? {
 }
 
 fun getOwnedStockCountText(quantity: Number): String {
-    println(quantity.toInt())
 
     return when (quantity) {
         is Int -> quantity.toString()

@@ -67,7 +67,7 @@ class DWPortfolioHandler(
         val httpHandler = HTTPHandler(httpURL = endpointUrl)
         httpHandler.token = token
         val portfolioAPIProvider = DriveWealthPortfolioApiProvider(httpHandler, "api/v1/tr")
-        val orderAPIProvider = DriveWealthOrderAPIProvider(httpHandler, "order")
+        val orderAPIProvider = DriveWealthOrderAPIProvider(httpHandler, "/api/v1/tr/order")
 
         _portfolioRepos = PortfolioRepos(
             ordersRepo = DriveWealthOrdersRepository(storage, orderAPIProvider, assetProvider),

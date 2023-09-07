@@ -190,7 +190,6 @@ class FinfreeSDK {
                 showOrderUpdatedMessage = showOrderUpdatedMessage,
                 ordersDBHandler = ordersDBHandler,
             )
-            println("ben buraya geldim")
             if (!initialized) throw SDKNotInitializedException()
             if (!authorized) throw NotAuthorizedException()
             if (!coreInitialized) throw CoreDataNotInitializedException()

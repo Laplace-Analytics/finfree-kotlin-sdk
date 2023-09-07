@@ -17,6 +17,7 @@ import sdk.models.Asset
 import sdk.models.Region
 import sdk.models.string
 import sdk.repositories.AssetRepo
+import sdk.repositories.AssetsRepoIdentifier
 
 class AssetRepoTests {
     private lateinit var authApiProvider: AuthApiProvider
@@ -50,10 +51,20 @@ class AssetRepoTests {
         val loginData = loginResponse.data!!
         baseHttpHandler.token = loginData.accessToken
 
-        val assets: List<Asset>? = assetRepo.fetchData(null)
-        assertEquals(null, assets)
+        val assets: List<Asset>? = assetRepo.getData(
+            AssetsRepoIdentifier(
+                region =  Region.turkish,
+        )
 
-        val assets2: List<Asset>? = assetRepo.fetchData(Region.turkish)
+        )
+        assertNotNull(assets)
+
+        val assets2: List<Asset>? = assetRepo.getData(
+            AssetsRepoIdentifier(
+                region =  Region.american,
+        )
+
+        )
         assertNotNull(assets2)
     }
 
@@ -69,7 +80,11 @@ class AssetRepoTests {
         val assetTestRegionList = regionListWithoutTest
 
         for (region in assetTestRegionList) {
-            val assets: List<Asset>? = assetRepo.fetchData(region)
+            val assets: List<Asset>? = assetRepo.getData(
+                AssetsRepoIdentifier(
+                    region =  region,
+                )
+            )
             if (assets == null || assets.isEmpty()) {
                 logger.error("UNDEFINED OR ERROR REGION FOR GET ALL ASSETS: ${region.string()}")
                 break

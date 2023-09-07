@@ -78,11 +78,20 @@ data class AssetCollection(
         }
         fun fromJson(json: Map<String, Any>, type: CollectionType): AssetCollection {
             val region = if (json["region"] is String) (json["region"] as String).region() else null
-            val assetClass = if (json["asset_class"] is String) (json["asset_class"] as String).assetClass() else null
+            var assetClass = if (json["asset_class"] is String) (json["asset_class"] as String).assetClass() else null
 
-            if (region == null || assetClass == null) {
-                throw Exception("Invalid region or asset class: $region, $assetClass")
+            if (region == null) {
+                throw Exception("Invalid region: $region")
             }
+
+            if (assetClass == null) {
+                if (type == CollectionType.sector || type == CollectionType.industry) {
+                    assetClass = AssetClass.equity
+                } else {
+                    throw Exception("Invalid assetClass or type: $type $assetClass")
+                }
+            }
+
 
             val stocks = if (json["stocks"] == null || json["stocks"] !is List<*>) null else
                 (json["stocks"] as List<String>).map { it }
@@ -95,7 +104,7 @@ data class AssetCollection(
                 region = region,
                 assetClass = assetClass,
                 imageUrl = CollectionImageUrl.fromJson(json),
-                description = json["description"] as String
+                description = if (json["description"] == null)  null else json["description"] as String
             )
         }
     }

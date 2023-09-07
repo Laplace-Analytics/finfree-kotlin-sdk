@@ -1,6 +1,7 @@
 package sdk.models
 
 import sdk.api.StockDataPeriods
+import sdk.api.getPeriodFromString
 import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
 import sdk.models.core.sessions.DateTime
@@ -38,8 +39,8 @@ class PriceDataPoint(index: Int, timeStamp: Long, value: Double, val open: Doubl
             val timeStamp = (data["timestamp"] as Number).toLong()
             val value = data["close"] as Double
             val open = (data["open"] ?: data["close"]) as Double?
-           val low = data["low"] as? Double ?: data["close"] as Double * 0.99
-           val high = data["high"] as? Double ?: data["close"] as Double * 1.01
+           val low = data["low"] as? Double ?: data["close"] as Double
+           val high = data["high"] as? Double ?: data["close"] as Double
             val volume = data["volumeto"] as Int?
             return PriceDataPoint(index, timeStamp, value, open, low, high, volume)
         }
@@ -210,7 +211,7 @@ class PriceDataSeries(
      override fun toJson(): Map<String, Any> {
         return mapOf(
             "asset_id" to asset.id,
-            "period" to period,
+            "period" to period.period,
             "data" to data.map { it.toJson() },
             "initialValue" to initialValue
         )
@@ -222,7 +223,11 @@ class PriceDataSeries(
             val asset = assetProvider.findById(json["asset_id"] as String)
                 ?: throw IllegalArgumentException("Asset with id ${json["asset_id"]} not found")
             val data = (json["data"] as List<Map<String, Any>>).map { PriceDataPoint.fromJson(it) }
-            return PriceDataSeries(data, asset, json["period"] as StockDataPeriods, json["initialValue"] as Double)
+            return PriceDataSeries(
+                data,
+                asset,
+                getPeriodFromString(json["period"] as String) ?: StockDataPeriods.Price1D,
+                json["initialValue"] as Double)
         }
     }
 

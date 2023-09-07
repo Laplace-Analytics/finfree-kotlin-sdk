@@ -66,7 +66,6 @@ open class SessionsRepo(
             val zonedNow = now.withZoneSameInstant(zone)
             val openHour = timeOpen.substring(0, 2).toIntOrNull()
             val openMinute = timeOpen.substring(3).toIntOrNull()
-            println(openMinute)
             if (openHour == null || openMinute == null) {
                 return@forEach
             }
@@ -91,7 +90,6 @@ open class SessionsRepo(
             daysOpen.forEach { day ->
                 weekDayToSession.add(OpenPoint.fromDateTime(openDateConverted.plusDays(day.toLong()).toLocalDateTime()))
                 weekDayToSession.add(ClosePoint.fromDateTime(closeDateConverted.plusDays(day.toLong()).toLocalDateTime()))
-                println(weekDayToSession)
             }
 
             sessions.add(
