@@ -8,6 +8,7 @@ import kotlinx.serialization.json.Json
 import sdk.api.*
 import sdk.base.GenericStorage
 import sdk.base.network.HTTPHandler
+import sdk.models.core.FinfreeSDK.Companion.setAccessToken
 
 class AuthorizationHandler(
     private val storage: GenericStorage,
@@ -69,10 +70,13 @@ class AuthorizationHandler(
             Pair(refreshToken, tokenId)
         } else {
             val savedLoginDataJson = storage.read(_authPath)
-            val type = object : TypeToken<Map<String, Any>>() {}.type
-            val data: Map<String, Any> = Gson().fromJson(savedLoginDataJson, type)
-            val savedLogin = LoginResponseData.fromJson(data)
-            Pair(savedLogin.refreshToken, savedLogin.tokenId)
+            savedLoginDataJson?.let {
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+                val data: Map<String, Any> = Gson().fromJson(savedLoginDataJson, type)
+                val savedLogin = LoginResponseData.fromJson(data)
+                Pair(savedLogin.refreshToken, savedLogin.tokenId)
+            }
+            return AuthenticationResponse(AuthenticationResponseTypes.UnknownError, "Unknown error", null)
         }
 
         val response = authApiProvider.getAccessToken(
@@ -89,7 +93,6 @@ class AuthorizationHandler(
     }
 
 
-    private fun setAccessToken(accessToken: AccessToken) { }
 
 }
 enum class AuthenticationResponseTypes {
