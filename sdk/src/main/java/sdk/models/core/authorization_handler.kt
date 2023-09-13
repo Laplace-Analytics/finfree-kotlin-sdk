@@ -63,31 +63,31 @@ class AuthorizationHandler(
             }
         }
     }
-    suspend fun authenticateWithRefreshToken(): AuthenticationResponse {
-        val savedLoginDataJson = storage.read(_authPath)
+    suspend fun authenticateWithRefreshToken(refreshToken: RefreshToken? = null, tokenId: String? = null): AuthenticationResponse {
 
-        savedLoginDataJson?.let {
-
+        val (refreshTokenToUse, tokenIdToUse) = if (refreshToken != null && tokenId != null) {
+            Pair(refreshToken, tokenId)
+        } else {
+            val savedLoginDataJson = storage.read(_authPath)
             val type = object : TypeToken<Map<String, Any>>() {}.type
-
-            val data: Map<String, Any> = Gson().fromJson(savedLoginDataJson,type)
+            val data: Map<String, Any> = Gson().fromJson(savedLoginDataJson, type)
             val savedLogin = LoginResponseData.fromJson(data)
-
-            val response = authApiProvider.getAccessToken(
-                refreshToken = savedLogin.refreshToken,
-                tokenId = savedLogin.tokenId
-            )
-
-            if(response.data != null){
-                setAccessToken(response.data)
-                return AuthenticationResponse(AuthenticationResponseTypes.Success, null, response.data)
-            }
-
-            return AuthenticationResponse(response.responseType.authenticationResponseType, response.message, null)
+            Pair(savedLogin.refreshToken, savedLogin.tokenId)
         }
 
-        return AuthenticationResponse(AuthenticationResponseTypes.UnknownError, "Unknown error", null)
+        val response = authApiProvider.getAccessToken(
+            refreshToken = refreshTokenToUse.toString(),
+            tokenId = tokenIdToUse.toString()
+        )
+
+        return if (response.data != null) {
+            setAccessToken(response.data)
+            AuthenticationResponse(AuthenticationResponseTypes.Success, null, response.data)
+        } else {
+            AuthenticationResponse(response.responseType.authenticationResponseType, response.message, null)
+        }
     }
+
 
     private fun setAccessToken(accessToken: AccessToken) { }
 
