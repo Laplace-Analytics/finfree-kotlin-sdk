@@ -8,6 +8,7 @@ import kotlinx.serialization.json.Json
 import sdk.api.*
 import sdk.base.GenericStorage
 import sdk.base.network.HTTPHandler
+import sdk.models.core.FinfreeSDK.Companion.setAccessToken
 
 class AuthorizationHandler(
     private val storage: GenericStorage,
@@ -63,33 +64,35 @@ class AuthorizationHandler(
             }
         }
     }
-    suspend fun authenticateWithRefreshToken(): AuthenticationResponse {
-        val savedLoginDataJson = storage.read(_authPath)
+    suspend fun authenticateWithRefreshToken(refreshToken: RefreshToken? = null, tokenId: String? = null): AuthenticationResponse {
 
-        savedLoginDataJson?.let {
-
-            val type = object : TypeToken<Map<String, Any>>() {}.type
-
-            val data: Map<String, Any> = Gson().fromJson(savedLoginDataJson,type)
-            val savedLogin = LoginResponseData.fromJson(data)
-
-            val response = authApiProvider.getAccessToken(
-                refreshToken = savedLogin.refreshToken,
-                tokenId = savedLogin.tokenId
-            )
-
-            if(response.data != null){
-                setAccessToken(response.data)
-                return AuthenticationResponse(AuthenticationResponseTypes.Success, null, response.data)
+        val (refreshTokenToUse, tokenIdToUse) = if (refreshToken != null && tokenId != null) {
+            Pair(refreshToken, tokenId)
+        } else {
+            val savedLoginDataJson = storage.read(_authPath)
+            savedLoginDataJson?.let {
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+                val data: Map<String, Any> = Gson().fromJson(savedLoginDataJson, type)
+                val savedLogin = LoginResponseData.fromJson(data)
+                Pair(savedLogin.refreshToken, savedLogin.tokenId)
             }
-
-            return AuthenticationResponse(response.responseType.authenticationResponseType, response.message, null)
+            return AuthenticationResponse(AuthenticationResponseTypes.UnknownError, "Unknown error", null)
         }
 
-        return AuthenticationResponse(AuthenticationResponseTypes.UnknownError, "Unknown error", null)
+        val response = authApiProvider.getAccessToken(
+            refreshToken = refreshTokenToUse.toString(),
+            tokenId = tokenIdToUse.toString()
+        )
+
+        return if (response.data != null) {
+            setAccessToken(response.data)
+            AuthenticationResponse(AuthenticationResponseTypes.Success, null, response.data)
+        } else {
+            AuthenticationResponse(response.responseType.authenticationResponseType, response.message, null)
+        }
     }
 
-    private fun setAccessToken(accessToken: AccessToken) { }
+
 
 }
 enum class AuthenticationResponseTypes {

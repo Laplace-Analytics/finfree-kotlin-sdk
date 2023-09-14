@@ -4,6 +4,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import sdk.api.AccessToken
 import sdk.api.CoreApiProvider
+import sdk.api.RefreshToken
 import sdk.api.StockDataApiProvider
 import sdk.base.GenericStorage
 import sdk.base.exceptions.CoreDataNotInitializedException
@@ -155,9 +156,9 @@ class FinfreeSDK {
             return response
         }
 
-        suspend fun authenticateWithRefreshToken(): AuthenticationResponse {
+        suspend fun authenticateWithRefreshToken(refreshToken: RefreshToken? = null, tokenId: String? = null): AuthenticationResponse {
             if (!initialized) throw SDKNotInitializedException()
-            val response = authorizationHandler.authenticateWithRefreshToken()
+            val response = authorizationHandler.authenticateWithRefreshToken(refreshToken, tokenId)
             response.accessToken?.let {
                 setAccessToken(response.accessToken)
             }
