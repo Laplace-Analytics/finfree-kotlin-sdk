@@ -29,11 +29,6 @@ enum class Currency {
     eur
 }
 
-enum class PortfolioType {
-    RealPortfolio,
-    VirtualPortfolio,
-    DriveWealthPortfolio,
-}
 enum class Content { TrEquity, UsEquity, TrCrypto }
 
 val Asset.contentType: Content?
