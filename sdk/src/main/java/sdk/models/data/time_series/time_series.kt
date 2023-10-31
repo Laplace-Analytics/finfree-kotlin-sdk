@@ -56,6 +56,10 @@ open class TimeSeries<T : TimeSeriesDataPoint>(var data: List<T>, val initialVal
     val percentChange: Double
         get() = if (absoluteChange == 0.0) 0.0 else absoluteChange / initialValue.absoluteValue * 100
 
+    val lastDataPointTime : LocalDateTime
+        get() = if (data.isEmpty()) LocalDateTime.now() else data.last().time
+
+
     open val currentPrice: Double
         get() = if (data.isNotEmpty()) data.last().value else initialValue
 
