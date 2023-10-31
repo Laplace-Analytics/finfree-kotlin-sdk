@@ -134,13 +134,13 @@ open class AssetRepo(
                 )
 
             if (response.responseType != BasicResponseTypes.Success || response.data == null) {
-                null
+                return null
             } else {
                 getFromJson(mapOf("assets" to response.data, "region" to identifier.region.string()))
             }
         } catch (ex: Exception) {
             logger.error("error occured trying to get all stocks", ex)
-            null
+            return null
         }
     }
 

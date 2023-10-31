@@ -131,6 +131,7 @@ class StockDataApiProviderTests{
     inner class GetCryptoStatisticsTest{
         @Test
         fun `Successful state`() = runBlocking {
+            baseHttpHandler.token = null
             val getCryptoStatisticsResponse = stockDataApiProvider.getCryptoStatistics(symbol = "ETHUSD")
             assertEquals(BasicResponseTypes.Success, getCryptoStatisticsResponse.responseType)
             assertNotNull(getCryptoStatisticsResponse.data)
@@ -138,6 +139,7 @@ class StockDataApiProviderTests{
 
         @Test
         fun `Wrong symbol state`() = runBlocking {
+            baseHttpHandler.token = null
             val getCryptoStatisticsResponse = stockDataApiProvider.getCryptoStatistics(symbol = "THYAO")
             assertEquals(BasicResponseTypes.Error, getCryptoStatisticsResponse.responseType)
             assertNull(getCryptoStatisticsResponse.data)
@@ -149,6 +151,7 @@ class StockDataApiProviderTests{
 
         @Test
         fun `Request with bearer token`() = runBlocking {
+            baseHttpHandler.token = null
             val loginResponse = authApiProvider.postLogin("test44", "1234qwer")
             if (loginResponse.responseType != LoginResponseTypes.SUCCESS) {
                 fail("Could not login to Finfree Account")
@@ -279,10 +282,81 @@ class StockDataApiProviderTests{
             assertNotNull(getStockStatisticsResponse.data)
             assertTrue(getStockStatisticsResponse.data?.any { it.containsKey(StockStatistics.peRatio.slug) } == true)
         }
+    }
 
+    @Nested
+    inner class GetAggregatedPriceDataTest {
+        @Test
+        fun `Successful state`() = runBlocking {
+            baseHttpHandler.token = null
+            val getAggregatedPriceDataResponse = stockDataApiProvider.getAggregatedPriceData(
+                symbols = listOf("THYAO"),
+                period = StockDataPeriods.Price1D,
+                region = Region.turkish,
+                assetClass = AssetClass.equity
+            )
 
+            assertEquals(BasicResponseTypes.Success, getAggregatedPriceDataResponse.responseType)
+            assertNotNull(getAggregatedPriceDataResponse.data)
+            assertTrue((getAggregatedPriceDataResponse.data!!["graph"] as List<*>).isNotEmpty())
 
+            baseHttpHandler.token = null
+            val getAggregatedPriceDataResponse2 = stockDataApiProvider.getAggregatedPriceData(
+                symbols = listOf("AAPL"),
+                period = StockDataPeriods.Price1D,
+                region = Region.american,
+                assetClass = AssetClass.equity
+            )
 
+            assertEquals(BasicResponseTypes.Success, getAggregatedPriceDataResponse2.responseType)
+            assertNotNull(getAggregatedPriceDataResponse2.data)
+            assertTrue((getAggregatedPriceDataResponse2.data!!["graph"] as List<*>).isNotEmpty())
+        }
+
+        @Test
+        fun `Wrong region state`() = runBlocking {
+            baseHttpHandler.token = null
+            val getAggregatedPriceDataResponse = stockDataApiProvider.getAggregatedPriceData(
+                symbols = listOf("THYAO"),
+                period = StockDataPeriods.Price1D,
+                region = Region.american,
+                assetClass = AssetClass.equity
+            )
+            assertEquals(BasicResponseTypes.Error, getAggregatedPriceDataResponse.responseType)
+            assertNull(getAggregatedPriceDataResponse.data)
+        }
+
+        @Test
+        fun `Wrong symbol state`() = runBlocking {
+            baseHttpHandler.token = null
+            val getAggregatedPriceDataResponse = stockDataApiProvider.getAggregatedPriceData(
+                symbols = listOf("THY"),
+                period = StockDataPeriods.Price1D,
+                region = Region.turkish,
+                assetClass = AssetClass.equity
+            )
+            assertEquals(BasicResponseTypes.Error, getAggregatedPriceDataResponse.responseType)
+            assertNull(getAggregatedPriceDataResponse.data)
+        }
+
+        @Test
+        fun `Request with bearer token`() = runBlocking {
+            val loginResponse = authApiProvider.postLogin("test44", "1234qwer")
+            if (loginResponse.responseType != LoginResponseTypes.SUCCESS) {
+                fail("Could not login to Finfree Account")
+            }
+            val loginData = loginResponse.data!!
+            baseHttpHandler.token = loginData.accessToken
+            val getAggregatedPriceDataResponse = stockDataApiProvider.getAggregatedPriceData(
+                symbols = listOf("SISE"),
+                period = StockDataPeriods.Price1D,
+                region = Region.turkish,
+                assetClass = AssetClass.equity
+            )
+            assertEquals(BasicResponseTypes.Success, getAggregatedPriceDataResponse.responseType)
+            assertNotNull(getAggregatedPriceDataResponse.data)
+            assertTrue((getAggregatedPriceDataResponse.data!!["graph"] as List<*>).isNotEmpty())
+        }
     }
 
 }

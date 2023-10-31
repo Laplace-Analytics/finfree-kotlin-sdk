@@ -59,11 +59,12 @@ class PriceDataPoint(index: Int, timeStamp: Long, value: Double, val open: Doubl
     }
 }
 
-class PriceDataSeries(
+open class PriceDataSeries(
     data: List<PriceDataPoint>,
     val asset: Asset,
     val period: StockDataPeriods,
-    previousClose: Double
+    previousClose: Double,
+    val lastUpdated: LocalDateTime
 ) : TimeSeries<PriceDataPoint>(data, previousClose) {
     init {
         findMinMaxValues()
@@ -97,7 +98,8 @@ class PriceDataSeries(
                     mutableListOf(PriceDataPoint(0, date.toEpochMilliSecond(), close, open, low, high, volume)),
                     asset,
                     period,
-                    initialValue
+                    initialValue,
+                    DateTime.now(),
                 )
             } else if (diff >= period.periodMinutes) {
                 return PriceDataSeries(
@@ -112,8 +114,9 @@ class PriceDataSeries(
                     ),
                     asset,
                     period,
-                    initialValue
-                )
+                    initialValue,
+                    DateTime.now(),
+                    )
             } else {
                 // update last data point
                 lastDataPoint = lastDataPoint.copyWith(
@@ -122,15 +125,16 @@ class PriceDataSeries(
                     high = max(lastDataPoint.high ?: close, high ?: close),
                     volume = (lastDataPoint.volume ?: 0) + (volume ?: 0)
                 )
-                return PriceDataSeries(data, asset, period, initialValue)
+                return PriceDataSeries(data, asset, period, initialValue,DateTime.now())
             }
         } else {
             return PriceDataSeries(
                 mutableListOf(PriceDataPoint(0, date.toEpochMilliSecond(), close, open, low, high, volume)),
                 asset,
                 period,
-                initialValue
-            )
+                initialValue,
+                DateTime.now(),
+                )
         }
     }
 
@@ -152,8 +156,9 @@ class PriceDataSeries(
             newDataPoints.toList(),
             asset,
             period,
-            initialValue * (initialValueMultiplier ?: multiplier)
-        )
+            initialValue * (initialValueMultiplier ?: multiplier),
+            DateTime.now(),
+            )
     }
      override fun divideBy(divider: Double): PriceDataSeries {
         if (divider == 0.0) {
@@ -204,8 +209,9 @@ class PriceDataSeries(
             res,
             asset,
             period,
-            baseOperation(initialValue, other.initialValue)
-        )
+            baseOperation(initialValue, other.initialValue),
+            DateTime.now(),
+            )
     }
 
      override fun toJson(): Map<String, Any> {
@@ -220,6 +226,12 @@ class PriceDataSeries(
     // static function to create PriceDataSeries from a Map (similar to Dart's factory constructor)
     companion object {
         fun fromJSON(json: Map<String, Any>, assetProvider: AssetProvider): PriceDataSeries {
+            val lastUpdated: LocalDateTime? = if (json["last_updated"] != null) {
+                LocalDateTime.parse(json["last_updated"].toString())
+            } else {
+                DateTime.fromSinceEpochMilliSecond(0)
+            }
+
             val asset = assetProvider.findById(json["asset_id"] as String)
                 ?: throw IllegalArgumentException("Asset with id ${json["asset_id"]} not found")
             val data = (json["data"] as List<Map<String, Any>>).map { PriceDataPoint.fromJson(it) }
@@ -227,7 +239,9 @@ class PriceDataSeries(
                 data,
                 asset,
                 getPeriodFromString(json["period"] as String) ?: StockDataPeriods.Price1D,
-                json["initialValue"] as Double)
+                json["initialValue"] as Double,
+                lastUpdated ?: DateTime.fromSinceEpochMilliSecond(0),
+                )
         }
     }
 

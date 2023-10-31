@@ -173,8 +173,9 @@ open class PriceDataRepo(
             trimmedData,
             asset,
             period,
-            if (period == StockDataPeriods.Price1D) previousClose ?: trimmedData.initialValue else trimmedData.initialValue
-        )
+            if (period == StockDataPeriods.Price1D) previousClose ?: trimmedData.initialValue else trimmedData.initialValue,
+            LocalDateTime.now(),
+            )
     }
 
     override suspend fun fetchData(identifier: PriceDataIdentifier?): Map<AssetId, Map<StockDataPeriods, PriceDataSeries>>? {

@@ -8,6 +8,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.*
+import kotlin.math.abs
 import kotlin.math.absoluteValue
 
 interface GenericDataPoint : GenericModel {
@@ -53,7 +54,7 @@ open class TimeSeries<T : TimeSeriesDataPoint>(var data: List<T>, val initialVal
         get() = currentPrice - initialValue
 
     val percentChange: Double
-        get() = if (absoluteChange == 0.0) 0.0 else absoluteChange / Math.abs(initialValue) * 100
+        get() = if (absoluteChange == 0.0) 0.0 else absoluteChange / initialValue.absoluteValue * 100
 
     open val currentPrice: Double
         get() = if (data.isNotEmpty()) data.last().value else initialValue
