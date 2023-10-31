@@ -78,9 +78,9 @@ class DriveWealthUserEquityRepo(
 
         val portfolioDetails = mutableMapOf<Currency, PortfolioSpecificDetails>()
         portfolioDetails[Currency.usd] = USDPortfolioDetails(
-            withdrawableAmount,
-            goodFaithViolationCount,
-            patternDayTraderViolationCount
+            usdWithdrawableAmount = withdrawableAmount,
+            goodFaithViolationCount = goodFaithViolationCount,
+            patternDayTraderViolationCount = patternDayTraderViolationCount
         )
 
         return UserEquityData(
