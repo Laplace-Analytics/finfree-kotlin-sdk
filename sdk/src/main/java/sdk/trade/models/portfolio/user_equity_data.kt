@@ -32,7 +32,11 @@ class UserEquityData(
     fun balance(currentCurrency: Currency): Double? {
         return when (currentCurrency) {
             Currency.usd -> usdBalance
-            Currency.tl -> tryBalance!! + ((portfolioDetails[Currency.tl] as TRYPortfolioDetails).cashFundAmount)
+            Currency.tl -> {
+                val tryPortfolioDetails: TRYPortfolioDetails? = (portfolioDetails[Currency.tl] as? TRYPortfolioDetails)
+                val cashFundAmount: Double = tryPortfolioDetails?.cashFundAmount ?: 0.0
+                return tryBalance!! + cashFundAmount
+            }
             Currency.eur -> null
         }
     }
