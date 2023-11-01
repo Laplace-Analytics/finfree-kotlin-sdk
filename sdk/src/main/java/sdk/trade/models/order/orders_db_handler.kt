@@ -112,7 +112,8 @@ class MockOrdersDBHandler(
                 executed = LocalDateTime.now().minusDays(index.toLong()),
                 errorCode = random.nextInt(100).toString(),
                 statusMessage = "error message $index",
-                orderNo = "orderNo$index"
+                orderNo = "orderNo$index",
+                orderSource = OrderSource.DriveWealth
             )
         }.toMutableList()
         sortOrders()
