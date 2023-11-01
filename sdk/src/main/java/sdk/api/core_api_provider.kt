@@ -197,4 +197,24 @@ class CoreApiProvider(
             },
         ) as BasicResponse<Map<String, Any>>
     }
+    suspend fun getMarketStatus(): BasicResponse<Boolean> {
+        val path = "marketstatus"
+
+        val response = httpHandler.get(
+            path = path,
+            data = null,
+            tryAgainOnTimeout = true
+        )
+
+        return ApiResponseHandler.handleResponse(
+            response = response,
+            onSuccess = { res ->
+                BasicResponse(
+                    data = response.body.toString() == "OPEN",
+                    responseType = BasicResponseTypes.Success,
+                    message = null
+                )
+            }
+        ) as BasicResponse<Boolean>
+    }
 }
