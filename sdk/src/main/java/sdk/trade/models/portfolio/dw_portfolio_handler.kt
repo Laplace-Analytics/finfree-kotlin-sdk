@@ -27,9 +27,9 @@ import sdk.trade.generic_api.DriveWealthPortfolioApiProvider
 import sdk.trade.repositories.drivewealth_repos.DriveWealthOrderHandler
 
 class DWPortfolioHandler(
-    override val portfolioType: PortfolioType = PortfolioType.DriveWealth,
-    override val endpointUrl: String
-) : PortfolioHandler(endpointUrl) {
+    override val endpointUrl: String,
+    ) : PortfolioHandler(endpointUrl) {
+    override val portfolioType: PortfolioType = PortfolioType.DriveWealth
 
     private var _orderUpdatesHandler: OrderUpdatesHandler? = null
     override val orderUpdatesHandler: OrderUpdatesHandler

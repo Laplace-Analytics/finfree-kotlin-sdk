@@ -1,8 +1,8 @@
 import sdk.base.GenericStorage
+import sdk.models.PortfolioType
 import sdk.models.Region
 import sdk.models.core.AuthenticationResponseTypes
 import sdk.models.core.FinfreeSDK
-import sdk.models.core.PortfolioType
 import sdk.trade.models.portfolio.DWPortfolioHandler
 import java.time.LocalDateTime
 

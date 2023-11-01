@@ -11,11 +11,13 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import sdk.base.logger
+import sdk.models.PortfolioType
 import sdk.models.core.FinfreeSDK
+import sdk.trade.models.portfolio.UserPortfolio
 import java.util.Random
 
 class PortfolioTests{
-    val portfolioType = "DW_TEST"
+    private val portfolioType: PortfolioType = PortfolioType.DriveWealth
 
     @BeforeEach
     fun setup(){
@@ -60,7 +62,7 @@ class PortfolioTests{
 }
 
 suspend fun handleSetup() = runBlocking {
-    val portfolioType = "DW_TEST"
+    val portfolioType: PortfolioType = PortfolioType.DriveWealth
     initSDK(portfolioType)
     FinfreeSDK.initializePortfolioData(
         livePriceDataEnabled = true,
@@ -72,10 +74,8 @@ suspend fun handleSetup() = runBlocking {
         }
     )
 
-    var portfolio = FinfreeSDK.portfolioProvider(portfolioType).userPortfolio
-    if (portfolio == null) {
-        throw Exception("Portfolio is null")
-    }
+    var portfolio: UserPortfolio? = FinfreeSDK.portfolioProvider(portfolioType).userPortfolio
+        ?: throw Exception("Portfolio is null")
     while (portfolio!!.portfolioAssets.isNotEmpty()) {
         GlobalScope.launch {
             val tasks = portfolio!!.portfolioAssets.entries.map { entry ->
