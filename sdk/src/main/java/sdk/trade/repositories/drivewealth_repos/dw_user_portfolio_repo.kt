@@ -12,7 +12,7 @@ class DriveWealthUserPortfolioRepo(
     storageHandler: GenericStorage,
     apiProvider: GenericPortfolioApiProvider,
     assetProvider: AssetProvider
-) : UserPortfolioRepo(storageHandler, apiProvider, assetProvider) {
+) : UserPortfolioRepo<Unit>(storageHandler, apiProvider, assetProvider) {
 
     override suspend fun fetchData(identifier: Unit?): UserPortfolio? {
         return try {
