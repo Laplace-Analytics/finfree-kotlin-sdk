@@ -2,7 +2,6 @@ package sdk.models.core
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import sdk.api.*
@@ -66,27 +65,50 @@ class AuthorizationHandler(
     }
     suspend fun authenticateWithRefreshToken(refreshToken: RefreshToken? = null, tokenId: String? = null): AuthenticationResponse {
 
-        val (refreshTokenToUse, tokenIdToUse) = if (refreshToken != null && tokenId != null) {
-            Pair(refreshToken, tokenId)
+        var refreshTokenToUse: String? = null
+        var tokenIdToUse: String? = null
+
+        if (refreshToken != null && tokenId != null) {
+            refreshTokenToUse = refreshToken
+            tokenIdToUse = tokenId
         } else {
-            val savedLoginDataJson = storage.read(_authPath)
-            savedLoginDataJson?.let {
+            val savedLoginDataJson: String? = storage.read(_authPath)
+
+            if (savedLoginDataJson != null) {
                 val type = object : TypeToken<Map<String, Any>>() {}.type
                 val data: Map<String, Any> = Gson().fromJson(savedLoginDataJson, type)
                 val savedLogin = LoginResponseData.fromJson(data)
-                Pair(savedLogin.refreshToken, savedLogin.tokenId)
+                refreshTokenToUse = savedLogin.refreshToken
+                tokenIdToUse = savedLogin.tokenId
             }
+        }
+
+        if (refreshTokenToUse == null || tokenIdToUse == null) {
             return AuthenticationResponse(AuthenticationResponseTypes.UnknownError, "Unknown error", null)
         }
 
         val response = authApiProvider.getAccessToken(
-            refreshToken = refreshTokenToUse.toString(),
-            tokenId = tokenIdToUse.toString()
+            refreshToken = refreshTokenToUse,
+            tokenId = tokenIdToUse,
         )
 
         return if (response.data != null) {
-            setAccessToken(response.data)
-            AuthenticationResponse(AuthenticationResponseTypes.Success, null, response.data)
+            val loginData = LoginResponseData(
+                refreshToken = refreshTokenToUse,
+                tokenId = tokenIdToUse,
+                accessToken = response.data
+            )
+
+            storage.save(
+                _authPath,
+                Json.encodeToString(loginData.toJson())
+            )
+
+            return AuthenticationResponse(
+                AuthenticationResponseTypes.Success,
+                null,
+                response.data
+            )
         } else {
             AuthenticationResponse(response.responseType.authenticationResponseType, response.message, null)
         }
