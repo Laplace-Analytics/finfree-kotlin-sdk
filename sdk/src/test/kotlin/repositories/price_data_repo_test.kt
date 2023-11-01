@@ -20,7 +20,6 @@ import sdk.models.PriceDataSeries
 import sdk.models.Region
 import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
-import sdk.repositories.AssetCollectionRepo
 import sdk.repositories.AssetRepo
 import sdk.repositories.PriceDataIdentifier
 import sdk.repositories.PriceDataRepo

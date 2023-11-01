@@ -21,7 +21,6 @@ import sdk.models.CollectionType
 import sdk.models.Region
 import sdk.models.string
 import java.time.LocalDateTime
-import java.time.ZoneId
 
 class CoreApiProviderTest {
 

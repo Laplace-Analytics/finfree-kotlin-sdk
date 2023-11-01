@@ -10,17 +10,12 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import sdk.api.AuthApiProvider
-import sdk.api.CoreApiProvider
 import sdk.api.LoginResponseTypes
 import sdk.base.network.BasicResponseTypes
 import sdk.base.network.HTTPHandler
 import sdk.models.Asset
 import sdk.models.AssetType
 import sdk.models.Region
-import sdk.models.core.AssetProvider
-import sdk.models.core.sessions.DateTime
-import sdk.repositories.AssetCollectionRepo
-import sdk.repositories.AssetRepo
 import sdk.trade.api.drivewealth_api.DriveWealthOrderAPIProvider
 import java.time.LocalDateTime
 
