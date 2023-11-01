@@ -12,8 +12,8 @@ import sdk.models.string
 
 class UserEquityData(
     val equityData: MutableMap<StockDataPeriods, UserEquityTimeSeries>,
-    val balances: MutableMap<Currency, Double>,
-    val buyingPowers: MutableMap<Currency, Double>,
+    val balances: MutableMap<Currency, Double?>,
+    val buyingPowers: MutableMap<Currency, Double?>,
     val portfolioDetails: MutableMap<Currency, PortfolioSpecificDetails>
 ) : GenericModel {
 
