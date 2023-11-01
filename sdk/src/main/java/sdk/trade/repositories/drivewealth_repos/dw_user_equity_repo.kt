@@ -70,10 +70,10 @@ class DriveWealthUserEquityRepo(
             StockDataPeriods.Price1D to eq.buildDailyEquityData(identifier.livePriceDataEnabled)
         ).toMutableMap()
 
-        val balances = mutableMapOf<Currency, Double>()
+        val balances = mutableMapOf<Currency, Double?>()
         balances[Currency.usd] = usdBalance
 
-        val buyingPowers = mutableMapOf<Currency, Double>()
+        val buyingPowers = mutableMapOf<Currency, Double?>()
         buyingPowers[Currency.usd] = usdBuyingPower
 
         val portfolioDetails = mutableMapOf<Currency, PortfolioSpecificDetails>()
@@ -92,7 +92,7 @@ class DriveWealthUserEquityRepo(
     }
 
     override fun getPath(identifier: PortfolioRepoIdentifier?): String {
-        throw NotImplementedError("Not implemented yet.")
+        return "drivewealth_user_equity"
     }
 
     override fun getIdentifier(data: UserEquityData): PortfolioRepoIdentifier? {
@@ -100,12 +100,11 @@ class DriveWealthUserEquityRepo(
     }
 
     override fun getFromJson(json: Map<String, Any>): UserEquityData {
-        throw NotImplementedError("Not implemented yet.")
+        return UserEquityData.fromJSON(json)
     }
 
 
     override fun toJson(data: UserEquityData): Map<String, Any> {
-        throw NotImplementedError("Not implemented yet.")
+        return data.toJson()
     }
-
 }

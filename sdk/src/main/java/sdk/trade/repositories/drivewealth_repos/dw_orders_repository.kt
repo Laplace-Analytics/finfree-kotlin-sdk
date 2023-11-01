@@ -116,7 +116,7 @@ class DriveWealthOrdersRepository(
     }
 
     override fun getPath(identifier: PaginatedOrdersFilter?): String {
-        throw NotImplementedError()
+       return "drivewealth_orders"
     }
 
     override fun toJson(data: List<OrderData>): Map<String, Any> {
