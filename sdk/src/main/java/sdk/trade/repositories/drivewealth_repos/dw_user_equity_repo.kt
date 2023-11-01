@@ -7,14 +7,17 @@ import sdk.base.network.BasicResponseTypes
 import sdk.models.Currency
 import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
+import sdk.models.core.sessions.DateTime
 import sdk.repositories.PriceDataRepo
 import sdk.trade.generic_api.DriveWealthPortfolioApiProvider
+import sdk.trade.models.portfolio.CashSettlement
 import sdk.trade.models.portfolio.EquityDataBuilder.Companion.createEquityDataBuilder
 import sdk.trade.models.portfolio.PortfolioSpecificDetails
 import sdk.trade.models.portfolio.USDPortfolioDetails
 import sdk.trade.models.portfolio.UserEquityData
 import sdk.trade.repositories.repos.PortfolioRepoIdentifier
 import sdk.trade.repositories.repos.UserEquityRepo
+import java.time.ZonedDateTime
 
 class DriveWealthUserEquityRepo(
     storageHandler: GenericStorage,
@@ -77,10 +80,24 @@ class DriveWealthUserEquityRepo(
         buyingPowers[Currency.usd] = usdBuyingPower
 
         val portfolioDetails = mutableMapOf<Currency, PortfolioSpecificDetails>()
+
+        val cashSettlementList = mutableListOf<CashSettlement>()
+        if (data["cash_settlement"] != null && data["cash_settlement"] is List<*> && (data["cash_settlement"] as List<*>).isNotEmpty()) {
+            for (cashSettlementElement in data["cash_settlement"] as List<*>) {
+                cashSettlementList.add(
+                    CashSettlement(
+                        cash = (cashSettlementElement as Map<String, Any?>)["cash"]?.toString()?.toDouble() ?: 0.0,
+                        utcTime =  ZonedDateTime.parse((cashSettlementElement)["utcTime"].toString()).toLocalDateTime()
+                    )
+                )
+            }
+        }
+
         portfolioDetails[Currency.usd] = USDPortfolioDetails(
             usdWithdrawableAmount = withdrawableAmount,
             goodFaithViolationCount = goodFaithViolationCount,
-            patternDayTraderViolationCount = patternDayTraderViolationCount
+            patternDayTraderViolationCount = patternDayTraderViolationCount,
+            cashSettlement =  cashSettlementList
         )
 
         return UserEquityData(
