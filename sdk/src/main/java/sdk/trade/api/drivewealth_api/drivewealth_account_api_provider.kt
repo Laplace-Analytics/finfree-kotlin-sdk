@@ -38,6 +38,30 @@ class DriveWealthAccountApiProvider(
         ) as BasicResponse<List<Map<String, Any>>>
     }
 
+    suspend fun getDriveWealthViolations(): BasicResponse<Map<String, Any>> {
+        val path = "$basePath/account/violations"
+
+        val response = httpHandler.get(path = path)
+
+        return ApiResponseHandler.handleResponse(
+            response,
+            onSuccess = { res ->
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+                val data: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
+
+                BasicResponse(
+                    responseType = BasicResponseTypes.Success,
+                    data = data
+                )
+            },
+            onError = { res ->
+                BasicResponse(responseType = BasicResponseTypes.Error)
+            }
+        ) as BasicResponse<Map<String, Any>>
+    }
+
     suspend fun postGedikUSWithdraw(amount:Double,iban:String): BasicResponse<*> {
         val path:String = "$basePath/fund/withdrawal"
         val response = httpHandler.post(
