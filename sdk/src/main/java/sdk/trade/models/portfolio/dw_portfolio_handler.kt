@@ -55,7 +55,7 @@ class DWPortfolioHandler(
 
     private var _portfolioRepos: PortfolioRepos? = null
 
-    override fun init(
+    override suspend fun init(
         notifyListeners: () -> Any,
         showOrderUpdatedMessage: (OrderData) -> Any,
         ordersDBHandler: OrdersDBHandler,

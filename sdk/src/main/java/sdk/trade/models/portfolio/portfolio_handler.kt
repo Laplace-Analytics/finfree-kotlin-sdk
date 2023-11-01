@@ -22,7 +22,7 @@ abstract class PortfolioHandler(open val endpointUrl: String) {
 
     abstract fun dispose()
 
-    abstract fun init(
+    abstract suspend fun init(
         notifyListeners: () -> Any,
         showOrderUpdatedMessage: (OrderData) -> Any,
         ordersDBHandler: OrdersDBHandler,
