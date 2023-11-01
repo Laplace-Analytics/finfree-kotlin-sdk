@@ -123,7 +123,7 @@ class FinfreeSDK {
             )
         }
 
-        private fun initializePortfolioHandler(
+        private suspend fun initializePortfolioHandler(
             notifyListeners: () -> Unit,
             showOrderUpdatedMessage: (OrderData) -> Any,
             ordersDBHandler: OrdersDBHandler,
