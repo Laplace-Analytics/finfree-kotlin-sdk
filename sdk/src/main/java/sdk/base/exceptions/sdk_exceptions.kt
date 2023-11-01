@@ -1,5 +1,7 @@
 package sdk.base.exceptions
 
+import sdk.models.PortfolioType
+
 open class InitializationException(override val message: String) : Exception() {
     override fun toString(): String {
         return "InitializationException: $message"
@@ -14,4 +16,4 @@ class CoreDataNotInitializedException : InitializationException("Core data not i
 
 class PortfolioHandlerNotInitializedException : InitializationException("Portfolio handler not initialized, should call FinfreeSDK.initializePortfolioHandler() first")
 
-class InvalidPortfolioTypeException(type: String) : InitializationException("Invalid portfolio type provided, no portfolio provider with type $type found")
+class InvalidPortfolioTypeException(type: PortfolioType) : InitializationException("Invalid portfolio type provided, no portfolio provider with type $type found")

@@ -2,21 +2,20 @@ package sdk.trade
 
 import kotlinx.coroutines.flow.Flow
 import sdk.base.network.*
-import sdk.models.AssetSymbol
-import java.util.stream.Stream
+import sdk.models.Asset
 
 abstract class GenericOrderAPIProvider(
     override val httpHandler: HTTPHandler,
     open val basePath: String
 ) : GenericApiProvider(httpHandler) {
 
-    abstract suspend fun postLimitOrder(quantity: Int, symbol: AssetSymbol, limitPrice: Double): BasicResponse<Map<String, Any>>
+    abstract suspend fun postLimitOrder(quantity: Int, asset: Asset, limitPrice: Double): BasicResponse<Map<String, Any>>
 
-    abstract suspend fun postMarketOrder(quantity: Number, symbol: AssetSymbol): BasicResponse<Map<String, Any>>
+    abstract suspend fun postMarketOrder(quantity: Number, asset: Asset): BasicResponse<Map<String, Any>>
 
-    abstract suspend fun putImproveOrder(orderId: String, symbol: AssetSymbol, newPrice: Double, newQuantity: Int): BasicResponse<Map<String, Any>>
+    abstract suspend fun putImproveOrder(orderId: OrderId, asset: Asset, newPrice: Double, newQuantity: Int): BasicResponse<Map<String, Any>>
 
-    abstract suspend fun deleteOrder(orderId: String): DeleteOrderResponse
+    abstract suspend fun deleteOrder(orderId: OrderId): DeleteOrderResponse
 
     abstract suspend fun getOrder(orderId: String): BasicResponse<Map<String, Any>>
 

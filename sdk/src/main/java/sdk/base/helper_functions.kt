@@ -190,6 +190,15 @@ fun getDoubleFromDynamic(value: Any?): Double? {
     return null
 }
 
+fun getIntFromDynamic(value: Any?): Int? {
+    when (value) {
+        is Double -> return value.toInt()
+        is Int -> return value
+        is String -> return value.toIntOrNull()
+    }
+    return null
+}
+
 fun getOwnedStockCountText(quantity: Number): String {
 
     return when (quantity) {

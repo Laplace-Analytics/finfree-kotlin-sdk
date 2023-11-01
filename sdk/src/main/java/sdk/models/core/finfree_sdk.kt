@@ -13,6 +13,7 @@ import sdk.base.exceptions.NotAuthorizedException
 import sdk.base.exceptions.PortfolioHandlerNotInitializedException
 import sdk.base.exceptions.SDKNotInitializedException
 import sdk.base.network.HTTPHandler
+import sdk.models.PortfolioType
 import sdk.models.Region
 import sdk.repositories.*
 import sdk.trade.*
@@ -20,7 +21,6 @@ import sdk.trade.models.portfolio.PortfolioHandler
 import sdk.trade.models.portfolio.PortfolioProvider
 import sdk.base.network.NetworkConfig as network_config
 
-typealias PortfolioType = String
 class FinfreeSDK {
 
     companion object {
@@ -123,7 +123,7 @@ class FinfreeSDK {
             )
         }
 
-        private fun initializePortfolioHandler(
+        private suspend fun initializePortfolioHandler(
             notifyListeners: () -> Unit,
             showOrderUpdatedMessage: (OrderData) -> Any,
             ordersDBHandler: OrdersDBHandler,

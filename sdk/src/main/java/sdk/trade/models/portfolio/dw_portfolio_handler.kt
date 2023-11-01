@@ -4,6 +4,7 @@ import sdk.api.AccessToken
 import sdk.base.GenericStorage
 import sdk.base.exceptions.PortfolioHandlerNotInitializedException
 import sdk.base.network.HTTPHandler
+import sdk.models.PortfolioType
 import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
 import sdk.repositories.PriceDataRepo
@@ -23,10 +24,12 @@ import sdk.trade.repositories.repos.OrdersRepository
 import sdk.trade.repositories.repos.UserEquityRepo
 import sdk.trade.repositories.repos.UserPortfolioRepo
 import sdk.trade.generic_api.DriveWealthPortfolioApiProvider
+import sdk.trade.repositories.drivewealth_repos.DriveWealthOrderHandler
 
 class DWPortfolioHandler(
-    override val endpointUrl: String
-) : PortfolioHandler(endpointUrl) {
+    override val endpointUrl: String,
+    ) : PortfolioHandler(endpointUrl) {
+    override val portfolioType: PortfolioType = PortfolioType.DriveWealth
 
     private var _orderUpdatesHandler: OrderUpdatesHandler? = null
     override val orderUpdatesHandler: OrderUpdatesHandler
@@ -54,7 +57,7 @@ class DWPortfolioHandler(
 
     private var _portfolioRepos: PortfolioRepos? = null
 
-    override fun init(
+    override suspend fun init(
         notifyListeners: () -> Any,
         showOrderUpdatedMessage: (OrderData) -> Any,
         ordersDBHandler: OrdersDBHandler,
@@ -106,7 +109,7 @@ class DWPortfolioHandler(
             userEquityDataRepo = _portfolioRepos!!.userEquityRepo
         )
 
-        _orderHandler = OrderHandler(
+        _orderHandler = DriveWealthOrderHandler(
             orderAPIProvider = _portfolioRepos!!.ordersRepo.apiProvider
         )
     }

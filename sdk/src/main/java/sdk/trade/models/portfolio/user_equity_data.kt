@@ -4,35 +4,41 @@ import sdk.api.StockDataPeriods
 import sdk.base.GenericModel
 import sdk.models.Currency
 import sdk.models.core.SessionProvider
+import sdk.models.core.sessions.DateTime
 import sdk.models.core.sessions.DateTime.Companion.toEpochMilliSecond
 import sdk.models.data.time_series.EquityDataPoint
 import sdk.models.data.time_series.UserEquityTimeSeries
 import sdk.models.getCurrencyByAbbreviation
 import sdk.models.string
+import java.time.LocalDateTime
 
 class UserEquityData(
     val equityData: MutableMap<StockDataPeriods, UserEquityTimeSeries>,
-    val balances: MutableMap<Currency, Double>,
-    val buyingPowers: MutableMap<Currency, Double>,
-    val portfolioDetails: Map<Currency, PortfolioSpecificDetails>
+    val balances: MutableMap<Currency, Double?>,
+    val buyingPowers: MutableMap<Currency, Double?>,
+    val portfolioDetails: MutableMap<Currency, PortfolioSpecificDetails>
 ) : GenericModel {
 
-    val tryBalance: Double?
+    private val tryBalance: Double?
         get() = balances[Currency.tl]
 
-    val usdBalance: Double?
+    private val usdBalance: Double?
         get() = balances[Currency.usd]
 
-    val tryBuyingPower: Double?
+    private val tryBuyingPower: Double?
         get() = buyingPowers[Currency.tl]
 
-    val usdBuyingPower: Double?
+    private val usdBuyingPower: Double?
         get() = buyingPowers[Currency.usd]
 
     fun balance(currentCurrency: Currency): Double? {
         return when (currentCurrency) {
             Currency.usd -> usdBalance
-            Currency.tl -> tryBalance
+            Currency.tl -> {
+                val tryPortfolioDetails: TRYPortfolioDetails? = (portfolioDetails[Currency.tl] as? TRYPortfolioDetails?)
+                val cashFundAmount: Double = tryPortfolioDetails?.cashFundAmount ?: 0.0
+                return tryBalance!! + cashFundAmount
+            }
             Currency.eur -> null
         }
     }
@@ -45,9 +51,9 @@ class UserEquityData(
         }
     }
 
-    fun receiveDataPoint(newData: EquityDataPoint, sessionProvider: SessionProvider) {
+    fun receiveDataPoint(newData: EquityDataPoint, sessionProvider: SessionProvider): UserEquityData {
         if (!sessionProvider.isDuringMarketHours()) {
-            return
+            return this
         }
 
         equityData.forEach { (_, value) ->
@@ -63,20 +69,22 @@ class UserEquityData(
                 ), sessionProvider
             )
         }
+        return this
     }
-
     fun update(
         equityData: MutableMap<StockDataPeriods, UserEquityTimeSeries>? = null,
         tryBalance: Double? = null,
         tryBuyingPower: Double? = null,
         usdBalance: Double? = null,
-        usdBuyingPower: Double? = null
+        usdBuyingPower: Double? = null,
+        portfolioSpecificDetails : PortfolioSpecificDetails? = null,
     ) {
         equityData?.let { this.equityData.putAll(it) }
         tryBalance?.let { balances[Currency.tl] = it }
         tryBuyingPower?.let { buyingPowers[Currency.tl] = it }
         usdBalance?.let { balances[Currency.usd] = it }
         usdBuyingPower?.let { buyingPowers[Currency.usd] = it }
+        portfolioSpecificDetails?.let { portfolioDetails[portfolioSpecificDetails.currency] = it }
     }
 
     override fun toJson(): Map<String, Any> {
@@ -134,6 +142,28 @@ class UserEquityData(
     }
 }
 
+data class CashSettlement(
+    val cash: Double,
+    val utcTime: LocalDateTime
+) : GenericModel {
+
+    override fun toJson(): Map<String, Any> {
+        return mapOf(
+            "cash" to cash,
+            "utcTime" to utcTime.toEpochMilliSecond()
+        )
+    }
+
+    companion object {
+        fun fromJson(json: Map<String, Any>): CashSettlement {
+            return CashSettlement(
+                cash = json["cash"] as Double,
+                utcTime = DateTime.fromSinceEpochMilliSecond(json["utcTime"] as Long)
+            )
+        }
+    }
+}
+
 abstract class PortfolioSpecificDetails(
     val currency: Currency
 ) : GenericModel
@@ -167,29 +197,34 @@ class TRYPortfolioDetails(
 }
 
 class USDPortfolioDetails(
-    val usdWithdrawableAmount: Double,
-    val goodFaithViolationCount: Int?,
-    val patternDayTraderViolationCount: Int?
+    private val usdWithdrawableAmount: Double,
+    private val goodFaithViolationCount: Int?,
+    private val patternDayTraderViolationCount: Int?,
+    private val cashSettlement: List<CashSettlement>
 ) : PortfolioSpecificDetails(Currency.usd) {
 
     override fun toJson(): Map<String, Any?> {
         return mapOf(
             "usd_withdrawable_amount" to usdWithdrawableAmount,
             "good_faith_violation_count" to goodFaithViolationCount,
-            "pattern_day_trader_violation_count" to patternDayTraderViolationCount
+            "pattern_day_trader_violation_count" to patternDayTraderViolationCount,
+            "cash_settlement" to cashSettlement.map { e -> e.toJson() }.toList()
         )
     }
 
     companion object {
         fun fromJson(json: Map<String, Any>): USDPortfolioDetails {
+            val cashSettlements = json["cash_settlement"] as List<Map<String, Any>>
             return USDPortfolioDetails(
-                json["usd_withdrawable_amount"] as Double,
-                json["good_faith_violation_count"] as? Int,
-                json["pattern_day_trader_violation_count"] as? Int
+                usdWithdrawableAmount = json["usd_withdrawable_amount"] as Double,
+                goodFaithViolationCount = json["good_faith_violation_count"] as? Int,
+                patternDayTraderViolationCount = json["pattern_day_trader_violation_count"] as? Int,
+                cashSettlement = cashSettlements.map { e -> CashSettlement.fromJson(e) }.toList()
             )
         }
     }
 }
+
 
 
 

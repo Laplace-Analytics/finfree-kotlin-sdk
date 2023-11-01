@@ -10,14 +10,12 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import sdk.api.AuthApiProvider
-import sdk.api.CoreApiProvider
 import sdk.api.LoginResponseTypes
 import sdk.base.network.BasicResponseTypes
 import sdk.base.network.HTTPHandler
-import sdk.models.core.AssetProvider
-import sdk.models.core.sessions.DateTime
-import sdk.repositories.AssetCollectionRepo
-import sdk.repositories.AssetRepo
+import sdk.models.Asset
+import sdk.models.AssetType
+import sdk.models.Region
 import sdk.trade.api.drivewealth_api.DriveWealthOrderAPIProvider
 import java.time.LocalDateTime
 
@@ -27,7 +25,56 @@ class DriveWealthOrderAPIProviderTests{
         private lateinit var driveWealthHttpHandler: HTTPHandler
         private lateinit var driveWealthOrderAPIProvider: DriveWealthOrderAPIProvider
 
-        @BeforeEach
+    val appleAsset = Asset(
+        symbol = "AAPL",
+        id = "",
+        name = "",
+        industryId = "",
+        sectorId = "",
+        region = Region.american,
+        isActive = true,
+        type = AssetType.stock,
+        tradable = true
+    )
+
+    val dennAsset = Asset(
+        symbol = "DENN",
+        id = "",
+        name = "",
+        industryId = "",
+        sectorId = "",
+        region = Region.american,
+        isActive = true,
+        type = AssetType.stock,
+        tradable = true
+    )
+
+    val aanAsset = Asset(
+        symbol = "AAN",
+        id = "",
+        name = "",
+        industryId = "",
+        sectorId = "",
+        region = Region.american,
+        isActive = true,
+        type = AssetType.stock,
+        tradable = true
+    )
+
+    val bmlnAsset = Asset(
+        symbol = "BLMN",
+        id = "",
+        name = "",
+        industryId = "",
+        sectorId = "",
+        region = Region.american,
+        isActive = true,
+        type = AssetType.stock,
+        tradable = true
+    )
+
+
+    @BeforeEach
         fun setup() {
             baseHttpHandler = HTTPHandler(httpURL = "finfree.app")
             authApiProvider = AuthApiProvider(baseHttpHandler)
@@ -41,7 +88,7 @@ class DriveWealthOrderAPIProviderTests{
         fun `Post without token state`() = runBlocking {
             val postLimitOrderResponse = driveWealthOrderAPIProvider.postLimitOrder(
                 1,
-                "AAPL",
+                appleAsset,
                 10.0
             )
             assertEquals(BasicResponseTypes.Error, postLimitOrderResponse.responseType)
@@ -51,7 +98,7 @@ class DriveWealthOrderAPIProviderTests{
 
             val postLimitOrderResponse2 = driveWealthOrderAPIProvider.postLimitOrder(
                 1,
-                "DENN",
+                dennAsset,
                 10.0
             )
             assertEquals(BasicResponseTypes.Error, postLimitOrderResponse2.responseType)
@@ -62,7 +109,7 @@ class DriveWealthOrderAPIProviderTests{
             driveWealthHttpHandler.token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb250ZW50X2NyZWF0b3IiOnRydWUsImR3X2FjY291bnRfaWQiOiI4Yzg5OGEyNi05YTU0LTQxMTktOTBiMy0xNTI0NjhjYjU0ZGUuMTY4MTIxMzQ1MTk2MSIsImR3X2FjY291bnRfbm8iOiJGRkFZMDAwMDAxIiwiZXhwIjoxNjkwMzIzNTY3LCJqdXJpc2RpY3Rpb24iOiJ0ciIsImxvY2FsZSI6InRyIiwicmVhZDpmaWx0ZXJfZGV0YWlsIjp0cnVlLCJyZWFkOnJ0X3ByaWNlIjp0cnVlLCJyZWFkOnNlY3RvciI6dHJ1ZSwidXNlcm5hbWUiOiJjbnRya3kifQ.XMOIoR1WdsIUQ9qqy5s31atLv1DfSLeCrijIUNbqrAXCidJI7T39lNM7dGODgofb9gzs9MOfLJr5eateUGHaKw"
             val postLimitOrderResponse = driveWealthOrderAPIProvider.postLimitOrder(
                 1,
-                "AAPL",
+                appleAsset,
                 10.0
             )
             assertEquals(BasicResponseTypes.Error, postLimitOrderResponse.responseType)
@@ -72,7 +119,7 @@ class DriveWealthOrderAPIProviderTests{
 
             val postLimitOrderResponse2 = driveWealthOrderAPIProvider.postLimitOrder(
                 1,
-                "DENN",
+                dennAsset,
                 10.0
             )
             assertEquals(BasicResponseTypes.Error, postLimitOrderResponse2.responseType)
@@ -92,7 +139,7 @@ class DriveWealthOrderAPIProviderTests{
             driveWealthHttpHandler.constantHeaders["GEDIK-ACCOUNT-ID"] = "928607"
             val postLimitOrderResponse = driveWealthOrderAPIProvider.postLimitOrder(
                 1,
-                "AAPL",
+                appleAsset,
                 10.2
             )
             assertEquals(BasicResponseTypes.Success, postLimitOrderResponse.responseType)
@@ -102,7 +149,7 @@ class DriveWealthOrderAPIProviderTests{
 
             val postLimitOrderResponse2 = driveWealthOrderAPIProvider.postLimitOrder(
                 1,
-                "DENN",
+                dennAsset,
                 10.2
             )
             assertEquals(BasicResponseTypes.Success, postLimitOrderResponse2.responseType)
@@ -115,7 +162,7 @@ class DriveWealthOrderAPIProviderTests{
                 "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb250ZW50X2NyZWF0b3IiOnRydWUsImR3X2FjY291bnRfaWQiOiI4Yzg5OGEyNi05YTU0LTQxMTktOTBiMy0xNTI0NjhjYjU0ZGUuMTY4MTIxMzQ1MTk2MSIsImR3X2FjY291bnRfbm8iOiJGRkFZMDAwMDAxIiwiZXhwIjoxNjkwMzIzNTY3LCJqdXJpc2RpY3Rpb24iOiJ0ciIsImxvY2FsZSI6InRyIiwicmVhZDpmaWx0ZXJfZGV0YWlsIjp0cnVlLCJyZWFkOnJ0X3ByaWNlIjp0cnVlLCJyZWFkOnNlY3RvciI6dHJ1ZSwidXNlcm5hbWUiOiJjbnRya3kifQ.XMOIoR1WdsIUQ9qqy5s31atLv1DfSLeCrijIUNbqrAXCidJI7T39lNM7dGODgofb9gzs9MOfLJr5eateUGHaKw"
             val postLimitOrderResponse = driveWealthOrderAPIProvider.postLimitOrder(
                 1,
-                "MSFT",
+                appleAsset,
                 10.0
             )
             assertEquals(BasicResponseTypes.Error, postLimitOrderResponse.responseType)
@@ -125,7 +172,7 @@ class DriveWealthOrderAPIProviderTests{
 
             val postLimitOrderResponse2 = driveWealthOrderAPIProvider.postLimitOrder(
                 1,
-                "KO",
+                dennAsset,
                 10.0
             )
             assertEquals(BasicResponseTypes.Error, postLimitOrderResponse2.responseType)
@@ -141,7 +188,7 @@ class DriveWealthOrderAPIProviderTests{
             driveWealthHttpHandler.constantHeaders["GEDIK-ACCOUNT-ID"] = "928607"
             val postLimitOrderResponse3 = driveWealthOrderAPIProvider.postLimitOrder(
                 1,
-                "INTC",
+                aanAsset,
                 10.2
             )
             assertEquals(BasicResponseTypes.Success, postLimitOrderResponse3.responseType)
@@ -151,7 +198,7 @@ class DriveWealthOrderAPIProviderTests{
 
             val postLimitOrderResponse4 = driveWealthOrderAPIProvider.postLimitOrder(
                 1,
-                "CVX",
+                appleAsset,
                 10.2
             )
             assertEquals(BasicResponseTypes.Success, postLimitOrderResponse4.responseType)
@@ -165,7 +212,7 @@ class DriveWealthOrderAPIProviderTests{
         fun `Post without token state`() = runBlocking {
             val postMarketOrderResponse = driveWealthOrderAPIProvider.postMarketOrder(
                 0.01,
-                "AAPL",
+                appleAsset,
             )
             assertEquals(BasicResponseTypes.Error, postMarketOrderResponse.responseType)
             assertNull(postMarketOrderResponse.data)
@@ -174,7 +221,7 @@ class DriveWealthOrderAPIProviderTests{
 
             val postLimitOrderResponse2 = driveWealthOrderAPIProvider.postMarketOrder(
                 0.01,
-                "AAPL",
+                appleAsset,
             )
             assertEquals(BasicResponseTypes.Error, postLimitOrderResponse2.responseType)
             assertNull(postLimitOrderResponse2.data)
@@ -186,7 +233,7 @@ class DriveWealthOrderAPIProviderTests{
 
             val postMarketOrderResponse = driveWealthOrderAPIProvider.postMarketOrder(
                 0.01,
-                "AAPL",
+                appleAsset,
             )
             assertEquals(BasicResponseTypes.Error, postMarketOrderResponse.responseType)
             assertNull(postMarketOrderResponse.data)
@@ -195,7 +242,7 @@ class DriveWealthOrderAPIProviderTests{
 
             val postMarketOrderResponse2 = driveWealthOrderAPIProvider.postMarketOrder(
                 0.01,
-                "AAPL",
+                appleAsset,
             )
             assertEquals(BasicResponseTypes.Error, postMarketOrderResponse2.responseType)
             assertNull(postMarketOrderResponse2.data)
@@ -213,7 +260,7 @@ class DriveWealthOrderAPIProviderTests{
             driveWealthHttpHandler.constantHeaders["GEDIK-ACCOUNT-ID"] = "928607"
             val postMarketOrderResponse = driveWealthOrderAPIProvider.postMarketOrder(
                 0.01,
-                "DENN",
+                dennAsset,
             )
             val currentTime = LocalDateTime.now()
 
@@ -230,7 +277,7 @@ class DriveWealthOrderAPIProviderTests{
 
             val postMarketOrderResponse2 = driveWealthOrderAPIProvider.postMarketOrder(
                 0.01,
-                "DENN",
+                dennAsset,
             )
 
             val currentTime2 = LocalDateTime.now()

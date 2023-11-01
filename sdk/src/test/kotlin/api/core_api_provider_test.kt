@@ -21,7 +21,6 @@ import sdk.models.CollectionType
 import sdk.models.Region
 import sdk.models.string
 import java.time.LocalDateTime
-import java.time.ZoneId
 
 class CoreApiProviderTest {
 
@@ -603,4 +602,37 @@ class CoreApiProviderTest {
         }
     }
 
+    @Nested
+    inner class GetMarketStatusTest{
+        @Test
+        fun `Fetch with expired token state`() = runBlocking {
+            baseHttpHandler.token =
+                "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb250ZW50X2NyZWF0b3IiOnRydWUsImR3X2FjY291bnRfaWQiOiI4Yzg5OGEyNi05YTU0LTQxMTktOTBiMy0xNTI4NjhjYjU0ZGUuMTY4MTIxMzQ1MTk2MSIsImR3X2FjY291bnRfbm8iOiJGRkFZMDAwMDAxIiwiZXhwIjoxNjkwMzIzNTY3LCJqdXJpc2RpY3Rpb24iOiJ0ciIsImxvY2FsZSI6InRyIiwicmVhZDpmaWx0ZXJfZGV0YWlsIjp0cnVlLCJyZWFkOnJ0X3ByaWNlIjp0cnVlLCJyZWFkOnNlY3RvciI6dHJ1ZSwidXNlcm5hbWUiOiJjbnRya3kifQ.XMOIoR1WdsIUQ9qqy5s31atLv1DfSLeCrijIUNbqrAXCidJI7T39lNM7dGODgofb9gzs9MOfLJr5eateUGHaKw"
+            val getMarketStatusResponse = coreApiProvider.getMarketStatus()
+            assertEquals(BasicResponseTypes.Error,getMarketStatusResponse.responseType)
+            assertNull(getMarketStatusResponse.data)
+        }
+
+        @Test
+        fun `Fetch without token state`() = runBlocking {
+            baseHttpHandler.token = null
+            val getMarketStatusResponse = coreApiProvider.getMarketStatus()
+            assertEquals(BasicResponseTypes.Error,getMarketStatusResponse.responseType)
+            assertNull(getMarketStatusResponse.data)
+        }
+
+        @Test
+        fun `Successful state`() = runBlocking {
+            val loginResponse = authApiProvider.postLogin("test44", "1234qwer")
+            if (loginResponse.responseType != LoginResponseTypes.SUCCESS) {
+                fail("Could not login to Finfree Account")
+            }
+            val loginData = loginResponse.data!!
+            baseHttpHandler.token = loginData.accessToken
+
+            val getMarketStatusResponse = coreApiProvider.getMarketStatus()
+            assertEquals(BasicResponseTypes.Success,getMarketStatusResponse.responseType)
+            assertNotNull(getMarketStatusResponse.data)
+        }
+    }
 }

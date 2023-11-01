@@ -15,7 +15,6 @@ import sdk.base.network.HTTPHandler
 import sdk.models.Region
 import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
-import sdk.repositories.AssetCollectionRepo
 import sdk.repositories.AssetRepo
 import sdk.repositories.PriceDataRepo
 import sdk.repositories.SessionsRepo

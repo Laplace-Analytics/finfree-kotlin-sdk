@@ -13,18 +13,12 @@ import sdk.api.CoreApiProvider
 import sdk.api.LoginResponse
 import sdk.api.LoginResponseData
 import sdk.api.LoginResponseTypes
-import sdk.api.StockDataApiProvider
 import sdk.base.network.HTTPHandler
 import sdk.models.Region
 import sdk.models.core.AssetProvider
-import sdk.models.core.SessionProvider
-import sdk.repositories.AssetCollectionRepo
 import sdk.repositories.AssetRepo
-import sdk.repositories.PriceDataRepo
-import sdk.repositories.SessionsRepo
 import sdk.trade.generic_api.DriveWealthPortfolioApiProvider
 import sdk.trade.models.portfolio.UserPortfolio
-import sdk.trade.repositories.drivewealth_repos.DriveWealthUserEquityRepo
 import sdk.trade.repositories.drivewealth_repos.DriveWealthUserPortfolioRepo
 
 class DriveWealthUserPortfolioRepoTests {

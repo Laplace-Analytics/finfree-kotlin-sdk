@@ -7,99 +7,26 @@ import sdk.base.network.BasicResponseTypes
 import sdk.models.Asset
 import java.lang.Exception
 
-class OrderHandler(
-    val orderAPIProvider: GenericOrderAPIProvider
+abstract class OrderHandler(
+    open val orderAPIProvider: GenericOrderAPIProvider
 ) {
-
-    private fun orderStatusFromResponse(
-        responseType: BasicResponseTypes,
-        message: String? = null
-    ): OrderStatus {
-        // TODO: Implement error handling
-        return when (responseType) {
-            BasicResponseTypes.Success -> OrderStatus.TransmittedToExchange
-            BasicResponseTypes.Error -> OrderStatus.UnspecifiedOrderStatus
-        }
-    }
-
-    private suspend fun handleOrderResponse(orderResponse: BasicResponse<Map<String, Any>>): OrderResponse {
-        try {
-            val id = OrderId.fromValue((orderResponse.data ?: emptyMap())["orderID"])
-            val message = orderResponse.message
-            val responseType = orderStatusFromResponse(orderResponse.responseType, message)
-
-            fetchPeriodic()
-
-            return OrderResponse(
-                id = id,
-                responseType = responseType,
-                message = message
-            )
-        }catch (ex:Exception){
-            logger.error("Order response couldn't be handled", ex)
-            return OrderResponse(
-                responseType = OrderStatus.ServerError,
-            )
-        }
-
-    }
-    suspend fun postMarketOrder(
+    abstract suspend fun postMarketOrder(
         quantity: Double,
         asset: Asset,
         isNotionalOrder: Boolean = false
-    ): OrderResponse {
-        val orderResponse: BasicResponse<Map<String, Any>> = /*if (isNotionalOrder) {
-        gedikDriveWealthOrderApiProvider.postNotionalMarketOrder(
-            quantity,
-            asset.symbol
-        )
-    } else {*/
-            orderAPIProvider.postMarketOrder(quantity, asset.symbol)
-        //}
+    ): OrderResponse
 
-        return handleOrderResponse(orderResponse)
-    }
-
-    suspend fun postLimitOrder(
+    abstract suspend fun postLimitOrder(
         quantity: Int,
         limitPrice: Double,
         asset: Asset
-    ): OrderResponse {
-        val orderResponse: BasicResponse<Map<String, Any>> = orderAPIProvider.postLimitOrder(quantity, asset.symbol, limitPrice)
-        return handleOrderResponse(orderResponse)
-    }
+    ): OrderResponse
 
-    suspend fun cancelOrder(orderId: String): DeleteOrderResponse {
-        val orderResponse: DeleteOrderResponse = orderAPIProvider.deleteOrder(orderId)
+    abstract suspend fun cancelOrder(orderId: OrderId): DeleteOrderResponse
 
-        val responseType: DeleteOrderResponseTypes = orderResponse.responseType
-        val message: String? = orderResponse.message
+    abstract suspend fun improveOrder(orderId: OrderId, asset: Asset, newPrice: Double, newQuantity: Int): OrderResponse
 
-        fetchPeriodic()
-
-        return DeleteOrderResponse(
-            responseType = responseType,
-            message = message
-        )
-    }
-
-    suspend fun improveOrder(orderId: String, symbol: String, newPrice: Double, newQuantity: Int): OrderResponse {
-        val orderResponse: BasicResponse<Map<String, Any>> = orderAPIProvider.putImproveOrder(orderId, symbol, newPrice, newQuantity)
-
-        return handleOrderResponse(orderResponse)
-    }
-
-    suspend fun fetchPeriodic() {
-        delay(2000L)
-        // You can uncomment the below code if you need to run these in parallel.
-        /*
-        coroutineScope {
-            launch { portfolioHandler.fetchUserStockData() }
-            launch { portfolioHandler.fetchUserEquityData() }
-            launch { portfolioHandler.fetchTransactionsPeriodic() }
-        }
-        */
-    }
+    abstract suspend fun fetchPeriodic()
 }
 
 data class OrderResponse(

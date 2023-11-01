@@ -79,11 +79,17 @@ enum class OrderType {
     MarketBuy,
     MarketSell
 }
+enum class OrderSource {
+    Virtual,
+    TrReal,
+    DriveWealth,
+}
 
 data class OrderData(
     val orderId: OrderId,
     val orderNo: String?,
     val orderType: OrderType,
+    val orderSource: OrderSource,
     val status: OrderStatus,
     val errorCode: String?,
     val statusMessage: String?,
@@ -122,7 +128,8 @@ data class OrderData(
             "error_code" to _errorCode,
             "status_message" to _statusMessage,
             "order_type" to orderType.ordinal,
-            "order_no" to orderNo
+            "order_no" to orderNo,
+            "order_source" to orderSource.ordinal
         )
     }
 
@@ -144,7 +151,8 @@ data class OrderData(
                 remainingQuantity = json["remaining_quantity"] as Double,
                 limitPrice = json["price_ordered"] as Double,
                 placed = DateTime.fromSinceEpochMilliSecond(json["placed_date"] as Long),
-                executed = json["executed_date"]?.let { DateTime.fromSinceEpochMilliSecond(it as Long) }
+                executed = json["executed_date"]?.let { DateTime.fromSinceEpochMilliSecond(it as Long) },
+                orderSource = OrderSource.values()[json["order_source"] as Int]
             )
         }
     }
@@ -154,6 +162,7 @@ data class OrderData(
         orderNo: String? = null,
         orderType: OrderType? = null,
         status: OrderStatus? = null,
+        orderSource: OrderSource? = null,
         _errorCode: String? = null,
         _statusMessage: String? = null,
         asset: Asset? = null,
@@ -169,6 +178,7 @@ data class OrderData(
             orderNo = orderNo ?: this.orderNo,
             orderType = orderType ?: this.orderType,
             status = status ?: this.status,
+            orderSource = orderSource ?: this.orderSource,
             errorCode = _errorCode ?: this._errorCode,
             statusMessage = _statusMessage ?: this._statusMessage,
             asset = asset ?: this.asset,

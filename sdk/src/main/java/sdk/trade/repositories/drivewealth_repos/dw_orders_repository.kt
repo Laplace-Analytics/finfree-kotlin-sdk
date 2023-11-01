@@ -8,6 +8,7 @@ import sdk.models.core.AssetProvider
 import sdk.trade.GenericOrderAPIProvider
 import sdk.trade.OrderData
 import sdk.trade.OrderId
+import sdk.trade.OrderSource
 import sdk.trade.OrderStatus
 import sdk.trade.OrderType
 import sdk.trade.repositories.repos.OrdersRepository
@@ -74,7 +75,8 @@ class DriveWealthOrdersRepository(
             limitPrice = getDoubleFromDynamic(json["order_price"]),
             placed = placed,
             executed = json["order_date"]?.let { val instant = Instant.parse(it as String)
-                instant.atZone(ZoneId.systemDefault()).toLocalDateTime() }
+                instant.atZone(ZoneId.systemDefault()).toLocalDateTime() },
+            orderSource = OrderSource.DriveWealth
         )
     }
 
@@ -114,7 +116,7 @@ class DriveWealthOrdersRepository(
     }
 
     override fun getPath(identifier: PaginatedOrdersFilter?): String {
-        throw NotImplementedError()
+       return "drivewealth_orders"
     }
 
     override fun toJson(data: List<OrderData>): Map<String, Any> {

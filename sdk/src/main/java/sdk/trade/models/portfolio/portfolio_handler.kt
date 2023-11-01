@@ -2,6 +2,7 @@ package sdk.trade.models.portfolio
 
 import sdk.api.AccessToken
 import sdk.base.GenericStorage
+import sdk.models.PortfolioType
 import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
 import sdk.repositories.PriceDataRepo
@@ -14,15 +15,17 @@ import sdk.trade.OrdersDataHandler
 
 
 abstract class PortfolioHandler(open val endpointUrl: String) {
+    open val portfolioType: PortfolioType = PortfolioType.Virtual
 
     abstract val orderUpdatesHandler: OrderUpdatesHandler
     abstract val ordersDataHandler: OrdersDataHandler
     abstract val portfolioProvider: PortfolioProvider
     abstract val orderHandler: OrderHandler
 
+
     abstract fun dispose()
 
-    abstract fun init(
+    abstract suspend fun init(
         notifyListeners: () -> Any,
         showOrderUpdatedMessage: (OrderData) -> Any,
         ordersDBHandler: OrdersDBHandler,

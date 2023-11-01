@@ -13,7 +13,7 @@ import sdk.models.string
 
 class StockDataApiProvider(
     override val httpHandler: HTTPHandler,
-    private val basePath: String
+    private val basePath: String = "stock"
 ) : GenericApiProvider(httpHandler) {
 
     suspend fun getStockPriceData(
@@ -157,6 +157,42 @@ class StockDataApiProvider(
             response = response,
             onSuccess = { res ->
 
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+
+                val data: Map<String, Any> = Gson().fromJson(responseBodyStr,type)
+                BasicResponse(
+                    data = data,
+                    responseType = BasicResponseTypes.Success,
+                    message = null
+                )
+            }
+        ) as BasicResponse<Map<String, Any>>
+    }
+    suspend fun  getAggregatedPriceData(
+        symbols: List<AssetSymbol>,
+        period: StockDataPeriods,
+        region: Region,
+        assetClass: AssetClass
+    ): BasicResponse<Map<String, Any>>{
+
+        val path = "stock/v2/aggregate/graph/${region.string()}"
+
+        val dataMap = mapOf(
+            "symbols" to symbols.joinToString(","),
+            "period" to period.period,
+            "asset_class" to assetClass.string()
+        )
+
+        val response = httpHandler.get(
+            path = path,
+            data = dataMap,
+            tryAgainOnTimeout = true
+        )
+        return ApiResponseHandler.handleResponse(
+            response = response,
+            onSuccess = {
+                res ->
                 val responseBodyStr = res.body?.string() ?: ""
                 val type = object : TypeToken<Map<String, Any>>() {}.type
 

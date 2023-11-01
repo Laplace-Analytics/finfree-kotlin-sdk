@@ -6,8 +6,8 @@ import sdk.models.*
 import sdk.models.core.SessionProvider
 import sdk.models.core.sessions.DateTime.Companion.toEpochMilliSecond
 import java.time.Duration
+import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import kotlin.math.absoluteValue
 
 
@@ -123,6 +123,9 @@ class UserEquityTimeSeries(
             currency = currency,
         )
     }
+
+    val lastDataPointTime : LocalDateTime
+        get() = if (data.isEmpty()) LocalDateTime.now() else data.last().time
 
     override val currentPrice: Double
         get() = if (data.isNotEmpty()) {
