@@ -30,9 +30,9 @@ enum class Currency {
 }
 
 enum class PortfolioType {
-    RealPortfolio,
-    VirtualPortfolio,
-    DriveWealthPortfolio,
+    Gedik,
+    Virtual,
+    DriveWealth,
 }
 
 enum class Content { TrEquity, UsEquity, TrCrypto }
