@@ -12,8 +12,10 @@ class DriveWealthAccountApiProvider(
     val basePath:String
 ): GenericApiProvider(httpHandler){
 
-    suspend fun getDriveWealthStatements(): BasicResponse<List<Map<String, Any>>> {
-        val path = "$basePath/account/statements"
+    suspend fun getDriveWealthDocuments(
+        documentType: DriveWealthDocumentTypes
+    ): BasicResponse<List<Map<String, Any>>> {
+        val path = "$basePath/account/${documentType.apiPath}"
         val response = httpHandler.get(path = path)
 
         return ApiResponseHandler.handleResponse(
@@ -170,4 +172,10 @@ class DriveWealthAccountApiProvider(
             }
         ) as BasicResponse<String>
     }
+}
+
+enum class DriveWealthDocumentTypes(val apiPath: String) {
+    Statement("statements"),
+    TaxForm("tax-forms"),
+    TradeConfirm("trade-confirms")
 }

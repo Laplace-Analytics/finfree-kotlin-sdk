@@ -6,8 +6,8 @@ import sdk.models.core.AssetProvider
 import sdk.trade.GenericPortfolioApiProvider
 import sdk.trade.models.portfolio.UserPortfolio
 
-abstract class UserPortfolioRepo<V>(
+abstract class UserPortfolioRepo(
     storageHandler: GenericStorage,
     apiProvider: GenericPortfolioApiProvider,
     val assetProvider: AssetProvider
-) : GenericRepository<UserPortfolio, V, GenericPortfolioApiProvider>(storageHandler, apiProvider)
+) : GenericRepository<UserPortfolio, Unit, GenericPortfolioApiProvider>(storageHandler, apiProvider)
