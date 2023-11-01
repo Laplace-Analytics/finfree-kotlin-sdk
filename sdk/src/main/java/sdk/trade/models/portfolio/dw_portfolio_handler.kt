@@ -23,6 +23,7 @@ import sdk.trade.repositories.repos.OrdersRepository
 import sdk.trade.repositories.repos.UserEquityRepo
 import sdk.trade.repositories.repos.UserPortfolioRepo
 import sdk.trade.generic_api.DriveWealthPortfolioApiProvider
+import sdk.trade.repositories.drivewealth_repos.DriveWealthOrderHandler
 
 class DWPortfolioHandler(
     override val endpointUrl: String
@@ -106,7 +107,7 @@ class DWPortfolioHandler(
             userEquityDataRepo = _portfolioRepos!!.userEquityRepo
         )
 
-        _orderHandler = OrderHandler(
+        _orderHandler = DriveWealthOrderHandler(
             orderAPIProvider = _portfolioRepos!!.ordersRepo.apiProvider
         )
     }

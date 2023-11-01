@@ -9,10 +9,12 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import sdk.base.network.*
+import sdk.models.Asset
 import sdk.models.AssetSymbol
 import sdk.trade.DeleteOrderResponse
 import sdk.trade.DeleteOrderResponseTypes
 import sdk.trade.GenericOrderAPIProvider
+import sdk.trade.OrderId
 import java.util.Locale
 import kotlin.math.absoluteValue
 
@@ -23,13 +25,13 @@ class DriveWealthOrderAPIProvider(
 ): GenericOrderAPIProvider(httpHandler,basePath){
     override suspend fun postLimitOrder(
         quantity: Int,
-        symbol: AssetSymbol,
+        asset: Asset,
         limitPrice: Double
     ): BasicResponse<Map<String, Any>> {
         val params: Map<String,Any> = mapOf(
             "orderType" to  "LIMIT",
             "price" to  limitPrice,
-            "symbol" to  symbol,
+            "symbol" to  asset.symbol,
             "side" to if (quantity > 0) "BUY" else "SELL",
             "quantity" to quantity.absoluteValue.toString()
         )
@@ -60,11 +62,11 @@ class DriveWealthOrderAPIProvider(
 
     override suspend fun postMarketOrder(
         quantity: Number,
-        symbol: AssetSymbol
+        asset: Asset
     ): BasicResponse<Map<String, Any>> {
         val params: Map<String,Any> = mapOf(
             "orderType" to  "MARKET",
-            "symbol" to  symbol,
+            "symbol" to  asset.symbol,
             "side" to if (quantity.toDouble() > 0) "BUY" else "SELL",
             "quantity" to when {
                 quantity is Int -> quantity.absoluteValue.toString()
@@ -97,16 +99,16 @@ class DriveWealthOrderAPIProvider(
     }
 
     override suspend fun putImproveOrder(
-        orderId: String,
-        symbol: AssetSymbol,
+        orderId: OrderId,
+        asset: Asset,
         newPrice: Double,
         newQuantity: Int
     ): BasicResponse<Map<String, Any>> {
         throw NotImplementedError("Not implemented yet")
     }
 
-    override suspend fun deleteOrder(orderId: String): DeleteOrderResponse {
-        val response = httpHandler.delete(path = "$basePath/$orderId")
+    override suspend fun deleteOrder(orderId: OrderId): DeleteOrderResponse {
+        val response = httpHandler.delete(path = "$basePath/${orderId.id}")
 
         return ApiResponseHandler.handleResponse(
             response,
@@ -273,11 +275,11 @@ class DriveWealthOrderAPIProvider(
     }
     suspend fun postNotionalMarketOrder(
         amount: Double,
-        symbol: AssetSymbol,
+        asset: Asset,
     ): BasicResponse<Map<String, Any>> {
         val params: Map<String,Any> = mapOf(
             "orderType" to  "MARKET",
-            "symbol" to  symbol,
+            "symbol" to  asset.symbol,
             "side" to if (amount > 0) "BUY" else "SELL",
             "amountCash" to amount.absoluteValue
         )

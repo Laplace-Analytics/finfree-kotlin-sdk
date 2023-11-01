@@ -33,7 +33,7 @@ class UserEquityData(
         return when (currentCurrency) {
             Currency.usd -> usdBalance
             Currency.tl -> {
-                val tryPortfolioDetails: TRYPortfolioDetails? = (portfolioDetails[Currency.tl] as? TRYPortfolioDetails)
+                val tryPortfolioDetails: TRYPortfolioDetails? = (portfolioDetails[Currency.tl] as? TRYPortfolioDetails?)
                 val cashFundAmount: Double = tryPortfolioDetails?.cashFundAmount ?: 0.0
                 return tryBalance!! + cashFundAmount
             }
