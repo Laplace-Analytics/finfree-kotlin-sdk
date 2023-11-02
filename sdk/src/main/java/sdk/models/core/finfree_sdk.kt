@@ -155,7 +155,7 @@ class FinfreeSDK {
                     storage = storage,
                     assetProvider = assetProvider,
                     sessionProvider = sessionProvider,
-                    priceDataRepo = priceDataRepo,
+                    priceDataRepo = data.priceDataRepo,
                     token = _accessToken!!
                 )
             }
