@@ -1,5 +1,8 @@
 package sdk.trade.models.portfolio
 
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import sdk.api.StockDataPeriods
 import sdk.models.data.assets.Asset
 import sdk.models.data.assets.AssetId
@@ -8,6 +11,8 @@ import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
 import sdk.models.core.sessions.DateTime
 import sdk.models.core.sessions.DateTime.Companion.toEpochMilliSecond
+import sdk.models.data.assets.Content
+import sdk.models.data.assets.contentType
 import sdk.models.data.time_series.EquityDataPoint
 import sdk.models.data.time_series.UserEquityTimeSeries
 import sdk.repositories.PriceDataIdentifier
@@ -20,10 +25,10 @@ import java.time.ZoneOffset
 import kotlin.math.absoluteValue
 
 class EquityDataBuilder private constructor(
-    val orders: List<OrderData>,
+    private val orders: List<OrderData>,
     // val bonuses: List<BonusData>,
-    val balance: Double,
-    val portfolioAssets: Map<AssetId, PortfolioAssetData>,
+    private val balance: Double,
+    private val portfolioAssets: Map<AssetId, PortfolioAssetData>,
     // val stockDataHandler: GenericStockDataHandler,
     val priceDataRepo: PriceDataRepo,
     val sessionProvider: SessionProvider,
@@ -94,7 +99,7 @@ class EquityDataBuilder private constructor(
         )
         var currBalance = balance
 
-        var periodTransactions = orders
+        val periodTransactions = orders
         val priceData = getPriceData(periodTransactions, period)
 
         val priceCurrIndex = priceData.mapValues { it.value.data.size - 1 }.toMutableMap()
@@ -217,11 +222,33 @@ class EquityDataBuilder private constructor(
 
         if (assets.isEmpty()) return emptyMap()
 
-        val priceData: Map<AssetId, Map<StockDataPeriods, PriceDataSeries>>? = priceDataRepo.getData(
-            PriceDataIdentifier(assets, listOf(period))
-        )
+        val assetsByContent =  mutableMapOf<Content, List<Asset>>()
 
-        if (priceData == null) return emptyMap()
+        for (asset in assets) {
+            assetsByContent.computeIfAbsent(asset.contentType) { mutableListOf() }
+            (assetsByContent[asset.contentType] as MutableList<Asset>).add(asset)
+        }
+
+        val data: Deferred<List<Map<AssetId, Map<StockDataPeriods, PriceDataSeries>>?>> = coroutineScope {
+            async {
+                List(assetsByContent.size) { index ->
+                    priceDataRepo.getData(
+                        PriceDataIdentifier(
+                            assetsByContent[assetsByContent.keys.toList()[index]]!!,
+                            listOf(period)
+                        )
+                    )
+                }
+            }
+        }
+        val combinedPriceData = data.await()
+
+        val priceData: MutableMap<AssetId, Map<StockDataPeriods, PriceDataSeries>> = mutableMapOf()
+
+        for (currentData in combinedPriceData) {
+            if (currentData == null) return mutableMapOf()
+            priceData.putAll(currentData)
+        }
 
         return priceData.mapValues { (_, value) -> value[period]!! }
     }
