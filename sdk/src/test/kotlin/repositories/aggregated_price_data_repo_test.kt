@@ -13,9 +13,9 @@ import sdk.api.LoginResponseTypes
 import sdk.api.StockDataApiProvider
 import sdk.api.StockDataPeriods
 import sdk.base.network.HTTPHandler
-import sdk.models.Asset
-import sdk.models.AssetType
-import sdk.models.Region
+import sdk.models.data.assets.Asset
+import sdk.models.data.assets.AssetType
+import sdk.models.data.assets.Region
 import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
 import sdk.repositories.AggregatedPriceDataSeriesIdentifier
@@ -43,8 +43,8 @@ class AggregatedPriceDataSeriesRepoTest {
             industryId = "industryId",
             sectorId = "sectorId",
             isActive = true,
-            region = Region.turkish,
-            type = AssetType.stock,
+            region = Region.Turkish,
+            type = AssetType.Stock,
             tradable = true
         ),
         Asset(
@@ -54,8 +54,8 @@ class AggregatedPriceDataSeriesRepoTest {
             industryId = "industryId",
             sectorId = "sectorId",
             isActive = true,
-            region = Region.turkish,
-            type = AssetType.stock,
+            region = Region.Turkish,
+            type = AssetType.Stock,
             tradable = true
         )
     )
@@ -95,7 +95,7 @@ class AggregatedPriceDataSeriesRepoTest {
         baseHttpHandler.token = loginData.accessToken
 
        sessionProvider.init()
-        assetProvider.init(setOf(Region.turkish, Region.american))
+        assetProvider.init(setOf(Region.Turkish, Region.American))
 
         val aggregatedPriceDataSeries = aggregatedPriceDataSeriesRepo.getData(
             AggregatedPriceDataSeriesIdentifier(

@@ -1,7 +1,7 @@
 package sdk.trade
 
 import sdk.base.GenericModel
-import sdk.models.Asset
+import sdk.models.data.assets.Asset
 import sdk.models.core.AssetProvider
 import sdk.models.core.sessions.DateTime
 import sdk.models.core.sessions.DateTime.Companion.toEpochMilliSecond

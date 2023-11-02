@@ -1,6 +1,6 @@
 package sdk.trade
 
-import sdk.models.AssetId
+import sdk.models.data.assets.AssetId
 import sdk.models.core.AssetProvider
 import java.lang.Math.min
 import java.time.LocalDateTime

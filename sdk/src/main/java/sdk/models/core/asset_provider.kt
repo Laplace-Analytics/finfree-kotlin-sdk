@@ -4,9 +4,12 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import sdk.base.logger
-import sdk.models.*
-import sdk.repositories.AssetCollectionRepo
-import sdk.repositories.AssetCollectionRepoIdentifier
+import sdk.models.data.assets.Asset
+import sdk.models.data.assets.AssetClass
+import sdk.models.data.assets.AssetId
+import sdk.models.data.assets.AssetSymbol
+import sdk.models.data.assets.AssetType
+import sdk.models.data.assets.Region
 import sdk.repositories.AssetRepo
 import sdk.repositories.AssetsRepoIdentifier
 import java.time.Duration

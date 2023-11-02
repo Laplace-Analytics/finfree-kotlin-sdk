@@ -4,7 +4,7 @@ import sdk.api.AccessToken
 import sdk.base.GenericStorage
 import sdk.base.exceptions.PortfolioHandlerNotInitializedException
 import sdk.base.network.HTTPHandler
-import sdk.models.PortfolioType
+import sdk.models.data.assets.PortfolioType
 import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
 import sdk.repositories.PriceDataRepo

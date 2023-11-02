@@ -1,32 +1,34 @@
-package sdk.models
+package sdk.models.data.assets
 
 import sdk.base.GenericModel
 import sdk.base.logger
+import sdk.models.IndustryId
+import sdk.models.SectorId
 
 enum class Region {
-    american,
-    turkish,
-    test
+    American,
+    Turkish,
+    Test
 }
 
 enum class AssetType {
-    stock,
-    etf,
-    crypto,
-    forex,
-    commodity
+    Stock,
+    Etf,
+    Crypto,
+    Forex,
+    Commodity
 }
 
 enum class AssetClass {
-    equity,
-    crypto,
-    forex
+    Equity,
+    Crypto,
+    Forex
 }
 
 enum class Currency {
-    usd,
-    tl,
-    eur
+    Usd,
+    Tl,
+    Eur
 }
 
 enum class PortfolioType {
@@ -37,7 +39,7 @@ enum class PortfolioType {
 
 enum class Content { TrEquity, UsEquity, TrCrypto }
 
-val Asset.contentType: Content?
+val Asset.contentType: Content
     get() = getContentType(region, assetClass)
 
 val Asset.notionalMarketOrderEnabled: Boolean
@@ -45,67 +47,66 @@ val Asset.notionalMarketOrderEnabled: Boolean
 
 
 
-fun getContentType(region: Region?, assetClass: AssetClass?): Content? {
+private fun getContentType(region: Region?, assetClass: AssetClass?): Content {
     if (region == null || assetClass == null) {
-        return null
+        throw Exception("Region or AssetClass is null: region: $region, assetClass: $assetClass")
     }
     when (region) {
-        Region.turkish -> {
+        Region.Turkish -> {
             when (assetClass) {
-                AssetClass.equity -> return Content.TrEquity
-                AssetClass.crypto -> return Content.TrCrypto
-                AssetClass.forex -> {
+                AssetClass.Equity -> return Content.TrEquity
+                AssetClass.Crypto -> return Content.TrCrypto
+                AssetClass.Forex -> {
                     // throw Exception("Forex is not supported in Turkey")
                 }
             }
         }
-        Region.american -> {
+        Region.American -> {
             when (assetClass) {
-                AssetClass.equity -> return Content.UsEquity
-                AssetClass.crypto -> {
+                AssetClass.Equity -> return Content.UsEquity
+                AssetClass.Crypto -> {
                     // throw Exception("Crypto is not supported in US")
                 }
-                AssetClass.forex -> {
+                AssetClass.Forex -> {
                     // throw Exception("Forex is not supported in US")
                 }
             }
         }
-        Region.test -> {
+        Region.Test -> {
         }
     }
-    logger.error("Content type is not supported for given region and asset class: $region, $assetClass")
-    return null
+    throw Exception("Content type is not supported for given region and asset class: $region, $assetClass")
 }
 
-fun getMarketType(source:String):Region {
-    return Region.turkish
+fun getMarketType(source:String): Region {
+    return Region.Turkish
 }
 
 fun getDefaultAssetClass(): AssetClass {
-    return AssetClass.equity
+    return AssetClass.Equity
 }
 
 fun AssetType.assetClass(): AssetClass {
     return when (this) {
-        AssetType.crypto -> AssetClass.crypto
-        AssetType.stock -> AssetClass.equity
+        AssetType.Crypto -> AssetClass.Crypto
+        AssetType.Stock -> AssetClass.Equity
         else -> getDefaultAssetClass()
     }
 }
 
 fun AssetClass.string(): String {
     return when (this) {
-        AssetClass.crypto -> "crypto"
-        AssetClass.forex -> "forex"
-        AssetClass.equity -> "equity"
+        AssetClass.Crypto -> "crypto"
+        AssetClass.Forex -> "forex"
+        AssetClass.Equity -> "equity"
     }
 }
 
 fun String.assetClass() : AssetClass {
     return when(this) {
-        "crypto" -> AssetClass.crypto
-        "forex" -> AssetClass.forex
-        "equity" -> AssetClass.equity
+        "crypto" -> AssetClass.Crypto
+        "forex" -> AssetClass.Forex
+        "equity" -> AssetClass.Equity
         else -> getDefaultAssetClass()
     }
 }
@@ -113,69 +114,69 @@ fun String.assetClass() : AssetClass {
 
 fun Region.string(): String {
     return when (this) {
-        Region.american -> "us"
-        Region.turkish -> "tr"
-        Region.test -> "test"
+        Region.American -> "us"
+        Region.Turkish -> "tr"
+        Region.Test -> "test"
     }
 }
 
 fun Region.localeString(): String {
     return when (this) {
-        Region.american -> "en"
-        Region.turkish -> "tr"
-        Region.test -> "test"
+        Region.American -> "en"
+        Region.Turkish -> "tr"
+        Region.Test -> "test"
     }
 }
 
 fun Region.defaultCurrency(): Currency {
     return when (this) {
-        Region.american -> Currency.usd
-        Region.turkish -> Currency.tl
-        Region.test -> Currency.usd
+        Region.American -> Currency.Usd
+        Region.Turkish -> Currency.Tl
+        Region.Test -> Currency.Usd
     }
 }
 
-fun Region.currencySymbol(): String? {
+fun Region.currencySymbol(): String {
     return this.defaultCurrency().currencySuffix()
 }
 
 fun Region.priority(): Int {
     return when (this) {
-        Region.turkish -> 0
-        Region.american -> 1
+        Region.Turkish -> 0
+        Region.American -> 1
         else -> 999
     }
 }
 
 fun String.region(): Region {
     return when (this) {
-        "us" -> Region.american
-        "tr" -> Region.turkish
-        "test" -> Region.test
+        "us" -> Region.American
+        "tr" -> Region.Turkish
+        "test" -> Region.Test
         else -> throw IllegalArgumentException("Cannot get Region for String: \"$this\"")
     }
 }
 
     fun AssetType.string(): String {
         return when (this) {
-            AssetType.stock -> "stock"
-            AssetType.crypto -> "crypto"
-            AssetType.etf -> "etf"
-            AssetType.forex -> "forex"
-            AssetType.commodity -> "commodity"
+            AssetType.Stock -> "stock"
+            AssetType.Crypto -> "crypto"
+            AssetType.Etf -> "etf"
+            AssetType.Forex -> "forex"
+            AssetType.Commodity -> "commodity"
         }
     }
 
     fun String.assetType(): AssetType {
         return when (this) {
-            "stock" -> AssetType.stock
-            "crypto" -> AssetType.crypto
-            "etf" -> AssetType.etf
-            "forex" -> AssetType.forex
-            "commodity" -> AssetType.commodity
+            "stock" -> AssetType.Stock
+            "crypto" -> AssetType.Crypto
+            "etf" -> AssetType.Etf
+            "forex" -> AssetType.Forex
+            "commodity" -> AssetType.Commodity
             else -> {
                 logger.info("Cannot get Currency for String: \"$this\"")
-                AssetType.stock
+                AssetType.Stock
             }
         }
     }
@@ -183,8 +184,8 @@ fun String.region(): Region {
 
 fun String.toCurrency(): Currency? {
     return when (this) {
-        "₺" -> Currency.tl
-        "$" -> Currency.usd
+        "₺" -> Currency.Tl
+        "$" -> Currency.Usd
         else -> {
             println("Cannot get Currency for String: \"$this\"")
             null
@@ -194,9 +195,9 @@ fun String.toCurrency(): Currency? {
 
 fun getCurrencyByAbbreviation(abbreviation: String): Currency? {
     return when (abbreviation) {
-        "TRY" -> Currency.tl
-        "USD" -> Currency.usd
-        "EUR" -> Currency.eur
+        "TRY" -> Currency.Tl
+        "USD" -> Currency.Usd
+        "EUR" -> Currency.Eur
         else -> {
             println("Cannot get Currency for abbreviation: \"$abbreviation\"")
             null
@@ -206,25 +207,25 @@ fun getCurrencyByAbbreviation(abbreviation: String): Currency? {
 
 fun Currency.currencySuffix(): String {
     return when (this) {
-        Currency.tl -> "₺"
-        Currency.usd -> "$"
-        Currency.eur -> "€"
+        Currency.Tl -> "₺"
+        Currency.Usd -> "$"
+        Currency.Eur -> "€"
     }
 }
 
 fun Currency.abbreviation(): String {
     return when (this) {
-        Currency.tl -> "TRY"
-        Currency.usd -> "USDTRY"
-        Currency.eur -> "EUR"
+        Currency.Tl -> "TRY"
+        Currency.Usd -> "USDTRY"
+        Currency.Eur -> "EUR"
     }
 }
 
 fun Currency.string(): String {
     return when (this) {
-        Currency.tl -> "TRY"
-        Currency.usd -> "USD"
-        Currency.eur -> "EUR"
+        Currency.Tl -> "TRY"
+        Currency.Usd -> "USD"
+        Currency.Eur -> "EUR"
     }
 }
 
@@ -246,26 +247,26 @@ data class Asset(
     val _name: String
         get() = name ?: symbol
 
-    val defaultCurrency: Currency
+    private val defaultCurrency: Currency
         get() = region.defaultCurrency()
 
     val currencySuffix: String
         get() = defaultCurrency.currencySuffix()
 
     val isTrEquity: Boolean
-        get() = region == Region.turkish && type == AssetType.stock
+        get() = region == Region.Turkish && type == AssetType.Stock
 
     val isCrypto: Boolean
-        get() = type == AssetType.crypto
+        get() = type == AssetType.Crypto
 
     val isPassive: Boolean
         get() = !isActive
 
     fun doubleTradable(isMarketOrder: Boolean): Boolean {
-        return if (region == Region.american && (type == AssetType.stock || type == AssetType.etf)) {
+        return if (region == Region.American && (type == AssetType.Stock || type == AssetType.Etf)) {
             isMarketOrder
         } else {
-            type == AssetType.crypto
+            type == AssetType.Crypto
         }
     }
 
@@ -273,17 +274,15 @@ data class Asset(
         if (this === other) return true
         if (other !is Asset) return false
 
-        val otherAsset = (other as Asset)
-
-        return this.id == otherAsset.id &&
-                this.name == otherAsset.name &&
-                this.symbol == otherAsset.symbol &&
-                this.sectorId == otherAsset.sectorId &&
-                this.industryId == otherAsset.industryId &&
-                this.isActive == otherAsset.isActive &&
-                this.region == otherAsset.region &&
-                this.type == otherAsset.type &&
-                this.tradable == otherAsset.tradable
+        return this.id == other.id &&
+                this.name == other.name &&
+                this.symbol == other.symbol &&
+                this.sectorId == other.sectorId &&
+                this.industryId == other.industryId &&
+                this.isActive == other.isActive &&
+                this.region == other.region &&
+                this.type == other.type &&
+                this.tradable == other.tradable
     }
 
     override fun hashCode(): Int {

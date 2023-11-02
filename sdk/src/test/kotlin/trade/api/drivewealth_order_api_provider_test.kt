@@ -13,9 +13,9 @@ import sdk.api.AuthApiProvider
 import sdk.api.LoginResponseTypes
 import sdk.base.network.BasicResponseTypes
 import sdk.base.network.HTTPHandler
-import sdk.models.Asset
-import sdk.models.AssetType
-import sdk.models.Region
+import sdk.models.data.assets.Asset
+import sdk.models.data.assets.AssetType
+import sdk.models.data.assets.Region
 import sdk.trade.api.drivewealth_api.DriveWealthOrderAPIProvider
 import java.time.LocalDateTime
 
@@ -31,9 +31,9 @@ class DriveWealthOrderAPIProviderTests{
         name = "",
         industryId = "",
         sectorId = "",
-        region = Region.american,
+        region = Region.American,
         isActive = true,
-        type = AssetType.stock,
+        type = AssetType.Stock,
         tradable = true
     )
 
@@ -43,9 +43,9 @@ class DriveWealthOrderAPIProviderTests{
         name = "",
         industryId = "",
         sectorId = "",
-        region = Region.american,
+        region = Region.American,
         isActive = true,
-        type = AssetType.stock,
+        type = AssetType.Stock,
         tradable = true
     )
 
@@ -55,9 +55,9 @@ class DriveWealthOrderAPIProviderTests{
         name = "",
         industryId = "",
         sectorId = "",
-        region = Region.american,
+        region = Region.American,
         isActive = true,
-        type = AssetType.stock,
+        type = AssetType.Stock,
         tradable = true
     )
 
@@ -67,9 +67,9 @@ class DriveWealthOrderAPIProviderTests{
         name = "",
         industryId = "",
         sectorId = "",
-        region = Region.american,
+        region = Region.American,
         isActive = true,
-        type = AssetType.stock,
+        type = AssetType.Stock,
         tradable = true
     )
 

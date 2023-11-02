@@ -2,11 +2,11 @@ package sdk.trade.models.portfolio
 
 import sdk.base.GenericModel
 import sdk.base.getDoubleFromDynamic
-import sdk.models.Asset
-import sdk.models.AssetClass
-import sdk.models.AssetId
-import sdk.models.AssetType
-import sdk.models.Region
+import sdk.models.data.assets.Asset
+import sdk.models.data.assets.AssetClass
+import sdk.models.data.assets.AssetId
+import sdk.models.data.assets.AssetType
+import sdk.models.data.assets.Region
 import sdk.models.core.AssetProvider
 
 class UserPortfolio(
@@ -58,8 +58,8 @@ class UserPortfolio(
 
                 val asset = assetProvider.findBySymbol(
                     element["symbol"] as String,
-                    assetClass = AssetClass.equity,
-                    region = Region.american
+                    assetClass = AssetClass.Equity,
+                    region = Region.American
                 )
 
                 asset?.let {

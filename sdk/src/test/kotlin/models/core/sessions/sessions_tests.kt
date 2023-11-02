@@ -3,8 +3,8 @@ package models.core.sessions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import sdk.models.AssetClass
-import sdk.models.Region
+import sdk.models.data.assets.AssetClass
+import sdk.models.data.assets.Region
 import sdk.models.core.HourMinuteSecond
 import sdk.models.core.Sessions
 import sdk.models.core.getDateTime
@@ -15,9 +15,9 @@ import java.util.Random
 class SessionTests{
     val sessions = sessionsString.map { Sessions.fromJson(it) }
 
-    val trEquity = sessions.first { it.assetClass == AssetClass.equity && it.region == Region.turkish }
-    val trCrypto = sessions.first { it.assetClass == AssetClass.crypto && it.region == Region.turkish }
-    val usEquity = sessions.first { it.assetClass == AssetClass.equity && it.region == Region.american }
+    val trEquity = sessions.first { it.assetClass == AssetClass.Equity && it.region == Region.Turkish }
+    val trCrypto = sessions.first { it.assetClass == AssetClass.Crypto && it.region == Region.Turkish }
+    val usEquity = sessions.first { it.assetClass == AssetClass.Equity && it.region == Region.American }
 
     @Test
     fun `weekend previous closest active date`() {
@@ -106,14 +106,14 @@ class SessionTests{
 
         @Test
         fun `getDate`() {
-            assertEquals(getDate(DateStatus.InDay, 30, Region.turkish), LocalDateTime.of(2021, 12, 30, 12, 0, 0))
-            assertEquals(getDate(DateStatus.AfterDay, 30, Region.turkish), LocalDateTime.of(2021, 12, 30, 21, 0, 0))
-            assertEquals(getDate(DateStatus.BeforeDay, 30, Region.turkish), LocalDateTime.of(2021, 12, 30, 8, 0, 0))
-            assertEquals(getDate(DateStatus.AfterDay, 30, Region.turkish, month = 10, year = 2020), LocalDateTime.of(2020, 10, 30, 21, 0, 0))
-            assertEquals(getDate(DateStatus.InDay, 30, Region.american), LocalDateTime.of(2021, 12, 30, 21, 0, 0))
-            assertEquals(getDate(DateStatus.AfterDay, 30, Region.american), LocalDateTime.of(2021, 12, 30, 15, 30, 0))
-            assertEquals(getDate(DateStatus.BeforeDay, 30, Region.american), LocalDateTime.of(2021, 12, 30, 15, 0, 0))
-            assertEquals(getDate(DateStatus.BeforeDay, 30, Region.american, month = 10, year = 2020), LocalDateTime.of(2020, 10, 30, 15, 0, 0))
+            assertEquals(getDate(DateStatus.InDay, 30, Region.Turkish), LocalDateTime.of(2021, 12, 30, 12, 0, 0))
+            assertEquals(getDate(DateStatus.AfterDay, 30, Region.Turkish), LocalDateTime.of(2021, 12, 30, 21, 0, 0))
+            assertEquals(getDate(DateStatus.BeforeDay, 30, Region.Turkish), LocalDateTime.of(2021, 12, 30, 8, 0, 0))
+            assertEquals(getDate(DateStatus.AfterDay, 30, Region.Turkish, month = 10, year = 2020), LocalDateTime.of(2020, 10, 30, 21, 0, 0))
+            assertEquals(getDate(DateStatus.InDay, 30, Region.American), LocalDateTime.of(2021, 12, 30, 21, 0, 0))
+            assertEquals(getDate(DateStatus.AfterDay, 30, Region.American), LocalDateTime.of(2021, 12, 30, 15, 30, 0))
+            assertEquals(getDate(DateStatus.BeforeDay, 30, Region.American), LocalDateTime.of(2021, 12, 30, 15, 0, 0))
+            assertEquals(getDate(DateStatus.BeforeDay, 30, Region.American, month = 10, year = 2020), LocalDateTime.of(2020, 10, 30, 15, 0, 0))
         }
 
     }
@@ -202,21 +202,21 @@ fun sessionsTest(sessions: Sessions) {
             DayOfWeek.SATURDAY -> {
                 assertEquals(
                     sessions.getNextClosestActiveDate(date),
-                    if (sessions.assetClass == AssetClass.crypto) date else dateGetter.dayStartWithDifference(2, date)
+                    if (sessions.assetClass == AssetClass.Crypto) date else dateGetter.dayStartWithDifference(2, date)
                 )
                 assertEquals(
                     sessions.getPreviousClosestActiveDate(date),
-                    if (sessions.assetClass == AssetClass.crypto) date else dateGetter.dayEndWithDifference(-1, date)
+                    if (sessions.assetClass == AssetClass.Crypto) date else dateGetter.dayEndWithDifference(-1, date)
                 )
             }
             DayOfWeek.SUNDAY -> {
                 assertEquals(
                     sessions.getNextClosestActiveDate(date),
-                    if (sessions.assetClass == AssetClass.crypto) date else dateGetter.dayStartWithDifference(1, date)
+                    if (sessions.assetClass == AssetClass.Crypto) date else dateGetter.dayStartWithDifference(1, date)
                 )
                 assertEquals(
                     sessions.getPreviousClosestActiveDate(date),
-                    if (sessions.assetClass == AssetClass.crypto) date else dateGetter.dayEndWithDifference(-2, date)
+                    if (sessions.assetClass == AssetClass.Crypto) date else dateGetter.dayEndWithDifference(-2, date)
                 )
             }
             else -> {

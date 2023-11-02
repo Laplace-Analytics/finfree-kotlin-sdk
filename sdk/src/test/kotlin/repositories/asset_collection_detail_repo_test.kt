@@ -12,7 +12,7 @@ import sdk.api.LoginResponseTypes
 import sdk.base.network.HTTPHandler
 import sdk.models.AssetCollection
 import sdk.models.CollectionType
-import sdk.models.Region
+import sdk.models.data.assets.Region
 import sdk.repositories.AssetCollectionDetailRepo
 import sdk.repositories.AssetCollectionDetailRepoIdentifier
 import sdk.repositories.AssetCollectionRepo
@@ -47,7 +47,7 @@ class AssetCollectionRepoTest {
 
         val collections = assetCollectionRepo.fetchData(
             AssetCollectionRepoIdentifier(
-                Region.turkish,
+                Region.Turkish,
                 CollectionType.collection
             )
         )

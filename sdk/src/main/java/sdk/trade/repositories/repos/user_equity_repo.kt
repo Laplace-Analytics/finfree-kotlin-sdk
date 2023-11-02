@@ -2,7 +2,7 @@ package sdk.trade.repositories.repos
 
 import sdk.base.GenericRepository
 import sdk.base.GenericStorage
-import sdk.models.AssetId
+import sdk.models.data.assets.AssetId
 import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
 import sdk.repositories.PriceDataRepo

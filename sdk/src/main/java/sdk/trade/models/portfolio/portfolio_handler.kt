@@ -2,7 +2,7 @@ package sdk.trade.models.portfolio
 
 import sdk.api.AccessToken
 import sdk.base.GenericStorage
-import sdk.models.PortfolioType
+import sdk.models.data.assets.PortfolioType
 import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
 import sdk.repositories.PriceDataRepo

@@ -5,6 +5,7 @@ import sdk.api.getPeriodFromString
 import sdk.models.*
 import sdk.models.core.SessionProvider
 import sdk.models.core.sessions.DateTime.Companion.toEpochMilliSecond
+import sdk.models.data.assets.Currency
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -16,7 +17,7 @@ class UserEquityTimeSeries(
     data: List<EquityDataPoint>,
     initialValue: Double,
     var period: StockDataPeriods,
-    var currency: Currency = Currency.tl
+    var currency: Currency = Currency.Tl
 ) : TimeSeries<EquityDataPoint>(data, initialValue) {
 
     fun receiveDataPoint(newData: EquityDataPoint, sessionProvider: SessionProvider): UserEquityTimeSeries {

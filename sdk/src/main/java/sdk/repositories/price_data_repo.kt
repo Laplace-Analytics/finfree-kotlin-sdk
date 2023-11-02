@@ -11,11 +11,12 @@ import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
 import sdk.models.core.sessions.DateTime
 import sdk.models.core.sessions.DateTime.Companion.toEpochMilliSecond
+import sdk.models.data.assets.Asset
+import sdk.models.data.assets.AssetClass
+import sdk.models.data.assets.AssetId
+import sdk.models.data.assets.Region
 import java.time.Duration
-import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneId
-import java.util.*
 
 open class PriceDataRepo(
     storageHandler: GenericStorage,
@@ -97,7 +98,7 @@ open class PriceDataRepo(
     ): LocalDateTime {
         val periodStartDate: LocalDateTime = when (period) {
             StockDataPeriods.Price1D -> sessionProvider.getDayStart(date = lastDataPoint, region = region, assetClass = assetClass)
-            StockDataPeriods.Price1W -> lastDataPoint.minus(if (assetClass == AssetClass.crypto) Duration.ofDays(7) else Duration.ofDays(5))
+            StockDataPeriods.Price1W -> lastDataPoint.minus(if (assetClass == AssetClass.Crypto) Duration.ofDays(7) else Duration.ofDays(5))
             StockDataPeriods.Price1M -> lastDataPoint.minusMonths(1).plusDays(2)
             StockDataPeriods.Price3M -> lastDataPoint.minusMonths(3).plusDays(2)
             StockDataPeriods.Price1Y -> lastDataPoint.minusYears(1).plusDays(2)

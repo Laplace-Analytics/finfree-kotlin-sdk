@@ -4,10 +4,9 @@ import sdk.api.StockDataPeriods
 import sdk.base.GenericStorage
 import sdk.base.logger
 import sdk.base.network.BasicResponseTypes
-import sdk.models.Currency
+import sdk.models.data.assets.Currency
 import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
-import sdk.models.core.sessions.DateTime
 import sdk.repositories.PriceDataRepo
 import sdk.trade.generic_api.DriveWealthPortfolioApiProvider
 import sdk.trade.models.portfolio.CashSettlement
@@ -74,10 +73,10 @@ class DriveWealthUserEquityRepo(
         ).toMutableMap()
 
         val balances = mutableMapOf<Currency, Double?>()
-        balances[Currency.usd] = usdBalance
+        balances[Currency.Usd] = usdBalance
 
         val buyingPowers = mutableMapOf<Currency, Double?>()
-        buyingPowers[Currency.usd] = usdBuyingPower
+        buyingPowers[Currency.Usd] = usdBuyingPower
 
         val portfolioDetails = mutableMapOf<Currency, PortfolioSpecificDetails>()
 
@@ -93,7 +92,7 @@ class DriveWealthUserEquityRepo(
             }
         }
 
-        portfolioDetails[Currency.usd] = USDPortfolioDetails(
+        portfolioDetails[Currency.Usd] = USDPortfolioDetails(
             usdWithdrawableAmount = withdrawableAmount,
             goodFaithViolationCount = goodFaithViolationCount,
             patternDayTraderViolationCount = patternDayTraderViolationCount,

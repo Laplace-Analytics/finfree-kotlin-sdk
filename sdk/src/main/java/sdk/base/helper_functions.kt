@@ -1,9 +1,9 @@
 package sdk.base
 
 import sdk.api.StockDataPeriods
-import sdk.models.Currency
-import sdk.models.currencySuffix
-import sdk.models.string
+import sdk.models.data.assets.Currency
+import sdk.models.data.assets.currencySuffix
+import sdk.models.data.assets.string
 import java.text.NumberFormat
 import java.time.Duration
 import java.time.LocalDateTime

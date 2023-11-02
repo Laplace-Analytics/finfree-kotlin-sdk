@@ -1,8 +1,8 @@
 package sdk.trade.models.portfolio
 
 import sdk.api.StockDataPeriods
-import sdk.models.Asset
-import sdk.models.AssetId
+import sdk.models.data.assets.Asset
+import sdk.models.data.assets.AssetId
 import sdk.models.PriceDataSeries
 import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider

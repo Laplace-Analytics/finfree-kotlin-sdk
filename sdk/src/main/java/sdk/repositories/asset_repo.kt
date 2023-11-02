@@ -7,13 +7,12 @@ import sdk.base.GenericRepository
 import sdk.base.GenericStorage
 import sdk.base.logger
 import sdk.base.network.BasicResponseTypes
-import sdk.models.Asset
-import sdk.models.Region
+import sdk.models.data.assets.Asset
+import sdk.models.data.assets.Region
 import sdk.models.core.sessions.DateTime
 import sdk.models.core.sessions.DateTime.Companion.toEpochMilliSecond
-import sdk.models.string
+import sdk.models.data.assets.string
 import java.time.LocalDateTime
-import javax.xml.crypto.Data
 
 open class AssetRepo(
     override val storageHandler: GenericStorage,
@@ -157,7 +156,7 @@ open class AssetRepo(
     }
 
     override fun getPath(identifier: AssetsRepoIdentifier?): String {
-        return "assets/${identifier?.region?.string() ?: Region.turkish.string()}"
+        return "assets/${identifier?.region?.string() ?: Region.Turkish.string()}"
     }
 
     override fun toJson(data: List<Asset>): Map<String, Any> {

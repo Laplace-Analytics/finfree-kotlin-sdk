@@ -1,6 +1,11 @@
 package sdk.models
 
 import sdk.base.GenericModel
+import sdk.models.data.assets.AssetClass
+import sdk.models.data.assets.Region
+import sdk.models.data.assets.assetClass
+import sdk.models.data.assets.region
+import sdk.models.data.assets.string
 
 enum class CollectionType {
     sector,
@@ -86,7 +91,7 @@ data class AssetCollection(
 
             if (assetClass == null) {
                 if (type == CollectionType.sector || type == CollectionType.industry) {
-                    assetClass = AssetClass.equity
+                    assetClass = AssetClass.Equity
                 } else {
                     throw Exception("Invalid assetClass or type: $type $assetClass")
                 }

@@ -2,14 +2,12 @@ package sdk.api
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import sdk.base.network.*
-import sdk.models.AssetClass
-import sdk.models.AssetId
-import sdk.models.AssetSymbol
-import sdk.models.Region
-import sdk.models.string
+import sdk.models.data.assets.AssetClass
+import sdk.models.data.assets.AssetId
+import sdk.models.data.assets.AssetSymbol
+import sdk.models.data.assets.Region
+import sdk.models.data.assets.string
 
 class StockDataApiProvider(
     override val httpHandler: HTTPHandler,
@@ -24,7 +22,7 @@ class StockDataApiProvider(
     ): BasicResponse<List<Map<String, Any>>> {
         val path = "$basePath/${assetClass.string()}/${locale.string()}"
         val fieldList = fields.map { it.period }.toMutableList()
-        if (fieldList.contains(StockDataPeriods.Price1D.period) && assetClass != AssetClass.crypto) {
+        if (fieldList.contains(StockDataPeriods.Price1D.period) && assetClass != AssetClass.Crypto) {
             fieldList.add("previous_close")
         }
 
@@ -60,7 +58,7 @@ class StockDataApiProvider(
     ): StockStatisticsResponse<List<Map<String, Any>>> {
         val path = "$basePath/${assetClass.string()}/${locale.string()}"
         val fieldList = fields.map { it.slug }.toMutableList()
-        if (fieldList.contains(StockDataPeriods.Price1D.period) && assetClass != AssetClass.crypto) {
+        if (fieldList.contains(StockDataPeriods.Price1D.period) && assetClass != AssetClass.Crypto) {
             fieldList.add("previous_close")
         }
 
@@ -98,7 +96,7 @@ class StockDataApiProvider(
     suspend fun getCryptoStatistics(
         symbol: AssetSymbol
     ): CryptoStatisticsResponse<Map<String, Any>> {
-        val path = "$basePath/stats/${AssetClass.crypto.string()}/$symbol"
+        val path = "$basePath/stats/${AssetClass.Crypto.string()}/$symbol"
 
         val response = httpHandler.get(path = path,tryAgainOnTimeout = false)
 

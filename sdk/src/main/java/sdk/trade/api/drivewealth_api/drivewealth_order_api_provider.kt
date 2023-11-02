@@ -5,12 +5,9 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import sdk.base.network.*
-import sdk.models.Asset
-import sdk.models.AssetSymbol
+import sdk.models.data.assets.Asset
+import sdk.models.data.assets.AssetSymbol
 import sdk.trade.DeleteOrderResponse
 import sdk.trade.DeleteOrderResponseTypes
 import sdk.trade.GenericOrderAPIProvider

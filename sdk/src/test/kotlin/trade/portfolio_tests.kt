@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import sdk.base.logger
-import sdk.models.PortfolioType
+import sdk.models.data.assets.PortfolioType
 import sdk.models.core.FinfreeSDK
 import sdk.trade.models.portfolio.UserPortfolio
 import java.util.Random

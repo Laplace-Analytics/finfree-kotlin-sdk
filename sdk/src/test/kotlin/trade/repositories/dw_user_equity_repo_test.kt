@@ -12,7 +12,7 @@ import sdk.api.CoreApiProvider
 import sdk.api.LoginResponseTypes
 import sdk.api.StockDataApiProvider
 import sdk.base.network.HTTPHandler
-import sdk.models.Region
+import sdk.models.data.assets.Region
 import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
 import sdk.repositories.AssetRepo
@@ -82,7 +82,7 @@ class DriveWealthUserEquityRepoTests {
         driveWealthHttpHandler.token = loginData.accessToken
         driveWealthHttpHandler.constantHeaders["GEDIK-ACCOUNT-ID"] = "928607"
         sessionProvider.init()
-        assetProvider.init(setOf(Region.american))
+        assetProvider.init(setOf(Region.American))
 
 
         val userPortfolio = driveWealthUserPortfolioRepo.getData(null)
@@ -111,7 +111,7 @@ class DriveWealthUserEquityRepoTests {
         driveWealthHttpHandler.token = loginData.accessToken
         driveWealthHttpHandler.constantHeaders["GEDIK-ACCOUNT-ID"] = "928607"
         sessionProvider.init()
-        assetProvider.init(setOf(Region.american))
+        assetProvider.init(setOf(Region.American))
 
         val userPortfolio = driveWealthUserPortfolioRepo.getData(null)
             ?: fail("Couldnt fetch user portfolio on user equity repo test")

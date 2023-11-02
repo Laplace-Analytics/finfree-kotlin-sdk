@@ -2,16 +2,14 @@ package sdk.api
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import sdk.base.network.*
-import sdk.models.AssetClass
-import sdk.models.CollectionId
+import sdk.models.data.assets.AssetClass
 import sdk.models.CollectionType
-import sdk.models.Region
-import sdk.models.localeString
-import sdk.models.string
+import sdk.models.data.assets.Region
+import sdk.models.data.assets.localeString
+import sdk.models.data.assets.string
 
 class CoreApiProvider(
     override val httpHandler: HTTPHandler

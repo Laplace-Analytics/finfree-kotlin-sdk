@@ -13,8 +13,8 @@ import sdk.base.exceptions.NotAuthorizedException
 import sdk.base.exceptions.PortfolioHandlerNotInitializedException
 import sdk.base.exceptions.SDKNotInitializedException
 import sdk.base.network.HTTPHandler
-import sdk.models.PortfolioType
-import sdk.models.Region
+import sdk.models.data.assets.PortfolioType
+import sdk.models.data.assets.Region
 import sdk.repositories.*
 import sdk.trade.*
 import sdk.trade.models.portfolio.PortfolioHandler

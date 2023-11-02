@@ -19,7 +19,7 @@ import sdk.base.getDoubleFromDynamic
 import sdk.base.getOwnedStockCountText
 import sdk.base.getTimePeriod
 import sdk.base.withEnglishCharacters
-import sdk.models.Currency
+import sdk.models.data.assets.Currency
 import java.time.LocalDateTime
 
 
@@ -328,27 +328,27 @@ class HelperFunctionsTest{
     inner class FormatPriceDoubleTests{
         @Test
         fun `Basic known usage test`() {
-            val formattedDouble = formatPriceDouble(12753.34623453, adjustPrecision = true, precision = 3, currency = Currency.tl)
+            val formattedDouble = formatPriceDouble(12753.34623453, adjustPrecision = true, precision = 3, currency = Currency.Tl)
 
             val formattedDouble6 = formatPriceDouble(12753.346, currency = null)
             assertEquals("12.753", formattedDouble6.trim())
 
-            val formattedDouble2 = formatPriceDouble(-23.5, currency = Currency.usd)
+            val formattedDouble2 = formatPriceDouble(-23.5, currency = Currency.Usd)
 
 
-            val formattedDouble4 = formatPriceDouble(null, currency = Currency.usd)
+            val formattedDouble4 = formatPriceDouble(null, currency = Currency.Usd)
             assertEquals("-", formattedDouble4.trim())
 
             val formattedDouble5 = formatPriceDouble(0.0, currency = null)
             assertEquals("0,00", formattedDouble5.trim())
 
-            val formattedDouble7 = formatPriceDouble(14324.23423, currency = Currency.tl, suffix = "\$")
+            val formattedDouble7 = formatPriceDouble(14324.23423, currency = Currency.Tl, suffix = "\$")
 
-            val formattedDouble8 = formatPriceDouble(6232343.43, currency = Currency.tl, prefix = "~")
+            val formattedDouble8 = formatPriceDouble(6232343.43, currency = Currency.Tl, prefix = "~")
 
-            val formattedDouble9 = formatPriceDouble(4674.82, adjustPrecision = false, precision = 4, currency = Currency.tl)
+            val formattedDouble9 = formatPriceDouble(4674.82, adjustPrecision = false, precision = 4, currency = Currency.Tl)
 
-            val formattedDouble10 = formatPriceDouble(-0.82, precision = 4, currency = Currency.tl)
+            val formattedDouble10 = formatPriceDouble(-0.82, precision = 4, currency = Currency.Tl)
         }
 
     }

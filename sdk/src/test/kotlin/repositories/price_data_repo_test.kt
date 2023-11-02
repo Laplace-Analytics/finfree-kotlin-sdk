@@ -14,10 +14,10 @@ import sdk.api.LoginResponseTypes
 import sdk.api.StockDataApiProvider
 import sdk.api.StockDataPeriods
 import sdk.base.network.HTTPHandler
-import sdk.models.Asset
-import sdk.models.AssetType
+import sdk.models.data.assets.Asset
+import sdk.models.data.assets.AssetType
 import sdk.models.PriceDataSeries
-import sdk.models.Region
+import sdk.models.data.assets.Region
 import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
 import sdk.repositories.AssetRepo
@@ -44,8 +44,8 @@ class PriceDataRepoTests {
     industryId= "industryId",
     sectorId= "sectorId",
     isActive= true,
-    region= Region.turkish,
-    type= AssetType.stock,
+    region= Region.Turkish,
+    type= AssetType.Stock,
     tradable= true,
     )
 
@@ -58,7 +58,7 @@ class PriceDataRepoTests {
         assetRepo = AssetRepo(MockStorage(),coreApiProvider)
 
         for (region in Region.values()) {
-            if (region != Region.test) {
+            if (region != Region.Test) {
                 regionListWithoutTest.add(region)
             }
         }
@@ -88,7 +88,7 @@ class PriceDataRepoTests {
         baseHttpHandler.token = loginData.accessToken
 
         sessionProvider.init()
-        assetProvider.init(setOf(Region.turkish, Region.american))
+        assetProvider.init(setOf(Region.Turkish, Region.American))
 
         priceData = priceDataRepo.fetchData(
             PriceDataIdentifier(

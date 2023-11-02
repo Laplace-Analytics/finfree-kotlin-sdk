@@ -16,10 +16,10 @@ import sdk.api.LoginResponseTypes
 import sdk.base.logger
 import sdk.base.network.BasicResponseTypes
 import sdk.base.network.HTTPHandler
-import sdk.models.AssetClass
+import sdk.models.data.assets.AssetClass
 import sdk.models.CollectionType
-import sdk.models.Region
-import sdk.models.string
+import sdk.models.data.assets.Region
+import sdk.models.data.assets.string
 import java.time.LocalDateTime
 
 class CoreApiProviderTest {
@@ -36,20 +36,20 @@ class CoreApiProviderTest {
         coreApiProvider = CoreApiProvider(baseHttpHandler)
         authApiProvider = AuthApiProvider(baseHttpHandler)
 
-         regionListWithoutTest = Region.values().filter { it != Region.test }
-         assetClassListWithoutForex = AssetClass.values().filter { it != AssetClass.forex }
+         regionListWithoutTest = Region.values().filter { it != Region.Test }
+         assetClassListWithoutForex = AssetClass.values().filter { it != AssetClass.Forex }
     }
 
     @Nested
     inner class GetPredefinedCollectionsTest {
         @Test
         fun `Fetch without token state`() = runBlocking {
-            val getPredefinedCollectionsResponse = coreApiProvider.getPredefinedCollections(Region.turkish)
+            val getPredefinedCollectionsResponse = coreApiProvider.getPredefinedCollections(Region.Turkish)
             assertEquals(BasicResponseTypes.Error, getPredefinedCollectionsResponse.responseType)
             assertNull(getPredefinedCollectionsResponse.data)
             assertEquals("Unauthorized\n", getPredefinedCollectionsResponse.message)
 
-            val getPredefinedCollectionsResponse2 = coreApiProvider.getPredefinedCollections(Region.american)
+            val getPredefinedCollectionsResponse2 = coreApiProvider.getPredefinedCollections(Region.American)
             assertEquals(BasicResponseTypes.Error, getPredefinedCollectionsResponse2.responseType)
             assertNull(getPredefinedCollectionsResponse2.data)
             assertEquals("Unauthorized\n", getPredefinedCollectionsResponse2.message)
@@ -60,13 +60,15 @@ class CoreApiProviderTest {
             runBlocking {
                 baseHttpHandler.token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb250ZW50X2NyZWF0b3IiOnRydWUsImR3X2FjY291bnRfaWQiOiI4Yzg5OGEyNi05YTU0LTQxMTktOTBiMy0xNTI0NjhjYjU0ZGUuMTY4MTIxMzQ1MTk2MSIsImR3X2FjY291bnRfbm8iOiJGRkFZMDAwMDAxIiwiZXhwIjoxNjkwMzIzNTY3LCJqdXJpc2RpY3Rpb24iOiJ0ciIsImxvY2FsZSI6InRyIiwicmVhZDpmaWx0ZXJfZGV0YWlsIjp0cnVlLCJyZWFkOnJ0X3ByaWNlIjp0cnVlLCJyZWFkOnNlY3RvciI6dHJ1ZSwidXNlcm5hbWUiOiJjbnRya3kifQ.XMOIoR1WdsIUQ9qqy5s31atLv1DfSLeCrijIUNbqrAXCidJI7T39lNM7dGODgofb9gzs9MOfLJr5eateUGHaKw"
 
-                val getPredefinedCollectionsResponse = coreApiProvider.getPredefinedCollections(Region.turkish)
+                val getPredefinedCollectionsResponse = coreApiProvider.getPredefinedCollections(
+                    Region.Turkish)
                 assertEquals(BasicResponseTypes.Error, getPredefinedCollectionsResponse.responseType)
                 assertNull(getPredefinedCollectionsResponse.data)
                 assertEquals("Unauthorized\n", getPredefinedCollectionsResponse.message)
 
 
-                val getPredefinedCollectionsResponse2 = coreApiProvider.getPredefinedCollections(Region.american)
+                val getPredefinedCollectionsResponse2 = coreApiProvider.getPredefinedCollections(
+                    Region.American)
                 assertEquals(BasicResponseTypes.Error, getPredefinedCollectionsResponse2.responseType)
                 assertNull(getPredefinedCollectionsResponse2.data)
                 assertEquals("Unauthorized\n", getPredefinedCollectionsResponse2.message)
@@ -81,11 +83,11 @@ class CoreApiProviderTest {
             val loginData = loginResponse.data!!
             baseHttpHandler.token = loginData.accessToken
 
-            val getPredefinedCollectionsResponse = coreApiProvider.getPredefinedCollections(Region.turkish)
+            val getPredefinedCollectionsResponse = coreApiProvider.getPredefinedCollections(Region.Turkish)
             assertEquals(BasicResponseTypes.Success, getPredefinedCollectionsResponse.responseType)
             assertNotNull(getPredefinedCollectionsResponse.data)
 
-            val getPredefinedCollectionsResponse2 = coreApiProvider.getPredefinedCollections(Region.american)
+            val getPredefinedCollectionsResponse2 = coreApiProvider.getPredefinedCollections(Region.American)
             assertEquals(BasicResponseTypes.Success, getPredefinedCollectionsResponse2.responseType)
             assertNotNull(getPredefinedCollectionsResponse2.data)
         }
@@ -99,18 +101,18 @@ class CoreApiProviderTest {
             val loginData = loginResponse.data!!
             baseHttpHandler.token = loginData.accessToken
 
-            val getPredefinedCollectionsResponse = coreApiProvider.getPredefinedCollections(Region.turkish)
+            val getPredefinedCollectionsResponse = coreApiProvider.getPredefinedCollections(Region.Turkish)
             assertEquals(BasicResponseTypes.Success, getPredefinedCollectionsResponse.responseType)
             assertNotNull(getPredefinedCollectionsResponse.data)
             getPredefinedCollectionsResponse.data?.forEach { collectionMap ->
-                assertEquals(Region.turkish.string(), collectionMap["region"])
+                assertEquals(Region.Turkish.string(), collectionMap["region"])
             }
 
-            val getPredefinedCollectionsResponse2 = coreApiProvider.getPredefinedCollections(Region.american)
+            val getPredefinedCollectionsResponse2 = coreApiProvider.getPredefinedCollections(Region.American)
             assertEquals(BasicResponseTypes.Success, getPredefinedCollectionsResponse2.responseType)
             assertNotNull(getPredefinedCollectionsResponse2.data)
             getPredefinedCollectionsResponse2.data?.forEach { collectionMap ->
-                assertEquals(Region.american.string(), collectionMap["region"])
+                assertEquals(Region.American.string(), collectionMap["region"])
             }
         }
 
@@ -118,7 +120,7 @@ class CoreApiProviderTest {
         fun `Fetch after token expire scenario`() = runBlocking {
             baseHttpHandler.token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb250ZW50X2NyZWF0b3IiOnRydWUsImR3X2FjY291bnRfaWQiOiI4Yzg5OGEyNi05YTU0LTQxMTktOTBiMy0xNTI0NjhjYjU0ZGUuMTY4MTIxMzQ1MTk2MSIsImR3X2FjY291bnRfbm8iOiJGRkFZMDAwMDAxIiwiZXhwIjoxNjkwMzIzNTY3LCJqdXJpc2RpY3Rpb24iOiJ0ciIsImxvY2FsZSI6InRyIiwicmVhZDpmaWx0ZXJfZGV0YWlsIjp0cnVlLCJyZWFkOnJ0X3ByaWNlIjp0cnVlLCJyZWFkOnNlY3RvciI6dHJ1ZSwidXNlcm5hbWUiOiJjbnRya3kifQ.XMOIoR1WdsIUQ9qqy5s31atLv1DfSLeCrijIUNbqrAXCidJI7T39lNM7dGODgofb9gzs9MOfLJr5eateUGHaKw"
 
-            val getPredefinedCollectionsResponse = coreApiProvider.getPredefinedCollections(Region.turkish)
+            val getPredefinedCollectionsResponse = coreApiProvider.getPredefinedCollections(Region.Turkish)
             assertEquals(BasicResponseTypes.Error, getPredefinedCollectionsResponse.responseType)
             assertNull(getPredefinedCollectionsResponse.data)
             assertEquals("Unauthorized\n", getPredefinedCollectionsResponse.message)
@@ -130,7 +132,7 @@ class CoreApiProviderTest {
             val loginData = loginResponse.data!!
             baseHttpHandler.token = loginData.accessToken
 
-            val getPredefinedCollectionsResponse2 = coreApiProvider.getPredefinedCollections(Region.american)
+            val getPredefinedCollectionsResponse2 = coreApiProvider.getPredefinedCollections(Region.American)
             assertEquals(BasicResponseTypes.Success, getPredefinedCollectionsResponse2.responseType)
             assertNotNull(getPredefinedCollectionsResponse2.data)
         }
@@ -142,12 +144,12 @@ class CoreApiProviderTest {
         fun `Fetch with expired token state`() = runBlocking {
             baseHttpHandler.token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb250ZW50X2NyZWF0b3IiOnRydWUsImR3X2FjY291bnRfaWQiOiI4Yzg5OGEyNi05YTU0LTQxMTktOTBiMy0xNTI0NjhjYjU0ZGUuMTY4MTIxMzQ1MTk2MSIsImR3X2FjY291bnRfbm8iOiJGRkFZMDAwMDAxIiwiZXhwIjoxNjkwMzIzNTY3LCJqdXJpc2RpY3Rpb24iOiJ0ciIsImxvY2FsZSI6InRyIiwicmVhZDpmaWx0ZXJfZGV0YWlsIjp0cnVlLCJyZWFkOnJ0X3ByaWNlIjp0cnVlLCJyZWFkOnNlY3RvciI6dHJ1ZSwidXNlcm5hbWUiOiJjbnRya3kifQ.XMOIoR1WdsIUQ9qqy5s31atLv1DfSLeCrijIUNbqrAXCidJI7T39lNM7dGODgofb9gzs9MOfLJr5eateUGHaKw"
 
-            val getAllStocksResponse = coreApiProvider.getAllStocks(Region.turkish)
+            val getAllStocksResponse = coreApiProvider.getAllStocks(Region.Turkish)
             assertEquals(BasicResponseTypes.Error, getAllStocksResponse.responseType)
             assertNull(getAllStocksResponse.data)
             assertEquals("Unauthorized\n", getAllStocksResponse.message)
 
-            val getAllStocksResponse2 = coreApiProvider.getAllStocks(Region.american)
+            val getAllStocksResponse2 = coreApiProvider.getAllStocks(Region.American)
             assertEquals(BasicResponseTypes.Error, getAllStocksResponse2.responseType)
             assertNull(getAllStocksResponse2.data)
             assertEquals("Unauthorized\n", getAllStocksResponse2.message)
@@ -155,12 +157,12 @@ class CoreApiProviderTest {
 
         @Test
         fun `Fetch without token state`() = runBlocking {
-            val getAllStocksResponse = coreApiProvider.getAllStocks(Region.turkish)
+            val getAllStocksResponse = coreApiProvider.getAllStocks(Region.Turkish)
             assertEquals(BasicResponseTypes.Error, getAllStocksResponse.responseType)
             assertNull(getAllStocksResponse.data)
             assertEquals("Unauthorized\n", getAllStocksResponse.message)
 
-            val getAllStocksResponse2 = coreApiProvider.getAllStocks(Region.american)
+            val getAllStocksResponse2 = coreApiProvider.getAllStocks(Region.American)
             assertEquals(BasicResponseTypes.Error, getAllStocksResponse2.responseType)
             assertNull(getAllStocksResponse2.data)
             assertEquals("Unauthorized\n", getAllStocksResponse2.message)
@@ -176,12 +178,12 @@ class CoreApiProviderTest {
             val loginData = loginResponse.data!!
             baseHttpHandler.token = loginData.accessToken
 
-            val getAllStocksResponse = coreApiProvider.getAllStocks(Region.turkish)
+            val getAllStocksResponse = coreApiProvider.getAllStocks(Region.Turkish)
             assertEquals(BasicResponseTypes.Success, getAllStocksResponse.responseType)
             assertNotNull(getAllStocksResponse.data)
             assertTrue((getAllStocksResponse.data?.size ?: 0) > 0)
 
-            val getAllStocksResponse2 = coreApiProvider.getAllStocks(Region.american)
+            val getAllStocksResponse2 = coreApiProvider.getAllStocks(Region.American)
             assertEquals(BasicResponseTypes.Success, getAllStocksResponse2.responseType)
             assertNotNull(getAllStocksResponse2.data)
             assertTrue((getAllStocksResponse2.data?.size ?: 0) > 0)
@@ -201,7 +203,7 @@ class CoreApiProviderTest {
 
 
             val getAllStocksResponse = coreApiProvider.getAllStocks(
-                Region.turkish,
+                Region.Turkish,
                 secondsSinceEpoch = secondsSinceEpoch
             )
             assertEquals(BasicResponseTypes.Success, getAllStocksResponse.responseType)
@@ -209,7 +211,7 @@ class CoreApiProviderTest {
             assertTrue((getAllStocksResponse.data?.size ?: 0) > 0)
 
             val getAllStocksResponse2 = coreApiProvider.getAllStocks(
-                Region.american,
+                Region.American,
                 secondsSinceEpoch = secondsSinceEpoch
             )
             assertEquals(BasicResponseTypes.Success, getAllStocksResponse2.responseType)
@@ -221,7 +223,7 @@ class CoreApiProviderTest {
         fun `Fetch after token expire scenario`() = runBlocking {
             baseHttpHandler.token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb250ZW50X2NyZWF0b3IiOnRydWUsImR3X2FjY291bnRfaWQiOiI4Yzg5OGEyNi05YTU0LTQxMTktOTBiMy0xNTI0NjhjYjU0ZGUuMTY4MTIxMzQ1MTk2MSIsImR3X2FjY291bnRfbm8iOiJGRkFZMDAwMDAxIiwiZXhwIjoxNjkwMzIzNTY3LCJqdXJpc2RpY3Rpb24iOiJ0ciIsImxvY2FsZSI6InRyIiwicmVhZDpmaWx0ZXJfZGV0YWlsIjp0cnVlLCJyZWFkOnJ0X3ByaWNlIjp0cnVlLCJyZWFkOnNlY3RvciI6dHJ1ZSwidXNlcm5hbWUiOiJjbnRya3kifQ.XMOIoR1WdsIUQ9qqy5s31atLv1DfSLeCrijIUNbqrAXCidJI7T39lNM7dGODgofb9gzs9MOfLJr5eateUGHaKw"
 
-            val getAllStocksResponse = coreApiProvider.getAllStocks(Region.turkish)
+            val getAllStocksResponse = coreApiProvider.getAllStocks(Region.Turkish)
             assertEquals(BasicResponseTypes.Error, getAllStocksResponse.responseType)
             assertNull(getAllStocksResponse.data)
             assertEquals("Unauthorized\n", getAllStocksResponse.message)
@@ -233,7 +235,7 @@ class CoreApiProviderTest {
             val loginData = loginResponse.data!!
             baseHttpHandler.token = loginData.accessToken
 
-            val getAllStocksResponse2 = coreApiProvider.getAllStocks(Region.american)
+            val getAllStocksResponse2 = coreApiProvider.getAllStocks(Region.American)
             assertEquals(BasicResponseTypes.Success, getAllStocksResponse2.responseType)
             assertNotNull(getAllStocksResponse2.data)
             assertTrue((getAllStocksResponse2.data?.size ?: 0) > 0)
@@ -321,16 +323,16 @@ class CoreApiProviderTest {
             var isThereCryptoClass = false
 
             (getSessionsResponse.data as List<Map<String,Any>>).forEach { session:Map<String,Any> ->
-                if (!isThereTurkishRegion && session["region"] == Region.turkish.string()) {
+                if (!isThereTurkishRegion && session["region"] == Region.Turkish.string()) {
                     isThereTurkishRegion = true
                 }
-                if (!isThereAmericanRegion && session["region"] == Region.american.string()) {
+                if (!isThereAmericanRegion && session["region"] == Region.American.string()) {
                     isThereAmericanRegion = true
                 }
-                if (!isThereEquityClass && session["asset_class"] == AssetClass.equity.string()) {
+                if (!isThereEquityClass && session["asset_class"] == AssetClass.Equity.string()) {
                     isThereEquityClass = true
                 }
-                if (!isThereCryptoClass && session["asset_class"] == AssetClass.crypto.string()) {
+                if (!isThereCryptoClass && session["asset_class"] == AssetClass.Crypto.string()) {
                     isThereCryptoClass = true
                 }
             }
@@ -407,7 +409,7 @@ class CoreApiProviderTest {
         fun `Fetch with expired token state`() = runBlocking {
             baseHttpHandler.token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb250ZW50X2NyZWF0b3IiOnRydWUsImR3X2FjY291bnRfaWQiOiI4Yzg5OGEyNi05YTU0LTQxMTktOTBiMy0xNTI0NjhjYjU0ZGUuMTY4MTIxMzQ1MTk2MSIsImR3X2FjY291bnRfbm8iOiJGRkFZMDAwMDAxIiwiZXhwIjoxNjkwMzIzNTY3LCJqdXJpc2RpY3Rpb24iOiJ0ciIsImxvY2FsZSI6InRyIiwicmVhZDpmaWx0ZXJfZGV0YWlsIjp0cnVlLCJyZWFkOnJ0X3ByaWNlIjp0cnVlLCJyZWFkOnNlY3RvciI6dHJ1ZSwidXNlcm5hbWUiOiJjbnRya3kifQ.XMOIoR1WdsIUQ9qqy5s31atLv1DfSLeCrijIUNbqrAXCidJI7T39lNM7dGODgofb9gzs9MOfLJr5eateUGHaKw"
 
-            val getCollectionsResponse = coreApiProvider.getCollections(Region.american, CollectionType.collection)
+            val getCollectionsResponse = coreApiProvider.getCollections(Region.American, CollectionType.collection)
             assertEquals(BasicResponseTypes.Error, getCollectionsResponse.responseType)
             assertNull(getCollectionsResponse.data)
             assertEquals("Unauthorized\n", getCollectionsResponse.message)
@@ -415,7 +417,7 @@ class CoreApiProviderTest {
 
         @Test
         fun `Fetch without token state`() = runBlocking {
-            val getSessionsResponse = coreApiProvider.getCollections(Region.turkish, CollectionType.industry)
+            val getSessionsResponse = coreApiProvider.getCollections(Region.Turkish, CollectionType.industry)
             assertEquals(BasicResponseTypes.Error, getSessionsResponse.responseType)
             assertNull(getSessionsResponse.data)
             assertEquals("Unauthorized\n", getSessionsResponse.message)
@@ -454,7 +456,7 @@ class CoreApiProviderTest {
         fun `Fetch after token expire scenario`() = runBlocking {
             baseHttpHandler.token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb250ZW50X2NyZWF0b3IiOnRydWUsImR3X2FjY291bnRfaWQiOiI4Yzg5OGEyNi05YTU0LTQxMTktOTBiMy0xNTI0NjhjYjU0ZGUuMTY4MTIxMzQ1MTk2MSIsImR3X2FjY291bnRfbm8iOiJGRkFZMDAwMDAxIiwiZXhwIjoxNjkwMzIzNTY3LCJqdXJpc2RpY3Rpb24iOiJ0ciIsImxvY2FsZSI6InRyIiwicmVhZDpmaWx0ZXJfZGV0YWlsIjp0cnVlLCJyZWFkOnJ0X3ByaWNlIjp0cnVlLCJyZWFkOnNlY3RvciI6dHJ1ZSwidXNlcm5hbWUiOiJjbnRya3kifQ.XMOIoR1WdsIUQ9qqy5s31atLv1DfSLeCrijIUNbqrAXCidJI7T39lNM7dGODgofb9gzs9MOfLJr5eateUGHaKw"
 
-            val getSessionsResponse = coreApiProvider.getCollections(Region.turkish, CollectionType.sector)
+            val getSessionsResponse = coreApiProvider.getCollections(Region.Turkish, CollectionType.sector)
             assertEquals(BasicResponseTypes.Error, getSessionsResponse.responseType)
             assertNull(getSessionsResponse.data)
             assertEquals("Unauthorized\n", getSessionsResponse.message)
@@ -466,7 +468,7 @@ class CoreApiProviderTest {
             val loginData = loginResponse.data!!
             baseHttpHandler.token = loginData.accessToken
 
-            val getCollectionsResponse2 = coreApiProvider.getCollections(Region.turkish, CollectionType.sector)
+            val getCollectionsResponse2 = coreApiProvider.getCollections(Region.Turkish, CollectionType.sector)
             assertEquals(BasicResponseTypes.Success, getCollectionsResponse2.responseType)
             assertNotNull(getCollectionsResponse2.data)
             assertTrue(getCollectionsResponse2.data?.size ?: 0 > 0)
@@ -478,7 +480,7 @@ class CoreApiProviderTest {
         fun `Fetch with expired token state`() = runBlocking {
             baseHttpHandler.token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb250ZW50X2NyZWF0b3IiOnRydWUsImR3X2FjY291bnRfaWQiOiI4Yzg5OGEyNi05YTU0LTQxMTktOTBiMy0xNTI0NjhjYjU0ZGUuMTY4MTIxMzQ1MTk2MSIsImR3X2FjY291bnRfbm8iOiJGRkFZMDAwMDAxIiwiZXhwIjoxNjkwMzIzNTY3LCJqdXJpc2RpY3Rpb24iOiJ0ciIsImxvY2FsZSI6InRyIiwicmVhZDpmaWx0ZXJfZGV0YWlsIjp0cnVlLCJyZWFkOnJ0X3ByaWNlIjp0cnVlLCJyZWFkOnNlY3RvciI6dHJ1ZSwidXNlcm5hbWUiOiJjbnRya3kifQ.XMOIoR1WdsIUQ9qqy5s31atLv1DfSLeCrijIUNbqrAXCidJI7T39lNM7dGODgofb9gzs9MOfLJr5eateUGHaKw"
 
-            val getJurisdictionResponse = coreApiProvider.getJurisdiction(Region.american)
+            val getJurisdictionResponse = coreApiProvider.getJurisdiction(Region.American)
             assertEquals(BasicResponseTypes.Error, getJurisdictionResponse.responseType)
             assertNull(getJurisdictionResponse.data)
             assertEquals("Unauthorized\n", getJurisdictionResponse.message)
@@ -486,7 +488,7 @@ class CoreApiProviderTest {
 
         @Test
         fun `Fetch without token state`() = runBlocking {
-            val getJurisdictionResponse = coreApiProvider.getJurisdiction(Region.turkish)
+            val getJurisdictionResponse = coreApiProvider.getJurisdiction(Region.Turkish)
             assertEquals(BasicResponseTypes.Error, getJurisdictionResponse.responseType)
             assertNull(getJurisdictionResponse.data)
             assertEquals("Unauthorized\n", getJurisdictionResponse.message)
@@ -514,7 +516,7 @@ class CoreApiProviderTest {
         fun `Fetch after token expire scenario`() = runBlocking {
             baseHttpHandler.token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb250ZW50X2NyZWF0b3IiOnRydWUsImR3X2FjY291bnRfaWQiOiI4Yzg5OGEyNi05YTU0LTQxMTktOTBiMy0xNTI0NjhjYjU0ZGUuMTY4MTIxMzQ1MTk2MSIsImR3X2FjY291bnRfbm8iOiJGRkFZMDAwMDAxIiwiZXhwIjoxNjkwMzIzNTY3LCJqdXJpc2RpY3Rpb24iOiJ0ciIsImxvY2FsZSI6InRyIiwicmVhZDpmaWx0ZXJfZGV0YWlsIjp0cnVlLCJyZWFkOnJ0X3ByaWNlIjp0cnVlLCJyZWFkOnNlY3RvciI6dHJ1ZSwidXNlcm5hbWUiOiJjbnRya3kifQ.XMOIoR1WdsIUQ9qqy5s31atLv1DfSLeCrijIUNbqrAXCidJI7T39lNM7dGODgofb9gzs9MOfLJr5eateUGHaKw"
 
-            var getJurisdictionResponse = coreApiProvider.getJurisdiction(Region.turkish)
+            var getJurisdictionResponse = coreApiProvider.getJurisdiction(Region.Turkish)
             assertEquals(BasicResponseTypes.Error, getJurisdictionResponse.responseType)
             assertNull(getJurisdictionResponse.data)
             assertEquals("Unauthorized\n", getJurisdictionResponse.message)
@@ -526,7 +528,7 @@ class CoreApiProviderTest {
             val loginData = loginResponse.data!!
             baseHttpHandler.token = loginData.accessToken
 
-            getJurisdictionResponse = coreApiProvider.getJurisdiction(Region.turkish)
+            getJurisdictionResponse = coreApiProvider.getJurisdiction(Region.Turkish)
             assertEquals(BasicResponseTypes.Success, getJurisdictionResponse.responseType)
             assertNotNull(getJurisdictionResponse.data)
         }
@@ -539,8 +541,8 @@ class CoreApiProviderTest {
             baseHttpHandler.token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb250ZW50X2NyZWF0b3IiOnRydWUsImR3X2FjY291bnRfaWQiOiI4Yzg5OGEyNi05YTU0LTQxMTktOTBiMy0xNTI0NjhjYjU0ZGUuMTY4MTIxMzQ1MTk2MSIsImR3X2FjY291bnRfbm8iOiJGRkFZMDAwMDAxIiwiZXhwIjoxNjkwMzIzNTY3LCJqdXJpc2RpY3Rpb24iOiJ0ciIsImxvY2FsZSI6InRyIiwicmVhZDpmaWx0ZXJfZGV0YWlsIjp0cnVlLCJyZWFkOnJ0X3ByaWNlIjp0cnVlLCJyZWFkOnNlY3RvciI6dHJ1ZSwidXNlcm5hbWUiOiJjbnRya3kifQ.XMOIoR1WdsIUQ9qqy5s31atLv1DfSLeCrijIUNbqrAXCidJI7T39lNM7dGODgofb9gzs9MOfLJr5eateUGHaKw"
 
             val postJurisdictionResponse = coreApiProvider.postJurisdiction(
-                jurisdiction = Region.american,
-                locale = Region.american
+                jurisdiction = Region.American,
+                locale = Region.American
             )
             assertEquals(BasicResponseTypes.Error, postJurisdictionResponse.responseType)
             assertEquals("Unauthorized\n", postJurisdictionResponse.message)
@@ -549,8 +551,8 @@ class CoreApiProviderTest {
         @Test
         fun `Post without token state`() = runBlocking {
             val postJurisdictionResponse = coreApiProvider.postJurisdiction(
-                jurisdiction = Region.turkish,
-                locale = Region.american
+                jurisdiction = Region.Turkish,
+                locale = Region.American
             )
             assertEquals(BasicResponseTypes.Error, postJurisdictionResponse.responseType)
             assertEquals("Unauthorized\n", postJurisdictionResponse.message)
@@ -581,8 +583,8 @@ class CoreApiProviderTest {
             baseHttpHandler.token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb250ZW50X2NyZWF0b3IiOnRydWUsImR3X2FjY291bnRfaWQiOiI4Yzg5OGEyNi05YTU0LTQxMTktOTBiMy0xNTI0NjhjYjU0ZGUuMTY4MTIxMzQ1MTk2MSIsImR3X2FjY291bnRfbm8iOiJGRkFZMDAwMDAxIiwiZXhwIjoxNjkwMzIzNTY3LCJqdXJpc2RpY3Rpb24iOiJ0ciIsImxvY2FsZSI6InRyIiwicmVhZDpmaWx0ZXJfZGV0YWlsIjp0cnVlLCJyZWFkOnJ0X3ByaWNlIjp0cnVlLCJyZWFkOnNlY3RvciI6dHJ1ZSwidXNlcm5hbWUiOiJjbnRya3kifQ.XMOIoR1WdsIUQ9qqy5s31atLv1DfSLeCrijIUNbqrAXCidJI7T39lNM7dGODgofb9gzs9MOfLJr5eateUGHaKw"
 
             val postJurisdictionResponse = coreApiProvider.postJurisdiction(
-                jurisdiction = Region.turkish,
-                locale = Region.turkish
+                jurisdiction = Region.Turkish,
+                locale = Region.Turkish
             )
             assertEquals(BasicResponseTypes.Error, postJurisdictionResponse.responseType)
             assertEquals("Unauthorized\n", postJurisdictionResponse.message)
@@ -595,8 +597,8 @@ class CoreApiProviderTest {
             baseHttpHandler.token = reLoginData.accessToken
 
             val postJurisdictionResponse2 = coreApiProvider.postJurisdiction(
-                jurisdiction = Region.turkish,
-                locale = Region.turkish
+                jurisdiction = Region.Turkish,
+                locale = Region.Turkish
             )
             assertEquals(BasicResponseTypes.Success, postJurisdictionResponse2.responseType)
         }
