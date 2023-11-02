@@ -11,8 +11,9 @@ import sdk.models.data.assets.string
 
 class StockDataApiProvider(
     override val httpHandler: HTTPHandler,
-    private val basePath: String = "stock"
 ) : GenericApiProvider(httpHandler) {
+    private val basePath: String = "stock"
+
 
     suspend fun getStockPriceData(
         locale: Region,

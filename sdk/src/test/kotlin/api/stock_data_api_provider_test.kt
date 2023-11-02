@@ -28,7 +28,7 @@ class StockDataApiProviderTests{
     @BeforeEach
     fun setup(){
         baseHttpHandler = HTTPHandler(httpURL = "finfree.app")
-        stockDataApiProvider = StockDataApiProvider(baseHttpHandler,"stock")
+        stockDataApiProvider = StockDataApiProvider(baseHttpHandler)
         authApiProvider = AuthApiProvider(baseHttpHandler)
     }
 

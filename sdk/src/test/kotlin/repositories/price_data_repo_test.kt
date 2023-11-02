@@ -37,7 +37,7 @@ class PriceDataRepoTests {
     private lateinit var priceDataRepo: PriceDataRepo
     private lateinit var sessionsRepo: SessionsRepo
 
-    val testAssetJustHaveSymbol: Asset = Asset(
+    private val testAssetJustHaveSymbol: Asset = Asset(
     id = "id",
     name= "name",
     symbol= "THYAO",
@@ -69,7 +69,7 @@ class PriceDataRepoTests {
         ) {
             "Europe/Istanbul"
         }
-        stockDataApiProvider = StockDataApiProvider(baseHttpHandler, "stock")
+        stockDataApiProvider = StockDataApiProvider(baseHttpHandler)
         sessionProvider = SessionProvider(sessionsRepo = sessionsRepo)
         assetProvider = AssetProvider(assetRepo = assetRepo)
         priceDataRepo = PriceDataRepo(MockStorage(), stockDataApiProvider, sessionProvider, assetProvider)

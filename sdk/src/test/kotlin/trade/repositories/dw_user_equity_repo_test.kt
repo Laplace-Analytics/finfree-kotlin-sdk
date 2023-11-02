@@ -48,7 +48,7 @@ class DriveWealthUserEquityRepoTests {
         assetRepo = AssetRepo(MockStorage(),coreApiProvider)
         assetProvider = AssetProvider(assetRepo = assetRepo)
         driveWealthPortfolioApiProvider = DriveWealthPortfolioApiProvider(driveWealthHttpHandler, "api/v1/tr")
-        stockDataApiProvider = StockDataApiProvider(baseHttpHandler, "stock")
+        stockDataApiProvider = StockDataApiProvider(baseHttpHandler)
         driveWealthUserPortfolioRepo = DriveWealthUserPortfolioRepo(
             MockStorage(),
             driveWealthPortfolioApiProvider,

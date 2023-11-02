@@ -91,9 +91,11 @@ class FinfreeSDK {
 
         val data: CoreDataProviders
             get() {
+                val stockDataApiProvider = StockDataApiProvider(baseHttpHandler)
+                val priceDataRepo = PriceDataRepo(storage, stockDataApiProvider, sessionProvider, assetProvider)
                 return CoreDataProviders(
-                    coreRepos.priceDataRepo,
-                    AggregatedPriceDataSeriesRepo(coreRepos.priceDataRepo.apiProvider,storage, coreRepos.priceDataRepo),
+                    priceDataRepo,
+                    AggregatedPriceDataSeriesRepo(stockDataApiProvider,storage,priceDataRepo),
                     AssetCollectionDetailRepo(storage, CoreApiProvider(baseHttpHandler)),
                     AssetCollectionRepo(storage, CoreApiProvider(baseHttpHandler)),
                     assetProvider,
@@ -129,12 +131,9 @@ class FinfreeSDK {
 
         private fun initializeCoreRepos(getLocalTimezone: GetLocalTimezone) {
             val coreApiProvider = CoreApiProvider(baseHttpHandler)
-            val stockDataApiProvider = StockDataApiProvider(baseHttpHandler, "stock")
-            val priceDataRepo = PriceDataRepo(storage, stockDataApiProvider, sessionProvider, assetProvider)
             coreRepos = CoreRepos(
                 assetRepo = AssetRepo(storage, coreApiProvider),
                 sessionsRepo = SessionsRepo(storage, coreApiProvider, getLocalTimezone),
-                priceDataRepo = priceDataRepo
             )
         }
 
@@ -143,9 +142,6 @@ class FinfreeSDK {
             showOrderUpdatedMessage: (OrderData) -> Any,
             ordersDBHandler: OrdersDBHandler,
         ) {
-            val stockDataApiProvider = StockDataApiProvider(baseHttpHandler, "stock")
-            val priceDataRepo = PriceDataRepo(storage, stockDataApiProvider, sessionProvider, assetProvider)
-
 
             _portfolioHandlers?.keys?.forEach { portfolioType ->
                 portfolioHandler(portfolioType).init(
@@ -228,7 +224,6 @@ class FinfreeSDK {
 private data class CoreRepos(
     val assetRepo: AssetRepo,
     val sessionsRepo: SessionsRepo,
-    val priceDataRepo: PriceDataRepo
 )
 
 data class CoreDataProviders(
