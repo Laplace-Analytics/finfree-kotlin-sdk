@@ -89,6 +89,18 @@ class FinfreeSDK {
                 return _sessionProvider!!
             }
 
+        val data: CoreDataProviders
+            get() {
+                return CoreDataProviders(
+                    coreRepos.priceDataRepo,
+                    AggregatedPriceDataSeriesRepo(coreRepos.priceDataRepo.apiProvider,storage, coreRepos.priceDataRepo),
+                    AssetCollectionDetailRepo(storage, CoreApiProvider(baseHttpHandler)),
+                    AssetCollectionRepo(storage, CoreApiProvider(baseHttpHandler)),
+                    assetProvider,
+                    sessionProvider,
+                )
+            }
+
         private lateinit var coreRepos: CoreRepos
 
 
@@ -117,9 +129,12 @@ class FinfreeSDK {
 
         private fun initializeCoreRepos(getLocalTimezone: GetLocalTimezone) {
             val coreApiProvider = CoreApiProvider(baseHttpHandler)
+            val stockDataApiProvider = StockDataApiProvider(baseHttpHandler, "stock")
+            val priceDataRepo = PriceDataRepo(storage, stockDataApiProvider, sessionProvider, assetProvider)
             coreRepos = CoreRepos(
                 assetRepo = AssetRepo(storage, coreApiProvider),
-                sessionsRepo = SessionsRepo(storage, coreApiProvider, getLocalTimezone)
+                sessionsRepo = SessionsRepo(storage, coreApiProvider, getLocalTimezone),
+                priceDataRepo = priceDataRepo
             )
         }
 
@@ -212,7 +227,19 @@ class FinfreeSDK {
 
 private data class CoreRepos(
     val assetRepo: AssetRepo,
-    val sessionsRepo: SessionsRepo)
+    val sessionsRepo: SessionsRepo,
+    val priceDataRepo: PriceDataRepo
+)
+
+data class CoreDataProviders(
+    val priceDataRepo: PriceDataRepo,
+    val aggregatedPriceDataSeriesRepo: AggregatedPriceDataSeriesRepo,
+    val assetCollectionDetailRepo: AssetCollectionDetailRepo,
+    val assetCollectionRepo: AssetCollectionRepo,
+    val assetProvider: AssetProvider,
+    val sessionProvider: SessionProvider
+)
+
 
 
 
