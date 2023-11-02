@@ -25,11 +25,9 @@ open class AssetRepo(
             return null
         }
         val cachedData: List<Asset>? = readData(identifier)
-        if (cachedData != null && cachedData.isNotEmpty()) {
-            val lastUpdatedDate: LocalDateTime? = storageHandler.getLastModified(getPath(identifier))
-            if (lastUpdatedDate == null) {
-                return null
-            }
+        if (!cachedData.isNullOrEmpty()) {
+            val lastUpdatedDate: LocalDateTime = storageHandler.getLastModified(getPath(identifier))
+                ?: return null
             val lastUpdatedDateSecondsSinceEpoch = lastUpdatedDate.toEpochMilliSecond() / 1000
 
             return checkCachedAssetsAndUpdateIfNecessary(
@@ -69,10 +67,10 @@ open class AssetRepo(
             )
 
             if (changedAssets.isNullOrEmpty()) {
-                return emptyList()
+                return cachedAssetList
             }
 
-            val assetsMap = _getAssetMapFromCachedAssets(cachedAssetList).toMutableMap()
+            val assetsMap = getAssetMapFromCachedAssets(cachedAssetList).toMutableMap()
 
             for (asset in changedAssets) {
                 assetsMap[asset.id] = asset
@@ -91,7 +89,7 @@ open class AssetRepo(
         }
     }
 
-    private fun _getAssetMapFromCachedAssets(cachedList: List<Asset>): Map<String, Asset> {
+    private fun getAssetMapFromCachedAssets(cachedList: List<Asset>): Map<String, Asset> {
         return cachedList.associateBy { it.id }
     }
 
@@ -104,8 +102,7 @@ open class AssetRepo(
                 return null
             }
 
-            val data = storageHandler.read(path)
-            if (data == null) return null
+            val data = storageHandler.read(path) ?: return null
 
             val listType = object : TypeToken<List<Map<String, Any>>>() {}.type
 
