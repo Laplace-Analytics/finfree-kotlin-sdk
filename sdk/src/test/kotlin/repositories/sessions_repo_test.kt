@@ -14,10 +14,10 @@ import sdk.api.CoreApiProvider
 import sdk.api.LoginResponseTypes
 import sdk.base.logger
 import sdk.base.network.HTTPHandler
-import sdk.models.AssetClass
-import sdk.models.Region
+import sdk.models.data.assets.AssetClass
+import sdk.models.data.assets.Region
 import sdk.models.core.Sessions
-import sdk.models.string
+import sdk.models.data.assets.string
 import sdk.repositories.SessionsRepo
 import sdk.repositories.SessionsRepoIdentifier
 
@@ -34,7 +34,7 @@ class SessionsRepoTest{
         baseHttpHandler = HTTPHandler(httpURL = "finfree.app")
         authApiProvider = AuthApiProvider(baseHttpHandler)
         coreApiProvider = CoreApiProvider(baseHttpHandler)
-        regionListWithoutTest = Region.values().filter { it != Region.test }
+        regionListWithoutTest = Region.values().filter { it != Region.Test }
 
 
         sessionsRepo = SessionsRepo(
@@ -59,25 +59,25 @@ class SessionsRepoTest{
         assertFalse(sessions2.isNullOrEmpty())
 
         val sessions3: List<Sessions>? = sessionsRepo.fetchData(
-            SessionsRepoIdentifier(Region.turkish, AssetClass.crypto)
+            SessionsRepoIdentifier(Region.Turkish, AssetClass.Crypto)
         )
         assertNotNull(sessions3)
         assertFalse(sessions3.isNullOrEmpty())
 
         val sessions4: List<Sessions>? = sessionsRepo.fetchData(
-            SessionsRepoIdentifier(Region.american)
+            SessionsRepoIdentifier(Region.American)
         )
         assertNotNull(sessions4)
         assertFalse(sessions4.isNullOrEmpty())
 
         val sessions5: List<Sessions>? = sessionsRepo.fetchData(
-            SessionsRepoIdentifier(assetClass = AssetClass.crypto)
+            SessionsRepoIdentifier(assetClass = AssetClass.Crypto)
         )
         assertNotNull(sessions5)
         assertFalse(sessions5.isNullOrEmpty())
 
         val sessions6: List<Sessions>? = sessionsRepo.fetchData(
-            SessionsRepoIdentifier(assetClass = AssetClass.forex)
+            SessionsRepoIdentifier(assetClass = AssetClass.Forex)
         )
         assertNull(sessions6)
     }

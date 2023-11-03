@@ -14,7 +14,8 @@ import sdk.api.LoginResponseTypes
 import sdk.base.logger
 import sdk.base.network.HTTPHandler
 import sdk.models.CollectionType
-import sdk.models.Region
+import sdk.models.data.assets.Region
+import sdk.models.data.assets.string
 import sdk.models.string
 import sdk.repositories.AssetCollectionRepo
 import sdk.repositories.AssetCollectionRepoIdentifier
@@ -36,7 +37,7 @@ class AssetCollectionRepoTests {
         assetCollectionRepo = AssetCollectionRepo(MockStorage(),coreApiProvider)
 
         for (region in Region.values()) {
-            if (region != Region.test) {
+            if (region != Region.Test) {
                 regionListWithoutTest.add(region)
             }
         }
@@ -54,7 +55,7 @@ class AssetCollectionRepoTests {
         assertEquals(null, collections)
 
         val collections2 = assetCollectionRepo.fetchData(
-            AssetCollectionRepoIdentifier(Region.turkish, CollectionType.sector)
+            AssetCollectionRepoIdentifier(Region.Turkish, CollectionType.sector)
         )
         assertNotNull(collections2)
     }

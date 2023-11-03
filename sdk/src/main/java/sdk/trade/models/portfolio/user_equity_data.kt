@@ -2,14 +2,14 @@ package sdk.trade.models.portfolio
 
 import sdk.api.StockDataPeriods
 import sdk.base.GenericModel
-import sdk.models.Currency
+import sdk.models.data.assets.Currency
 import sdk.models.core.SessionProvider
 import sdk.models.core.sessions.DateTime
 import sdk.models.core.sessions.DateTime.Companion.toEpochMilliSecond
 import sdk.models.data.time_series.EquityDataPoint
 import sdk.models.data.time_series.UserEquityTimeSeries
-import sdk.models.getCurrencyByAbbreviation
-import sdk.models.string
+import sdk.models.data.assets.getCurrencyByAbbreviation
+import sdk.models.data.assets.string
 import java.time.LocalDateTime
 
 class UserEquityData(
@@ -20,34 +20,34 @@ class UserEquityData(
 ) : GenericModel {
 
     private val tryBalance: Double?
-        get() = balances[Currency.tl]
+        get() = balances[Currency.Tl]
 
     private val usdBalance: Double?
-        get() = balances[Currency.usd]
+        get() = balances[Currency.Usd]
 
     private val tryBuyingPower: Double?
-        get() = buyingPowers[Currency.tl]
+        get() = buyingPowers[Currency.Tl]
 
     private val usdBuyingPower: Double?
-        get() = buyingPowers[Currency.usd]
+        get() = buyingPowers[Currency.Usd]
 
     fun balance(currentCurrency: Currency): Double? {
         return when (currentCurrency) {
-            Currency.usd -> usdBalance
-            Currency.tl -> {
-                val tryPortfolioDetails: TRYPortfolioDetails? = (portfolioDetails[Currency.tl] as? TRYPortfolioDetails?)
+            Currency.Usd -> usdBalance
+            Currency.Tl -> {
+                val tryPortfolioDetails: TRYPortfolioDetails? = (portfolioDetails[Currency.Tl] as? TRYPortfolioDetails?)
                 val cashFundAmount: Double = tryPortfolioDetails?.cashFundAmount ?: 0.0
                 return tryBalance!! + cashFundAmount
             }
-            Currency.eur -> null
+            Currency.Eur -> null
         }
     }
 
     fun buyingPower(currentCurrency: Currency): Double? {
         return when (currentCurrency) {
-            Currency.usd -> usdBuyingPower
-            Currency.tl -> tryBuyingPower
-            Currency.eur -> null
+            Currency.Usd -> usdBuyingPower
+            Currency.Tl -> tryBuyingPower
+            Currency.Eur -> null
         }
     }
 
@@ -80,10 +80,10 @@ class UserEquityData(
         portfolioSpecificDetails : PortfolioSpecificDetails? = null,
     ) {
         equityData?.let { this.equityData.putAll(it) }
-        tryBalance?.let { balances[Currency.tl] = it }
-        tryBuyingPower?.let { buyingPowers[Currency.tl] = it }
-        usdBalance?.let { balances[Currency.usd] = it }
-        usdBuyingPower?.let { buyingPowers[Currency.usd] = it }
+        tryBalance?.let { balances[Currency.Tl] = it }
+        tryBuyingPower?.let { buyingPowers[Currency.Tl] = it }
+        usdBalance?.let { balances[Currency.Usd] = it }
+        usdBuyingPower?.let { buyingPowers[Currency.Usd] = it }
         portfolioSpecificDetails?.let { portfolioDetails[portfolioSpecificDetails.currency] = it }
     }
 
@@ -130,9 +130,9 @@ class UserEquityData(
                         throw Exception("Unknown currency: ${entry.key}")
                     }
                     when (currency) {
-                        Currency.tl -> currency to TRYPortfolioDetails.fromJson(entry.value as Map<String, Any>)
-                        Currency.usd -> currency to USDPortfolioDetails.fromJson(entry.value as Map<String, Any>)
-                        Currency.eur -> throw Exception("EUR portfolio details not implemented")
+                        Currency.Tl -> currency to TRYPortfolioDetails.fromJson(entry.value as Map<String, Any>)
+                        Currency.Usd -> currency to USDPortfolioDetails.fromJson(entry.value as Map<String, Any>)
+                        Currency.Eur -> throw Exception("EUR portfolio details not implemented")
                     }
                 }.toMap().toMutableMap(),
             )
@@ -173,7 +173,7 @@ class TRYPortfolioDetails(
     val cash0: Double,
     val cash1: Double,
     val cash2: Double
-) : PortfolioSpecificDetails(currency = Currency.tl) {
+) : PortfolioSpecificDetails(currency = Currency.Tl) {
 
     override fun toJson(): Map<String, Any> {
         return mapOf(
@@ -201,7 +201,7 @@ class USDPortfolioDetails(
     private val goodFaithViolationCount: Int?,
     private val patternDayTraderViolationCount: Int?,
     private val cashSettlement: List<CashSettlement>
-) : PortfolioSpecificDetails(Currency.usd) {
+) : PortfolioSpecificDetails(Currency.Usd) {
 
     override fun toJson(): Map<String, Any?> {
         return mapOf(

@@ -11,7 +11,7 @@ import sdk.api.AuthApiProvider
 import sdk.api.CoreApiProvider
 import sdk.api.LoginResponseTypes
 import sdk.base.network.HTTPHandler
-import sdk.models.Region
+import sdk.models.data.assets.Region
 import sdk.models.core.AssetProvider
 import sdk.repositories.AssetRepo
 import sdk.trade.api.drivewealth_api.DriveWealthOrderAPIProvider
@@ -50,7 +50,7 @@ class DriveWealthOrdersRepoTests {
         baseHttpHandler.token = loginData.accessToken
         driveWealthHttpHandler.token = loginData.accessToken
         driveWealthHttpHandler.constantHeaders["GEDIK-ACCOUNT-ID"] = "928607"
-        assetProvider.init(setOf(Region.american))
+        assetProvider.init(setOf(Region.American))
 
         val orderData: List<OrderData>? = driveWealthOrdersRepo.fetchData(null)
         assertNotNull(orderData)
@@ -71,7 +71,7 @@ class DriveWealthOrdersRepoTests {
         baseHttpHandler.token = loginData.accessToken
         driveWealthHttpHandler.token = loginData.accessToken
         driveWealthHttpHandler.constantHeaders["GEDIK-ACCOUNT-ID"] = "928607"
-        assetProvider.init(setOf(Region.american))
+        assetProvider.init(setOf(Region.American))
 
         val orderData2: List<OrderData>? = driveWealthOrdersRepo.fetchData(null)
         assertNotNull(orderData2)

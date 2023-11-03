@@ -1,6 +1,6 @@
 package sdk.base.exceptions
 
-import sdk.models.PortfolioType
+import sdk.models.data.assets.PortfolioType
 
 open class InitializationException(override val message: String) : Exception() {
     override fun toString(): String {

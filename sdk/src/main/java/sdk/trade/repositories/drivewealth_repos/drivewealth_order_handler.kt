@@ -4,7 +4,7 @@ import kotlinx.coroutines.delay
 import sdk.base.logger
 import sdk.base.network.BasicResponse
 import sdk.base.network.BasicResponseTypes
-import sdk.models.Asset
+import sdk.models.data.assets.Asset
 import sdk.trade.DeleteOrderResponse
 import sdk.trade.DeleteOrderResponseTypes
 import sdk.trade.GenericOrderAPIProvider

@@ -2,9 +2,9 @@ package sdk.models.core
 
 import kotlinx.coroutines.delay
 import sdk.api.StockDataPeriods
-import sdk.models.AssetClass
+import sdk.models.data.assets.AssetClass
 import sdk.models.FinancialQuarter
-import sdk.models.Region
+import sdk.models.data.assets.Region
 import sdk.repositories.SessionsRepo
 import java.time.Duration
 import java.time.LocalDateTime
@@ -13,12 +13,12 @@ class SessionProvider(private val sessionsRepo: SessionsRepo) {
 
     private val _sessions = mutableMapOf<AssetClass, MutableMap<Region, Sessions>>()
 
-    private var _defaultLocation = Region.turkish
-    private val _defaultAsset = AssetClass.equity
+    private var _defaultLocation = Region.Turkish
+    private val _defaultAsset = AssetClass.Equity
 
     private fun _getSession(region: Region, assetClass: AssetClass): Sessions {
         return _sessions[assetClass]?.get(region)
-            ?: _sessions[AssetClass.equity]?.get(Region.turkish)
+            ?: _sessions[AssetClass.Equity]?.get(Region.Turkish)
             ?: _sessions.values.first().values.first()
     }
 
@@ -26,7 +26,7 @@ class SessionProvider(private val sessionsRepo: SessionsRepo) {
         _defaultLocation = region
     }
 
-    private val _initialized: Boolean
+     val initialized: Boolean
         get() = _sessions.isNotEmpty()
 
     fun getDayStart(region: Region? = null, assetClass: AssetClass? = null, date: LocalDateTime? = null): LocalDateTime {
@@ -74,7 +74,7 @@ class SessionProvider(private val sessionsRepo: SessionsRepo) {
 
 
     suspend fun init() {
-        while (!_initialized) {
+        while (!initialized) {
             try {
                 val sessions = sessionsRepo.getData(null) ?: throw Exception("Sessions is null")
                 for (session in sessions) {

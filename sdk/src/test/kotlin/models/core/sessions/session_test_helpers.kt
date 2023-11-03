@@ -1,7 +1,7 @@
 package models.core.sessions
 
-import sdk.models.AssetClass
-import sdk.models.Region
+import sdk.models.data.assets.AssetClass
+import sdk.models.data.assets.Region
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 
@@ -10,8 +10,8 @@ abstract class DateGetter {
     companion object {
         fun create(assetClass: AssetClass, region: Region): DateGetter {
             return when {
-                assetClass == AssetClass.crypto -> TrCryptoEquityDateGetter()
-                region == Region.american -> UsEquityDateGetter()
+                assetClass == AssetClass.Crypto -> TrCryptoEquityDateGetter()
+                region == Region.American -> UsEquityDateGetter()
                 else -> TrEquityDateGetter()
             }
         }
@@ -113,14 +113,14 @@ enum class DateStatus {
 
 fun getDate(status: DateStatus, day: Int, region: Region, month: Int? = null, year: Int? = null): LocalDateTime {
     return when (region) {
-        Region.turkish, Region.test -> {
+        Region.Turkish, Region.Test -> {
             when (status) {
                 DateStatus.BeforeDay -> LocalDateTime.of(year ?: 2021, month ?: 12, day, 8, 0)
                 DateStatus.AfterDay -> LocalDateTime.of(year ?: 2021, month ?: 12, day, 21, 0)
                 DateStatus.InDay -> LocalDateTime.of(year ?: 2021, month ?: 12, day, 12, 0)
             }
         }
-        Region.american -> {
+        Region.American -> {
             when (status) {
                 DateStatus.BeforeDay -> LocalDateTime.of(year ?: 2021, month ?: 12, day, 15, 0)
                 DateStatus.AfterDay -> LocalDateTime.of(year ?: 2021, month ?: 12, day, 15, 30)
@@ -139,7 +139,7 @@ fun getDate(status: DateStatus, day: Int, region: Region, month: Int? = null, ye
 
 fun compareToMarketHours(date: LocalDateTime, region: Region): Int {
     return when (region) {
-        Region.american -> {
+        Region.American -> {
             if (date.hour == 0 && date.minute == 0 && date.second == 0 && listOf(2, 3, 4, 5, 6).any { it == date.dayOfWeek.value }) {
                 0
             } else if (date.hour < 17 || (date.hour == 17 && date.minute < 30)) {
@@ -150,14 +150,14 @@ fun compareToMarketHours(date: LocalDateTime, region: Region): Int {
                 0
             }
         }
-        Region.turkish -> {
+        Region.Turkish -> {
             when {
                 date.hour < 10 -> -1
                 date.hour > 18 || (date.hour == 18 && date.minute > 0) -> 1
                 else -> 0
             }
         }
-        Region.test -> {
+        Region.Test -> {
             if (date.dayOfWeek == DayOfWeek.SATURDAY) {
                 when {
                     date.hour < 10 -> -1

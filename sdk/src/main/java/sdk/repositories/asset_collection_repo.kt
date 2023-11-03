@@ -7,7 +7,8 @@ import sdk.base.logger
 import sdk.base.network.BasicResponseTypes
 import sdk.models.AssetCollection
 import sdk.models.CollectionType
-import sdk.models.Region
+import sdk.models.data.assets.Region
+import sdk.models.data.assets.string
 import sdk.models.string
 
 open class AssetCollectionRepo(

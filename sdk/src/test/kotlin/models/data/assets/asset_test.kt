@@ -1,12 +1,11 @@
 package models.data.assets
 
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import sdk.models.Asset
-import sdk.models.AssetType
-import sdk.models.Region
+import sdk.models.data.assets.Asset
+import sdk.models.data.assets.AssetType
+import sdk.models.data.assets.Region
 
 class AssetModelCreationTests{
     val americanMarketAssetAsJson = mutableMapOf(
@@ -40,8 +39,8 @@ class AssetModelCreationTests{
         symbol = "SAFT",
         tradable = true,
         isActive = true,
-        type = AssetType.stock,  // Adjust if necessary
-        region = Region.american  // Adjust if necessary
+        type = AssetType.Stock,  // Adjust if necessary
+        region = Region.American  // Adjust if necessary
     )
 
     val expectedTurkishMarketAsset = Asset(
@@ -53,8 +52,8 @@ class AssetModelCreationTests{
         symbol = "THYAO",
         tradable = true,
         isActive = true,
-        type = AssetType.stock,  // Adjust if necessary
-        region = Region.turkish  // Adjust if necessary
+        type = AssetType.Stock,  // Adjust if necessary
+        region = Region.Turkish  // Adjust if necessary
     )
     @Test
     fun `Turkish market asset creation test`() {

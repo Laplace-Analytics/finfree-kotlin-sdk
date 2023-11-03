@@ -6,14 +6,11 @@ import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
 import sdk.models.core.sessions.DateTime
 import sdk.models.core.sessions.DateTime.Companion.toEpochMilliSecond
+import sdk.models.data.assets.Asset
 import java.lang.Double.max
 import java.lang.Double.min
 import java.time.Duration
 import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZoneOffset
-import java.time.temporal.ChronoUnit
-import java.util.*
 
 class PriceDataPoint(index: Int, timeStamp: Long, value: Double, val open: Double?, val low: Double?, val high: Double?, val volume: Int?)
     : TimeSeriesDataPoint(index, timeStamp, value) {

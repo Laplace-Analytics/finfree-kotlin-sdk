@@ -5,16 +5,17 @@ import sdk.base.GenericRepository
 import sdk.base.GenericStorage
 import sdk.base.logger
 import sdk.base.network.BasicResponseTypes
-import sdk.models.*
 import sdk.models.core.ClosePoint
 import sdk.models.core.HourMinuteSecond
 import sdk.models.core.OpenPoint
 import sdk.models.core.Sessions
-import sdk.models.core.sessions.DateTime
+import sdk.models.data.assets.AssetClass
+import sdk.models.data.assets.Region
+import sdk.models.data.assets.assetClass
+import sdk.models.data.assets.region
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.time.zone.ZoneRulesProvider
 
 typealias GetLocalTimezone = suspend () -> String
 
@@ -124,6 +125,6 @@ open class SessionsRepo(
 }
 
 data class SessionsRepoIdentifier(
-    val region:Region? = null,
+    val region: Region? = null,
     val assetClass: AssetClass? = null
 )

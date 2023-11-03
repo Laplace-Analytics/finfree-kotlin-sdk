@@ -1,6 +1,6 @@
 import sdk.base.GenericStorage
-import sdk.models.PortfolioType
-import sdk.models.Region
+import sdk.models.data.assets.PortfolioType
+import sdk.models.data.assets.Region
 import sdk.models.core.AuthenticationResponseTypes
 import sdk.models.core.FinfreeSDK
 import sdk.trade.models.portfolio.DWPortfolioHandler
@@ -28,7 +28,7 @@ suspend fun initSDK(portfolioType: PortfolioType) {
         throw Exception("SDK is not authorized")
     }
 
-    FinfreeSDK.initializeCoreData(setOf(Region.turkish,Region.american))
+    FinfreeSDK.initializeCoreData(setOf(Region.Turkish, Region.American))
 
     if (!FinfreeSDK.coreInitialized) {
         throw Exception("Core is not initialized")

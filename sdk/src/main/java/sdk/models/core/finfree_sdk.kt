@@ -13,8 +13,8 @@ import sdk.base.exceptions.NotAuthorizedException
 import sdk.base.exceptions.PortfolioHandlerNotInitializedException
 import sdk.base.exceptions.SDKNotInitializedException
 import sdk.base.network.HTTPHandler
-import sdk.models.PortfolioType
-import sdk.models.Region
+import sdk.models.data.assets.PortfolioType
+import sdk.models.data.assets.Region
 import sdk.repositories.*
 import sdk.trade.*
 import sdk.trade.models.portfolio.PortfolioHandler
@@ -89,6 +89,20 @@ class FinfreeSDK {
                 return _sessionProvider!!
             }
 
+        val data: CoreDataProviders
+            get() {
+                val stockDataApiProvider = StockDataApiProvider(baseHttpHandler)
+                val priceDataRepo = PriceDataRepo(storage, stockDataApiProvider, sessionProvider, assetProvider)
+                return CoreDataProviders(
+                    priceDataRepo,
+                    AggregatedPriceDataSeriesRepo(stockDataApiProvider,storage,priceDataRepo),
+                    AssetCollectionDetailRepo(storage, CoreApiProvider(baseHttpHandler)),
+                    AssetCollectionRepo(storage, CoreApiProvider(baseHttpHandler)),
+                    assetProvider,
+                    sessionProvider,
+                )
+            }
+
         private lateinit var coreRepos: CoreRepos
 
 
@@ -119,7 +133,7 @@ class FinfreeSDK {
             val coreApiProvider = CoreApiProvider(baseHttpHandler)
             coreRepos = CoreRepos(
                 assetRepo = AssetRepo(storage, coreApiProvider),
-                sessionsRepo = SessionsRepo(storage, coreApiProvider, getLocalTimezone)
+                sessionsRepo = SessionsRepo(storage, coreApiProvider, getLocalTimezone),
             )
         }
 
@@ -128,9 +142,6 @@ class FinfreeSDK {
             showOrderUpdatedMessage: (OrderData) -> Any,
             ordersDBHandler: OrdersDBHandler,
         ) {
-            val stockDataApiProvider = StockDataApiProvider(baseHttpHandler, "stock")
-            val priceDataRepo = PriceDataRepo(storage, stockDataApiProvider, sessionProvider, assetProvider)
-
 
             _portfolioHandlers?.keys?.forEach { portfolioType ->
                 portfolioHandler(portfolioType).init(
@@ -140,7 +151,7 @@ class FinfreeSDK {
                     storage = storage,
                     assetProvider = assetProvider,
                     sessionProvider = sessionProvider,
-                    priceDataRepo = priceDataRepo,
+                    priceDataRepo = data.priceDataRepo,
                     token = _accessToken!!
                 )
             }
@@ -212,7 +223,18 @@ class FinfreeSDK {
 
 private data class CoreRepos(
     val assetRepo: AssetRepo,
-    val sessionsRepo: SessionsRepo)
+    val sessionsRepo: SessionsRepo,
+)
+
+data class CoreDataProviders(
+    val priceDataRepo: PriceDataRepo,
+    val aggregatedPriceDataSeriesRepo: AggregatedPriceDataSeriesRepo,
+    val assetCollectionDetailRepo: AssetCollectionDetailRepo,
+    val assetCollectionRepo: AssetCollectionRepo,
+    val assetProvider: AssetProvider,
+    val sessionProvider: SessionProvider
+)
+
 
 
 

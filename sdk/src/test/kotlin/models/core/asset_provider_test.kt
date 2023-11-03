@@ -11,7 +11,7 @@ import sdk.api.AuthApiProvider
 import sdk.api.CoreApiProvider
 import sdk.api.LoginResponseTypes
 import sdk.base.network.HTTPHandler
-import sdk.models.Region
+import sdk.models.data.assets.Region
 import sdk.models.core.AssetProvider
 import sdk.repositories.AssetRepo
 
@@ -41,7 +41,7 @@ class AssetProviderTests {
         val loginData = loginResponse.data!!
         baseHttpHandler.token = loginData.accessToken
 
-        assetProvider.init(setOf(Region.american, Region.turkish))
+        assetProvider.init(setOf(Region.American, Region.Turkish))
 
         assertTrue(assetProvider.allAssets.isNotEmpty())
         assertEquals(true, assetProvider.initialized)

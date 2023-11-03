@@ -6,11 +6,11 @@ import sdk.base.GenericRepository
 import sdk.base.GenericStorage
 import sdk.base.network.BasicResponse
 import sdk.base.network.BasicResponseTypes
-import sdk.models.Asset
-import sdk.models.AssetClass
+import sdk.models.data.assets.Asset
+import sdk.models.data.assets.AssetClass
 import sdk.models.PriceDataPoint
 import sdk.models.PriceDataSeries
-import sdk.models.Region
+import sdk.models.data.assets.Region
 import java.time.Duration
 import java.time.LocalDateTime
 

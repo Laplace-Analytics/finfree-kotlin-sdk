@@ -2,7 +2,7 @@ package sdk.trade
 
 import kotlinx.coroutines.flow.Flow
 import sdk.base.network.*
-import sdk.models.Asset
+import sdk.models.data.assets.Asset
 
 abstract class GenericOrderAPIProvider(
     override val httpHandler: HTTPHandler,

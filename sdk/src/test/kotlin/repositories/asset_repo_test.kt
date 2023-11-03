@@ -13,9 +13,9 @@ import sdk.api.CoreApiProvider
 import sdk.api.LoginResponseTypes
 import sdk.base.logger
 import sdk.base.network.HTTPHandler
-import sdk.models.Asset
-import sdk.models.Region
-import sdk.models.string
+import sdk.models.data.assets.Asset
+import sdk.models.data.assets.Region
+import sdk.models.data.assets.string
 import sdk.repositories.AssetRepo
 import sdk.repositories.AssetsRepoIdentifier
 
@@ -36,7 +36,7 @@ class AssetRepoTests {
         assetRepo = AssetRepo(MockStorage(),coreApiProvider)
 
         for (region in Region.values()) {
-            if (region != Region.test) {
+            if (region != Region.Test) {
                 regionListWithoutTest.add(region)
             }
         }
@@ -53,7 +53,7 @@ class AssetRepoTests {
 
         val assets: List<Asset>? = assetRepo.getData(
             AssetsRepoIdentifier(
-                region =  Region.turkish,
+                region =  Region.Turkish,
         )
 
         )
@@ -61,7 +61,7 @@ class AssetRepoTests {
 
         val assets2: List<Asset>? = assetRepo.getData(
             AssetsRepoIdentifier(
-                region =  Region.american,
+                region =  Region.American,
         )
 
         )

@@ -7,13 +7,12 @@ import sdk.base.GenericRepository
 import sdk.base.GenericStorage
 import sdk.base.logger
 import sdk.base.network.BasicResponseTypes
-import sdk.models.Asset
-import sdk.models.Region
+import sdk.models.data.assets.Asset
+import sdk.models.data.assets.Region
 import sdk.models.core.sessions.DateTime
 import sdk.models.core.sessions.DateTime.Companion.toEpochMilliSecond
-import sdk.models.string
+import sdk.models.data.assets.string
 import java.time.LocalDateTime
-import javax.xml.crypto.Data
 
 open class AssetRepo(
     override val storageHandler: GenericStorage,
@@ -26,11 +25,9 @@ open class AssetRepo(
             return null
         }
         val cachedData: List<Asset>? = readData(identifier)
-        if (cachedData != null && cachedData.isNotEmpty()) {
-            val lastUpdatedDate: LocalDateTime? = storageHandler.getLastModified(getPath(identifier))
-            if (lastUpdatedDate == null) {
-                return null
-            }
+        if (!cachedData.isNullOrEmpty()) {
+            val lastUpdatedDate: LocalDateTime = storageHandler.getLastModified(getPath(identifier))
+                ?: return null
             val lastUpdatedDateSecondsSinceEpoch = lastUpdatedDate.toEpochMilliSecond() / 1000
 
             return checkCachedAssetsAndUpdateIfNecessary(
@@ -70,10 +67,10 @@ open class AssetRepo(
             )
 
             if (changedAssets.isNullOrEmpty()) {
-                return emptyList()
+                return cachedAssetList
             }
 
-            val assetsMap = _getAssetMapFromCachedAssets(cachedAssetList).toMutableMap()
+            val assetsMap = getAssetMapFromCachedAssets(cachedAssetList).toMutableMap()
 
             for (asset in changedAssets) {
                 assetsMap[asset.id] = asset
@@ -92,7 +89,7 @@ open class AssetRepo(
         }
     }
 
-    private fun _getAssetMapFromCachedAssets(cachedList: List<Asset>): Map<String, Asset> {
+    private fun getAssetMapFromCachedAssets(cachedList: List<Asset>): Map<String, Asset> {
         return cachedList.associateBy { it.id }
     }
 
@@ -105,8 +102,7 @@ open class AssetRepo(
                 return null
             }
 
-            val data = storageHandler.read(path)
-            if (data == null) return null
+            val data = storageHandler.read(path) ?: return null
 
             val listType = object : TypeToken<List<Map<String, Any>>>() {}.type
 
@@ -157,7 +153,7 @@ open class AssetRepo(
     }
 
     override fun getPath(identifier: AssetsRepoIdentifier?): String {
-        return "assets/${identifier?.region?.string() ?: Region.turkish.string()}"
+        return "assets/${identifier?.region?.string() ?: Region.Turkish.string()}"
     }
 
     override fun toJson(data: List<Asset>): Map<String, Any> {

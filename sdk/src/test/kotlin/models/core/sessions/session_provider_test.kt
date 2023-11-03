@@ -10,8 +10,8 @@ import sdk.api.AuthApiProvider
 import sdk.api.CoreApiProvider
 import sdk.api.LoginResponseTypes
 import sdk.base.network.HTTPHandler
-import sdk.models.AssetClass
-import sdk.models.Region
+import sdk.models.data.assets.AssetClass
+import sdk.models.data.assets.Region
 import sdk.models.core.SessionProvider
 import sdk.repositories.SessionsRepo
 import java.time.LocalDateTime
@@ -53,24 +53,24 @@ class SessionProviderTest{
         assertEquals(25, dayStartDateDefaultValues.dayOfMonth)
         assertEquals(now.month, dayStartDateDefaultValues.month)
 
-        val dayStartDateAmericanEquity = sessionProvider.getDayStart(region = Region.american, assetClass = AssetClass.equity)
+        val dayStartDateAmericanEquity = sessionProvider.getDayStart(region = Region.American, assetClass = AssetClass.Equity)
         assertEquals(16, dayStartDateAmericanEquity.hour)//not passed
         assertEquals(30, dayStartDateAmericanEquity.minute)
         assertEquals(now.month, dayStartDateAmericanEquity.month)
 
-        val dayStartDateTurkishEquity = sessionProvider.getDayStart(region = Region.turkish, assetClass = AssetClass.equity)
+        val dayStartDateTurkishEquity = sessionProvider.getDayStart(region = Region.Turkish, assetClass = AssetClass.Equity)
         assertEquals(10, dayStartDateTurkishEquity.hour)
         assertEquals(now.month, dayStartDateTurkishEquity.month)
 
-        val dayStartDateTurkishCrypto = sessionProvider.getDayStart(region = Region.turkish, assetClass = AssetClass.crypto)
+        val dayStartDateTurkishCrypto = sessionProvider.getDayStart(region = Region.Turkish, assetClass = AssetClass.Crypto)
         assertEquals(0, dayStartDateTurkishCrypto.hour)
         assertEquals(now.dayOfMonth, dayStartDateTurkishCrypto.dayOfMonth)
         assertEquals(now.month, dayStartDateTurkishCrypto.month)
 
         val marketClosedDate = LocalDateTime.of(2023, 8, 7, 20, 30)
         val dayStartDateTurkishEquitySpecificDate = sessionProvider.getDayStart(
-            region = Region.turkish,
-            assetClass = AssetClass.equity,
+            region = Region.Turkish,
+            assetClass = AssetClass.Equity,
             date = marketClosedDate
         )
         assertEquals(10, dayStartDateTurkishEquitySpecificDate.hour)
@@ -79,8 +79,8 @@ class SessionProviderTest{
 
         val marketOpenDate = LocalDateTime.of(2023, 8, 7, 15, 30)
         val dayStartDateTurkishEquitySpecificDate2 = sessionProvider.getDayStart(
-            region = Region.turkish,
-            assetClass = AssetClass.equity,
+            region = Region.Turkish,
+            assetClass = AssetClass.Equity,
             date = marketOpenDate
         )
         assertEquals(dayStartDateTurkishEquitySpecificDate.hour, dayStartDateTurkishEquitySpecificDate2.hour)
@@ -103,23 +103,23 @@ class SessionProviderTest{
         assertEquals(18, dayEndDateDefaultValues.hour)
         assertEquals(now.monthValue, dayEndDateDefaultValues.monthValue)
 
-        val dayEndDateAmericanEquity = sessionProvider.getDayEnd(region = Region.american, assetClass = AssetClass.equity)
+        val dayEndDateAmericanEquity = sessionProvider.getDayEnd(region = Region.American, assetClass = AssetClass.Equity)
         assertEquals(23, dayEndDateAmericanEquity.hour)//not passed
 
-        val dayEndDateTurkishEquity = sessionProvider.getDayEnd(region = Region.turkish, assetClass = AssetClass.equity)
+        val dayEndDateTurkishEquity = sessionProvider.getDayEnd(region = Region.Turkish, assetClass = AssetClass.Equity)
         assertEquals(18, dayEndDateTurkishEquity.hour)
         assertEquals(25, dayEndDateTurkishEquity.dayOfMonth)
         assertEquals(now.monthValue, dayEndDateTurkishEquity.monthValue)
 
-        val dayEndDateTurkishCrypto = sessionProvider.getDayEnd(region = Region.turkish, assetClass = AssetClass.crypto)
+        val dayEndDateTurkishCrypto = sessionProvider.getDayEnd(region = Region.Turkish, assetClass = AssetClass.Crypto)
         assertEquals(23, dayEndDateTurkishCrypto.hour)
         assertEquals(now.dayOfMonth, dayEndDateTurkishCrypto.dayOfMonth)
         assertEquals(now.monthValue, dayEndDateTurkishCrypto.monthValue)
 
         val marketClosedDate = LocalDateTime.of(2023, 8, 7, 20, 30)
         val dayEndDateTurkishEquitySpecificDate = sessionProvider.getDayEnd(
-            region = Region.turkish,
-            assetClass = AssetClass.equity,
+            region = Region.Turkish,
+            assetClass = AssetClass.Equity,
             date = marketClosedDate
         )
         assertEquals(18, dayEndDateTurkishEquitySpecificDate.hour)
@@ -128,8 +128,8 @@ class SessionProviderTest{
 
         val marketOpenDate = LocalDateTime.of(2023, 8, 7, 15, 30)
         val dayEndDateTurkishEquitySpecificDate2 = sessionProvider.getDayEnd(
-            region = Region.turkish,
-            assetClass = AssetClass.equity,
+            region = Region.Turkish,
+            assetClass = AssetClass.Equity,
             date = marketOpenDate
         )
         assertEquals(dayEndDateTurkishEquitySpecificDate.hour, dayEndDateTurkishEquitySpecificDate2.hour)
@@ -139,8 +139,8 @@ class SessionProviderTest{
 
         val marketClosedDate2 = LocalDateTime.of(2023, 8, 8, 8, 30)
         val dayEndDateTurkishEquitySpecificDate3 = sessionProvider.getDayEnd(
-            region = Region.turkish,
-            assetClass = AssetClass.equity,
+            region = Region.Turkish,
+            assetClass = AssetClass.Equity,
             date = marketClosedDate2
         )
         assertEquals(18, dayEndDateTurkishEquitySpecificDate3.hour)
@@ -180,31 +180,31 @@ class SessionProviderTest{
         assertEquals(false, isDuringMarketHours5)
 
         val americanMarketClosedDate = LocalDateTime.of(2023, 8, 8, 8, 30)
-        val isDuringMarketHours6 = sessionProvider.isDuringMarketHours(date = americanMarketClosedDate, region = Region.american)
+        val isDuringMarketHours6 = sessionProvider.isDuringMarketHours(date = americanMarketClosedDate, region = Region.American)
         assertEquals(false, isDuringMarketHours6)
 
         val americanMarketClosedDate2 = LocalDateTime.of(2023, 8, 8, 23, 0, 1)
-        val isDuringMarketHours7 = sessionProvider.isDuringMarketHours(date = americanMarketClosedDate2, region = Region.american)
+        val isDuringMarketHours7 = sessionProvider.isDuringMarketHours(date = americanMarketClosedDate2, region = Region.American)
         assertEquals(false, isDuringMarketHours7)
 
         val americanMarketOpenDate = LocalDateTime.of(2023, 8, 8, 22, 59,0)
-        val isDuringMarketHours8 = sessionProvider.isDuringMarketHours(date = americanMarketOpenDate, region = Region.american)
+        val isDuringMarketHours8 = sessionProvider.isDuringMarketHours(date = americanMarketOpenDate, region = Region.American)
         assertEquals(true, isDuringMarketHours8)
 
         val americanMarketOpenDate2 = LocalDateTime.of(2023, 8, 8, 19, 15)
-        val isDuringMarketHours9 = sessionProvider.isDuringMarketHours(date = americanMarketOpenDate2, region = Region.american)
+        val isDuringMarketHours9 = sessionProvider.isDuringMarketHours(date = americanMarketOpenDate2, region = Region.American)
         assertEquals(true, isDuringMarketHours9)
 
         val americanCryptoMarketOpenDate = LocalDateTime.of(2023, 8, 8, 22, 59)
-        val isDuringMarketHours10 = sessionProvider.isDuringMarketHours(date = americanCryptoMarketOpenDate, region = Region.american, assetClass = AssetClass.crypto)
+        val isDuringMarketHours10 = sessionProvider.isDuringMarketHours(date = americanCryptoMarketOpenDate, region = Region.American, assetClass = AssetClass.Crypto)
         assertEquals(false, isDuringMarketHours10)
 
         val turkishCryptoMarketOpenDate = LocalDateTime.of(2023, 8, 8, 19, 15)
-        val isDuringMarketHours11 = sessionProvider.isDuringMarketHours(date = turkishCryptoMarketOpenDate, region = Region.turkish, assetClass = AssetClass.crypto)
+        val isDuringMarketHours11 = sessionProvider.isDuringMarketHours(date = turkishCryptoMarketOpenDate, region = Region.Turkish, assetClass = AssetClass.Crypto)
         assertEquals(true, isDuringMarketHours11)
 
         val turkishCryptoMarketOpenDate2 = LocalDateTime.of(2023, 8, 8, 0, 0)
-        val isDuringMarketHours12 = sessionProvider.isDuringMarketHours(date = turkishCryptoMarketOpenDate2, region = Region.turkish, assetClass = AssetClass.crypto)
+        val isDuringMarketHours12 = sessionProvider.isDuringMarketHours(date = turkishCryptoMarketOpenDate2, region = Region.Turkish, assetClass = AssetClass.Crypto)
         assertEquals(true, isDuringMarketHours12)
     }
 }

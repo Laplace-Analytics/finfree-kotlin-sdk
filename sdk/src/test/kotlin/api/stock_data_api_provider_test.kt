@@ -17,8 +17,8 @@ import sdk.api.StockDataPeriods
 import sdk.api.StockStatistics
 import sdk.base.network.BasicResponseTypes
 import sdk.base.network.HTTPHandler
-import sdk.models.AssetClass
-import sdk.models.Region
+import sdk.models.data.assets.AssetClass
+import sdk.models.data.assets.Region
 
 class StockDataApiProviderTests{
     private lateinit var stockDataApiProvider: StockDataApiProvider
@@ -28,7 +28,7 @@ class StockDataApiProviderTests{
     @BeforeEach
     fun setup(){
         baseHttpHandler = HTTPHandler(httpURL = "finfree.app")
-        stockDataApiProvider = StockDataApiProvider(baseHttpHandler,"stock")
+        stockDataApiProvider = StockDataApiProvider(baseHttpHandler)
         authApiProvider = AuthApiProvider(baseHttpHandler)
     }
 
@@ -37,8 +37,8 @@ class StockDataApiProviderTests{
         @Test
         fun `Successful state`() = runBlocking {
             val getStockDataResponse = stockDataApiProvider.getStockPriceData(
-                locale = Region.turkish,
-                assetClass = AssetClass.equity,
+                locale = Region.Turkish,
+                assetClass = AssetClass.Equity,
                 symbols = listOf("THYAO"),
                 fields = listOf(StockDataPeriods.Price1D)
             )
@@ -46,8 +46,8 @@ class StockDataApiProviderTests{
             assertTrue(getStockDataResponse.data?.any { it.containsKey(StockDataPeriods.Price1D.period) } ?: false)
 
             val getStockDataResponse2 = stockDataApiProvider.getStockPriceData(
-                locale = Region.american,
-                assetClass = AssetClass.equity,
+                locale = Region.American,
+                assetClass = AssetClass.Equity,
                 symbols = listOf("AAPL"),
                 fields = listOf(StockDataPeriods.Price1W)
             )
@@ -58,8 +58,8 @@ class StockDataApiProviderTests{
         @Test
         fun `Multiple period state`() = runBlocking {
             val getStockDataResponse = stockDataApiProvider.getStockPriceData(
-                locale = Region.turkish,
-                assetClass = AssetClass.equity,
+                locale = Region.Turkish,
+                assetClass = AssetClass.Equity,
                 symbols = listOf("THYAO"),
                 fields = listOf(StockDataPeriods.Price1D, StockDataPeriods.Price1M, StockDataPeriods.Price1Y, StockDataPeriods.Price5Y)
             )
@@ -74,8 +74,8 @@ class StockDataApiProviderTests{
         @Test
         fun `Wrong region state`() = runBlocking {
             val getStockDataResponse = stockDataApiProvider.getStockPriceData(
-                locale = Region.american,
-                assetClass = AssetClass.equity,
+                locale = Region.American,
+                assetClass = AssetClass.Equity,
                 symbols = listOf("THYAO"),
                 fields = listOf(StockDataPeriods.Price1D)
             )
@@ -86,8 +86,8 @@ class StockDataApiProviderTests{
         @Test
         fun `Wrong symbol state`() = runBlocking {
             val getStockPriceDataResponse = stockDataApiProvider.getStockPriceData(
-                locale = Region.turkish,
-                assetClass = AssetClass.equity,
+                locale = Region.Turkish,
+                assetClass = AssetClass.Equity,
                 symbols = listOf("THY"),
                 fields = listOf(StockDataPeriods.Price1D)
             )
@@ -98,8 +98,8 @@ class StockDataApiProviderTests{
         @Test
         fun `Duplicate period state`() = runBlocking {
             val getStockPriceDataResponse = stockDataApiProvider.getStockPriceData(
-                locale = Region.turkish,
-                assetClass = AssetClass.equity,
+                locale = Region.Turkish,
+                assetClass = AssetClass.Equity,
                 symbols = listOf("THYAO"),
                 fields = listOf(StockDataPeriods.Price1D, StockDataPeriods.Price1D, StockDataPeriods.Price1M, StockDataPeriods.Price1M)
             )
@@ -117,8 +117,8 @@ class StockDataApiProviderTests{
             val loginData = loginResponse.data!!
             baseHttpHandler.token = loginData.accessToken
             val getStockPriceDataResponse = stockDataApiProvider.getStockPriceData(
-                locale = Region.turkish,
-                assetClass = AssetClass.equity,
+                locale = Region.Turkish,
+                assetClass = AssetClass.Equity,
                 symbols = listOf("THYAO"),
                 fields = listOf(StockDataPeriods.Price1D)
             )
@@ -169,8 +169,8 @@ class StockDataApiProviderTests{
         @Test
         fun `Successful state`() = runBlocking {
             val getStockStatisticsResponse = stockDataApiProvider.getStockStatistics(
-                locale = Region.turkish,
-                assetClass = AssetClass.equity,
+                locale = Region.Turkish,
+                assetClass = AssetClass.Equity,
                 symbols = listOf("THYAO"),
                 fields = listOf(StockStatistics.pbRatio)
             )
@@ -186,8 +186,8 @@ class StockDataApiProviderTests{
             }
 
             val getStockStatisticsResponse2 = stockDataApiProvider.getStockStatistics(
-                locale = Region.american,
-                assetClass = AssetClass.equity,
+                locale = Region.American,
+                assetClass = AssetClass.Equity,
                 symbols = listOf("AAPL"),
                 fields = listOf(StockStatistics.peRatio)
             )
@@ -205,8 +205,8 @@ class StockDataApiProviderTests{
         @Test
         fun `Multiple statistics state`() = runBlocking {
             val getStockStatisticsResponse = stockDataApiProvider.getStockStatistics(
-                locale = Region.turkish,
-                assetClass = AssetClass.equity,
+                locale = Region.Turkish,
+                assetClass = AssetClass.Equity,
                 symbols = listOf("THYAO"),
                 fields = listOf(StockStatistics.peRatio, StockStatistics.totalShares, StockStatistics.yearLow, StockStatistics.yearHigh)
             )
@@ -222,8 +222,8 @@ class StockDataApiProviderTests{
         @Test
         fun `Wrong region state`() = runBlocking {
             val getStockStatisticsResponse = stockDataApiProvider.getStockStatistics(
-                locale = Region.american,
-                assetClass = AssetClass.equity,
+                locale = Region.American,
+                assetClass = AssetClass.Equity,
                 symbols = listOf("THYAO"),
                 fields = listOf(StockStatistics.totalShares)
             )
@@ -235,8 +235,8 @@ class StockDataApiProviderTests{
         @Test
         fun `Wrong symbol state`() = runBlocking {
             val getStockStatisticsResponse = stockDataApiProvider.getStockStatistics(
-                locale = Region.turkish,
-                assetClass = AssetClass.equity,
+                locale = Region.Turkish,
+                assetClass = AssetClass.Equity,
                 symbols = listOf("THY"),
                 fields = listOf(StockStatistics.totalShares)
             )
@@ -248,8 +248,8 @@ class StockDataApiProviderTests{
         @Test
         fun `Duplicate period state`() = runBlocking {
             val getStockStatisticsResponse = stockDataApiProvider.getStockStatistics(
-                locale = Region.turkish,
-                assetClass = AssetClass.equity,
+                locale = Region.Turkish,
+                assetClass = AssetClass.Equity,
                 symbols = listOf("THYAO"),
                 fields = listOf(StockStatistics.peRatio, StockStatistics.yearHigh, StockStatistics.peRatio, StockStatistics.yearHigh)
             )
@@ -272,8 +272,8 @@ class StockDataApiProviderTests{
             baseHttpHandler.token = loginData.accessToken
 
             val getStockStatisticsResponse = stockDataApiProvider.getStockStatistics(
-                locale = Region.turkish,
-                assetClass = AssetClass.equity,
+                locale = Region.Turkish,
+                assetClass = AssetClass.Equity,
                 symbols = listOf("THYAO"),
                 fields = listOf(StockStatistics.peRatio)
             )
@@ -292,8 +292,8 @@ class StockDataApiProviderTests{
             val getAggregatedPriceDataResponse = stockDataApiProvider.getAggregatedPriceData(
                 symbols = listOf("THYAO"),
                 period = StockDataPeriods.Price1D,
-                region = Region.turkish,
-                assetClass = AssetClass.equity
+                region = Region.Turkish,
+                assetClass = AssetClass.Equity
             )
 
             assertEquals(BasicResponseTypes.Success, getAggregatedPriceDataResponse.responseType)
@@ -304,8 +304,8 @@ class StockDataApiProviderTests{
             val getAggregatedPriceDataResponse2 = stockDataApiProvider.getAggregatedPriceData(
                 symbols = listOf("AAPL"),
                 period = StockDataPeriods.Price1D,
-                region = Region.american,
-                assetClass = AssetClass.equity
+                region = Region.American,
+                assetClass = AssetClass.Equity
             )
 
             assertEquals(BasicResponseTypes.Success, getAggregatedPriceDataResponse2.responseType)
@@ -319,8 +319,8 @@ class StockDataApiProviderTests{
             val getAggregatedPriceDataResponse = stockDataApiProvider.getAggregatedPriceData(
                 symbols = listOf("THYAO"),
                 period = StockDataPeriods.Price1D,
-                region = Region.american,
-                assetClass = AssetClass.equity
+                region = Region.American,
+                assetClass = AssetClass.Equity
             )
             assertEquals(BasicResponseTypes.Error, getAggregatedPriceDataResponse.responseType)
             assertNull(getAggregatedPriceDataResponse.data)
@@ -332,8 +332,8 @@ class StockDataApiProviderTests{
             val getAggregatedPriceDataResponse = stockDataApiProvider.getAggregatedPriceData(
                 symbols = listOf("THY"),
                 period = StockDataPeriods.Price1D,
-                region = Region.turkish,
-                assetClass = AssetClass.equity
+                region = Region.Turkish,
+                assetClass = AssetClass.Equity
             )
             assertEquals(BasicResponseTypes.Error, getAggregatedPriceDataResponse.responseType)
             assertNull(getAggregatedPriceDataResponse.data)
@@ -350,8 +350,8 @@ class StockDataApiProviderTests{
             val getAggregatedPriceDataResponse = stockDataApiProvider.getAggregatedPriceData(
                 symbols = listOf("SISE"),
                 period = StockDataPeriods.Price1D,
-                region = Region.turkish,
-                assetClass = AssetClass.equity
+                region = Region.Turkish,
+                assetClass = AssetClass.Equity
             )
             assertEquals(BasicResponseTypes.Success, getAggregatedPriceDataResponse.responseType)
             assertNotNull(getAggregatedPriceDataResponse.data)

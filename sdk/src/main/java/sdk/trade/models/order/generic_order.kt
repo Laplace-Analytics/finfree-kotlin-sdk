@@ -1,7 +1,7 @@
 package sdk.trade
 
 import sdk.base.GenericModel
-import sdk.models.Asset
+import sdk.models.data.assets.Asset
 import sdk.models.core.AssetProvider
 import sdk.models.core.sessions.DateTime
 import sdk.models.core.sessions.DateTime.Companion.toEpochMilliSecond
@@ -191,5 +191,31 @@ data class OrderData(
         )
     }
 }
+
+val OrderStatus.isPositive: Boolean?
+    get() = orderStatusPositive[this]
+
+private val orderStatusPositive = mapOf(
+    OrderStatus.MarketOrderDidNotExecute to false,
+    OrderStatus.SentCancelRequestToExchange to null,
+    OrderStatus.SendingCancelRequestToExchange to null,
+    OrderStatus.StockIsNotTraded to false,
+    OrderStatus.OldOrder to false,
+    OrderStatus.IncorrectCorrection to false,
+    OrderStatus.OrderCancelled to false,
+    OrderStatus.OrderExecuted to true,
+    OrderStatus.OrderPeriodOver to false,
+    OrderStatus.IncorrectOrder to false,
+    OrderStatus.InsufficientBalance to false,
+    OrderStatus.OutOfLimit to false,
+    OrderStatus.MainOrderIsBeingCorrected to null,
+    OrderStatus.OrderIsBeingCorrected to null,
+    OrderStatus.TransmittingToExchange to null,
+    OrderStatus.TransmittedToExchange to null,
+    OrderStatus.OrderCancellationRefused to false,
+    OrderStatus.UnspecifiedOrderStatus to false,
+    OrderStatus.ServerError to false
+)
+
 
 

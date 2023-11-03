@@ -1,8 +1,12 @@
 package sdk.models.core
 
 import sdk.base.mod
-import sdk.models.*
 import sdk.models.core.sessions.DateTime
+import sdk.models.data.assets.AssetClass
+import sdk.models.data.assets.Region
+import sdk.models.data.assets.assetClass
+import sdk.models.data.assets.region
+import sdk.models.data.assets.string
 import java.time.*
 
 fun HourMinuteSecond.getDateTime(date: LocalDateTime? = null): LocalDateTime {
@@ -85,7 +89,7 @@ class Sessions(
             val localDate = date ?: DateTime.now()
             val isFirstDayOfWeek = localDate.dayOfWeek == DayOfWeek.MONDAY
 
-            val lastPointHour = if (isFirstDayOfWeek && region == Region.american) {
+            val lastPointHour = if (isFirstDayOfWeek && region == Region.American) {
                 _points.last().hour - 144
             } else if (isFirstDayOfWeek) {
                 _points.last().hour - 168

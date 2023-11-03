@@ -14,7 +14,7 @@ import sdk.api.LoginResponse
 import sdk.api.LoginResponseData
 import sdk.api.LoginResponseTypes
 import sdk.base.network.HTTPHandler
-import sdk.models.Region
+import sdk.models.data.assets.Region
 import sdk.models.core.AssetProvider
 import sdk.repositories.AssetRepo
 import sdk.trade.generic_api.DriveWealthPortfolioApiProvider
@@ -59,7 +59,7 @@ class DriveWealthUserPortfolioRepoTests {
             baseHttpHandler.token = loginData.accessToken
             driveWealthHttpHandler.token = loginData.accessToken
             driveWealthHttpHandler.constantHeaders["GEDIK-ACCOUNT-ID"] = "928607"
-            assetProvider.init(setOf(Region.american, Region.turkish))
+            assetProvider.init(setOf(Region.American, Region.Turkish))
 
             val userPortfolio: UserPortfolio? = driveWealthUserPortfolioRepo.fetchData(null)
             assertNotNull(userPortfolio)
@@ -80,7 +80,7 @@ class DriveWealthUserPortfolioRepoTests {
             baseHttpHandler.token = loginData.accessToken
             driveWealthHttpHandler.token = loginData.accessToken
             driveWealthHttpHandler.constantHeaders["GEDIK-ACCOUNT-ID"] = "928607"
-            assetProvider.init(setOf(Region.american, Region.turkish))
+            assetProvider.init(setOf(Region.American, Region.Turkish))
 
             val userPortfolio2: UserPortfolio? = driveWealthUserPortfolioRepo.fetchData(null)
             assertNotNull(userPortfolio2)

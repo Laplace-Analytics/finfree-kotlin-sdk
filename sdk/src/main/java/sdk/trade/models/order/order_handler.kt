@@ -1,11 +1,6 @@
 package sdk.trade
 
-import kotlinx.coroutines.delay
-import sdk.base.logger
-import sdk.base.network.BasicResponse
-import sdk.base.network.BasicResponseTypes
-import sdk.models.Asset
-import java.lang.Exception
+import sdk.models.data.assets.Asset
 
 abstract class OrderHandler(
     open val orderAPIProvider: GenericOrderAPIProvider
