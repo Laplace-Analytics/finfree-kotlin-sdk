@@ -26,7 +26,7 @@ class SessionProvider(private val sessionsRepo: SessionsRepo) {
         _defaultLocation = region
     }
 
-    private val _initialized: Boolean
+     val initialized: Boolean
         get() = _sessions.isNotEmpty()
 
     fun getDayStart(region: Region? = null, assetClass: AssetClass? = null, date: LocalDateTime? = null): LocalDateTime {
@@ -74,7 +74,7 @@ class SessionProvider(private val sessionsRepo: SessionsRepo) {
 
 
     suspend fun init() {
-        while (!_initialized) {
+        while (!initialized) {
             try {
                 val sessions = sessionsRepo.getData(null) ?: throw Exception("Sessions is null")
                 for (session in sessions) {
