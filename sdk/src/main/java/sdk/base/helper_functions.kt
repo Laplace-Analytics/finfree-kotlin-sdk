@@ -11,175 +11,9 @@ import java.util.Locale
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
-val decimalLimit = 6
 
 typealias DoubleFormatter = (number: Double, precision: Int?, suffix: String?, prefix: String?, nullValue: String?) -> String
 
-private fun getAdjustedPrecision(
-    number: Double,
-    precision: Int
-): Int {
-    var adjustedPrecision = precision
-    if (number > 100) {
-        adjustedPrecision = 1
-    }
-    if (number > 1000) {
-        adjustedPrecision = 0
-    }
-
-    return adjustedPrecision
-}
-
-private fun getAdjustedPercentagePrecision(
-    number: Double,
-    precision: Int
-): Int {
-    var adjustedPrecision = precision
-
-    if (number > 10) {
-        adjustedPrecision = 1
-    }
-    if (number > 100) {
-        adjustedPrecision = 0
-    }
-
-    return adjustedPrecision
-}
-
-fun formatDouble(
-    number: Double?,
-    precision: Int = 2,
-    suffix: String? = null,
-    currency: String? = null,
-    prefix: String? = null,
-    nullValue: String = "-",
-    adjustPrecision: Boolean = false,
-    adjustPercentagePrecision: Boolean = false
-): String {
-    if (number == null) {
-        return nullValue
-    }
-
-    val adjustedPrecision = if (adjustPrecision) {
-        getAdjustedPrecision(number, precision)
-    } else {
-        if (adjustPercentagePrecision) {
-            getAdjustedPercentagePrecision(number, precision)
-        } else {
-            precision
-        }
-    }
-
-    val format = NumberFormat.getInstance(Locale("eu","EU"))
-
-
-
-    if (currency != null){
-        format.currency = java.util.Currency.getInstance(currency)
-    }
-    if (adjustedPrecision == 0) {
-        return "${prefix ?: ""} ${number.roundToInt()} ${currency?.let {format.currency.symbol} ?: ""}${suffix ?: ""}".trim()
-    } else {
-        format.maximumFractionDigits = adjustedPrecision
-        format.minimumFractionDigits = adjustedPrecision
-        return "${prefix ?: ""} ${format.format(number)} ${currency?.let {format.currency.symbol} ?: ""}${suffix ?: ""}".trim()
-    }
-
-}
-fun formatCurrencyDouble(
-    number: Double?,
-    currency: Currency?,
-    suffix: String?,
-    prefix: String?,
-    precision: Int = 2,
-    nullValue: String = "-",
-    adjustPrecision: Boolean = false
-): String {
-    if (number == null) {
-        return nullValue
-    }
-
-    val adjustedPrecision = if (adjustPrecision) {
-        getAdjustedPrecision(number, precision)
-    } else {
-        precision
-    }
-
-    val format = NumberFormat.getInstance(Locale("eu"))
-    format.maximumFractionDigits = adjustedPrecision
-    format.minimumFractionDigits = adjustedPrecision
-    if (currency != null) {
-        format.currency = java.util.Currency.getInstance(currency.string())
-    }
-
-    return "${prefix ?: ""} ${format.format(number)} ${suffix ?: ""}${currency?.currencySuffix() ?: ""}"
-}
-
-fun formatPriceDouble(
-    number: Double? = null,
-    precision: Int = 2,
-    suffix: String? = null,
-    prefix: String? = null,
-    nullValue: String = "-",
-    currency: Currency? = null,
-    adjustPrecision: Boolean = false
-): String {
-    if (number == null) {
-        return nullValue
-    }
-
-    val thresholdRatio = 0.0001
-
-    if (number > 1.0) {
-        return formatCurrencyDouble(
-            number = number,
-            precision = precision,
-            nullValue = nullValue,
-            prefix = prefix,
-            suffix = suffix,
-            adjustPrecision = true,
-            currency = currency
-        )
-    }
-
-    if (number == 0.0) {
-        return formatCurrencyDouble(
-            number = number,
-            precision = 2,
-            nullValue = nullValue,
-            prefix = prefix,
-            suffix = suffix,
-            currency = currency,
-            adjustPrecision = adjustPrecision
-        )
-    }
-
-    for (decimalPoint in 0 until decimalLimit) {
-        val nDecimalPoints = "%.${decimalPoint}f".format(Locale.US,number).toDouble()
-
-        if (Math.abs((nDecimalPoints - number) / number) < thresholdRatio) {
-            return formatCurrencyDouble(
-                number = number,
-                precision = if (decimalPoint < 2) 2 else decimalPoint,
-                nullValue = nullValue,
-                prefix = prefix,
-                suffix = suffix,
-                currency = currency,
-                adjustPrecision = adjustPrecision
-            )
-        }
-    }
-
-    return formatCurrencyDouble(
-        number = number,
-        precision = decimalLimit,
-        nullValue = nullValue,
-        prefix = prefix,
-        suffix = suffix,
-        currency = currency,
-        adjustPrecision = adjustPrecision
-    )
-}
 
 fun getDoubleFromDynamic(value: Any?): Double? {
     when (value) {
@@ -210,7 +44,7 @@ fun getOwnedStockCountText(quantity: Number): String {
                 (quantity - String.format(Locale.US,"%.2f", quantity).toDouble()).absoluteValue < 0.00001 -> 1
                 else -> 3
             }
-            return formatDouble(quantity, precision = precision)
+            return quantity.format(precision = precision)
         }
         else -> getOwnedStockCountText(quantity.toDouble())
     }
@@ -225,34 +59,8 @@ fun parseDoubleWithCommaDecimalSeparator(value: String?): Double? {
     }
 }
 
-fun formatLeaguePrize(prize: Double): String {
-    val precision: Int
-    val multiplier: Double
-    val suffix: String
-
-    if (prize.roundToInt().toDouble() == prize) {
-        if (prize >= 1000) {
-            precision = when {
-                (prize / 10) == (prize / 10).roundToInt().toDouble() -> 2
-                (prize / 10) == (prize / 10).roundToInt().toDouble() -> 1
-                else -> 0
-            }
-            multiplier = 1.0 / 1000.0
-            suffix = "b ₺"
-        } else {
-            precision = 0
-            multiplier = 1.0
-            suffix = "₺"
-        }
-    } else {
-        precision = 2
-        multiplier = 1.0
-        suffix = "₺"
-    }
-
-    val number = formatDouble(prize* multiplier, precision = precision, suffix = "")
-
-    return number.substring(0, number.length) + suffix
+fun formatLeaguePrize(prize: Double,currency: Currency): String {
+    return prize.compactPrice(currency = currency)
 }
 
 fun formatFinancialValue(
@@ -264,7 +72,7 @@ fun formatFinancialValue(
     if (value == null) {
         return nullValue
     } else if (index == null) {
-        return formatDouble(value)
+        return value.format()
     }
 
     if (adjust && (value * index.multiplier).absoluteValue < 1 / Math.pow(10.0, index.precision.toDouble()) && value != 0.0) {
@@ -278,13 +86,11 @@ fun formatFinancialValue(
 
     val finalValue = value * index.multiplier
 
-    return (if (finalValue >= 0) "" else "-") +
-            formatDouble(
-                finalValue.absoluteValue,
-                suffix = index.suffix,
-                prefix = index.prefix,
-                precision = if (finalValue > 1000 && index.precision > 0) 0 else index.precision
-            )
+    return finalValue.formatSigned(
+        suffix =  index.suffix,
+    prefix =  index.prefix,
+    precision =  if (finalValue > 1000 && (index.precision > 0)) 0 else index.precision
+    )
 }
 
 fun dateIsBetween(start: LocalDateTime, end: LocalDateTime, check: LocalDateTime): Boolean {

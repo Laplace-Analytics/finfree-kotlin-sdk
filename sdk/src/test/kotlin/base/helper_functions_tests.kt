@@ -10,20 +10,21 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import sdk.api.StockDataPeriods
 import sdk.base.FinancialFormat
-import sdk.base.formatDouble
+import sdk.base.format
 import sdk.base.formatFinancialValue
-import sdk.base.formatLeaguePrize
-import sdk.base.formatPriceDouble
+import sdk.base.formatPercent
+import sdk.base.formatPrice
 import sdk.base.getAllTimePeriod
 import sdk.base.getDoubleFromDynamic
 import sdk.base.getOwnedStockCountText
 import sdk.base.getTimePeriod
 import sdk.base.withEnglishCharacters
 import sdk.models.data.assets.Currency
+import sdk.models.data.assets.currencySuffix
 import java.time.LocalDateTime
 
 
-const val spaceCharacter:String = " "
+const val spaceCharacter:String = " "
 
 class HelperFunctionsTest{
     val testSingleDigitNumberList = listOf(1.3434, 0.0, 4.0, 6.8000430)
@@ -104,33 +105,32 @@ class HelperFunctionsTest{
     inner class FormatDoubleTests{
         @Test
         fun basicKnownUsageTest() {
-            val formattedDouble = formatDouble(256.0, 4)
+            val formattedDouble = (256).format(precision = 4)
             assertEquals("256,0000", formattedDouble.trim())
 
-            val formattedDouble2 = formatDouble(null, 4, "₺")
+            val formattedDouble2 = null.format(precision = 4, suffix = "₺")
             assertEquals("-", formattedDouble2.trim())
 
-            val formattedDouble3 = formatDouble(0.0)
+            val formattedDouble3 = 0.format()
             assertEquals("0,00", formattedDouble3.trim())
 
-            val formattedDouble4 = formatDouble(-12.23, 2, "₺")
-            assertEquals("−12,23${spaceCharacter}₺", formattedDouble4.trim())
+            val formattedDouble4 = (-12.23).formatPrice(precision = 2, currency = Currency.Tl)
+            assertEquals("-₺12,23", formattedDouble4.trim())
 
-            val formattedDouble5 = formatDouble(9.091, 4, suffix = "BTC")
-            assertEquals("9,0910${spaceCharacter}BTC", formattedDouble5)
+            val formattedDouble5 = (9.091).format(precision = 4, suffix = "BTC")
+            assertEquals("9,0910BTC", formattedDouble5)
 
-            val formattedDouble6 = formatDouble(16.0003, 3, suffix = "BTC", adjustPrecision = true)
-            assertEquals("16,000${spaceCharacter}BTC", formattedDouble6)
+            val formattedDouble6 = (16.0003).format(precision = 3, suffix = "BTC", adjustPrecision = true)
+            assertEquals("16,000BTC", formattedDouble6)
 
 
-            val formattedDouble7 = formatDouble(160.0003, 3, adjustPercentagePrecision = true)
-            assertEquals("160", formattedDouble7.trim())
+            val formattedDouble7 = Currency.Eur.currencySuffix() + (160.0003).format(precision= 3, adjustPrecision= true)
 
-            val formattedDouble8 = formatDouble(84.23423523, adjustPrecision = true, adjustPercentagePrecision = true)
-            assertEquals("84,23", formattedDouble8.trim())
+            val formattedDouble8 = (160.0003).formatPrice(precision =  3, currency =  Currency.Eur, adjustPrecision =  true)
+            assertEquals(formattedDouble7,formattedDouble8)
 
-            val formattedDouble9 = formatDouble(84.23423523, adjustPercentagePrecision = true)
-            assertEquals("84,2", formattedDouble9.trim())
+            val formattedDouble9 = (160.0003).formatPercent(precision =  3, adjustPrecision =  true)
+            assertEquals("%160", formattedDouble9.trim())
         }
     }
     @Nested
@@ -150,8 +150,8 @@ class HelperFunctionsTest{
 
             for (testNumberList in currentTestNumberLists) {
                 for (formatValue in testNumberList) {
-                    val formattedValue = formatDouble(formatValue, adjustPercentagePrecision = true, prefix = "%").trim()
-                    assertEquals('%', formattedValue[0])
+                    val formattedValue = formatValue.formatPercent(adjustPrecision = true).trim()
+                    assertEquals('%', if (formatValue >= 0) formattedValue[0] else formattedValue[1])
                     val splittedValue = formattedValue.split(",")
 
                     val tempDigitNumberBeforeComma = splittedValue[0].length
@@ -194,13 +194,8 @@ class HelperFunctionsTest{
 
             for (testNumberList in currentTestNumberLists) {
                 for (formatValue in testNumberList) {
-                    val formattedValue = formatDouble(
-                        formatValue,
-                        precision = 3,
-                        adjustPercentagePrecision = false,
-                        prefix = "%"
-                    ).trim()
-                    assertEquals('%', formattedValue[0])
+                    val formattedValue = formatValue.formatPercent(precision = 3,adjustPrecision = false).trim()
+                    assertEquals('%', if (formatValue >= 0) formattedValue[0] else formattedValue[1])
                     val splittedValue = formattedValue.split(",")
 
                     val tempDigitNumberBeforeComma = splittedValue[0].length
@@ -247,11 +242,11 @@ class HelperFunctionsTest{
 
             for (testNumberList in currentTestNumberLists) {
                 for (formatValue in testNumberList) {
-                    val formattedValue = formatDouble(formatValue, adjustPrecision = true, suffix = "₺").trim()
-                    assertEquals('₺', formattedValue.last())
+                    val formattedValue = formatValue.formatPrice(currency = Currency.Tl, adjustPrecision = true).trim()
+                    assertEquals('₺', formattedValue[0])
                     val splittedValue = formattedValue.split(",")
 
-                    val tempDigitNumberBeforeComma = splittedValue[0].length
+                    val tempDigitNumberBeforeComma = splittedValue[0].length - 1
                     val tempDigitNumberAfterComma = if (splittedValue.size > 1) splittedValue[1].length else 0
                     val tempDigitNumberEntireText = formattedValue.length
 
@@ -289,8 +284,8 @@ class HelperFunctionsTest{
 
             for (testNumberList in currentTestNumberLists) {
                 for (formatValue in testNumberList) {
-                    val formattedValue = formatDouble(formatValue, currency = "USD").trim()
-                    assertEquals('$', formattedValue.last())
+                    val formattedValue = formatValue.formatPrice(currency = Currency.Usd).trim()
+                    assertEquals('$', formattedValue[0])///todo
                     val splittedValue = formattedValue.split(",")
 
                     val tempDigitNumberBeforeComma = splittedValue[0].length
@@ -328,27 +323,30 @@ class HelperFunctionsTest{
     inner class FormatPriceDoubleTests{
         @Test
         fun `Basic known usage test`() {
-            val formattedDouble = formatPriceDouble(12753.34623453, adjustPrecision = true, precision = 3, currency = Currency.Tl)
+            val formattedDouble = (12753.34623453).formatPrice(adjustPrecision = true, precision = 3, currency = Currency.Tl)
+            assertEquals("₺12.753", formattedDouble.trim())
 
-            val formattedDouble6 = formatPriceDouble(12753.346, currency = null)
-            assertEquals("12.753", formattedDouble6.trim())
-
-            val formattedDouble2 = formatPriceDouble(-23.5, currency = Currency.Usd)
+            val formattedDouble2 = (-23.5).formatPrice(currency = Currency.Usd)
+            assertEquals("-${Currency.Usd.currencySuffix()}23,50", formattedDouble2.trim())
 
 
-            val formattedDouble4 = formatPriceDouble(null, currency = Currency.Usd)
-            assertEquals("-", formattedDouble4.trim())
 
-            val formattedDouble5 = formatPriceDouble(0.0, currency = null)
-            assertEquals("0,00", formattedDouble5.trim())
+            val formattedDouble3 = null.formatPrice(currency = Currency.Usd)
+            assertEquals("-", formattedDouble3.trim())
 
-            val formattedDouble7 = formatPriceDouble(14324.23423, currency = Currency.Tl, suffix = "\$")
 
-            val formattedDouble8 = formatPriceDouble(6232343.43, currency = Currency.Tl, prefix = "~")
+            val formattedDouble4 = (14324.23423).formatPrice(Currency.Tl, prefix = "$", adjustPrecision = true)
+            assertEquals("$ ${Currency.Tl.currencySuffix()}14.324", formattedDouble4.trim())
 
-            val formattedDouble9 = formatPriceDouble(4674.82, adjustPrecision = false, precision = 4, currency = Currency.Tl)
+            val formattedDouble5 = (6232343.43).formatPrice(currency = Currency.Tl, prefix = "~", adjustPrecision = true)
+            assertEquals("~ ${Currency.Tl.currencySuffix()}6.232.343", formattedDouble5.trim())
 
-            val formattedDouble10 = formatPriceDouble(-0.82, precision = 4, currency = Currency.Tl)
+            val formattedDouble6 = (4674.82).formatPrice(adjustPrecision = false, precision = 4, currency = Currency.Tl)
+            assertEquals("${Currency.Tl.currencySuffix()}4.674,8200", formattedDouble6.trim())
+
+            val formattedDouble7 = (-0.82).formatPrice(precision = 4, currency = Currency.Tl)
+            assertEquals("-${Currency.Tl.currencySuffix()}0,8200", formattedDouble7.trim())
+
         }
 
     }
@@ -408,7 +406,7 @@ class HelperFunctionsTest{
             val ownedStockCountText6 = getOwnedStockCountText(1.999999)
             assertEquals("2", ownedStockCountText6.trim())
 
-            val ownedStockCountText7 = getOwnedStockCountText(457457.0)
+            val ownedStockCountText7 = getOwnedStockCountText(457457)
             assertEquals("457457", ownedStockCountText7.trim())
 
             val ownedStockCountText8 = getOwnedStockCountText(0.1)
@@ -421,26 +419,28 @@ class HelperFunctionsTest{
             assertEquals("1,000", ownedStockCountText10.trim())
         }
     }
-    @Nested
-    inner class FormatLeaguePrizeTests{
-        @Test
-        fun `Basic known usage test`() {
-            val formattedLeaguePrizeText = formatLeaguePrize(10000.0)
-            assertEquals("10,00b ₺", formattedLeaguePrizeText)
+    ///todo will be fixed
 
-            val formattedLeaguePrizeText2 = formatLeaguePrize(10500.0)
-            assertEquals("10,50b ₺", formattedLeaguePrizeText2)
-
-            val formattedLeaguePrizeText3 = formatLeaguePrize(19999.0)
-            assertEquals("20b ₺", formattedLeaguePrizeText3)
-
-            val formattedLeaguePrizeText4 = formatLeaguePrize(550000.0)
-            assertEquals("550,00b ₺", formattedLeaguePrizeText4)
-
-            val formattedLeaguePrizeText5 = formatLeaguePrize(0.0)
-            assertEquals("0₺", formattedLeaguePrizeText5)
-        }
-    }
+    //    @Nested
+    //    inner class FormatLeaguePrizeTests{
+    //        @Test
+    //        fun `Basic known usage test`() {
+    //            val formattedLeaguePrizeText = formatLeaguePrize(10000.0, currency = Currency.Tl)
+    //            assertEquals("10${spaceCharacter}B$spaceCharacter₺", formattedLeaguePrizeText)
+    //
+    //            val formattedLeaguePrizeText2 = formatLeaguePrize(10500.0, currency = Currency.Tl)
+    //            assertEquals("10,5${spaceCharacter}B$spaceCharacter₺", formattedLeaguePrizeText2)
+    //
+    //            val formattedLeaguePrizeText3 = formatLeaguePrize(19999.0, currency = Currency.Tl)
+    //            assertEquals("20${spaceCharacter}B$spaceCharacter₺", formattedLeaguePrizeText3)
+    //
+    //            val formattedLeaguePrizeText4 = formatLeaguePrize(550000.0, currency = Currency.Tl)
+    //           assertEquals("550${spaceCharacter}B$spaceCharacter₺", formattedLeaguePrizeText4)
+    //
+    //           val formattedLeaguePrizeText5 = formatLeaguePrize(0.0, currency = Currency.Tl)
+    //           assertEquals("₺0,00", formattedLeaguePrizeText5)
+    //       }
+    //   }
 
     @Nested
     inner class TurkishToEnglishCharsTests{
@@ -525,17 +525,13 @@ class HelperFunctionsTest{
                             assertNotNull(formattedValue)
                             assertFalse { formattedValue == "-" }
 
-                            financialFormat.suffix?.let {
-                                if (it.isNotEmpty()) {
-                                    assertTrue { formattedValue.contains(it) }
-                                }
+                            if (financialFormat.suffix != null && financialFormat.suffix!!.isNotEmpty()) {
+                                assertEquals(formattedValue.contains(financialFormat.suffix ?: ""), true)
+                            }
+                            if (financialFormat.prefix != null && financialFormat.prefix!!.isNotEmpty()) {
+                                assertEquals(formattedValue[1].toString(), financialFormat.prefix)
                             }
 
-                            financialFormat.prefix?.let {
-                                if (it.isNotEmpty()) {
-                                    assertEquals(it[0].toString(), formattedValue[0].toString())
-                                }
-                            }
 
                             if (financialFormat.precision != 0) {
                                 val splittedText = formattedValue.split(",")

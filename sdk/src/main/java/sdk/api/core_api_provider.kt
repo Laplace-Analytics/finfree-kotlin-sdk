@@ -10,6 +10,7 @@ import sdk.models.CollectionType
 import sdk.models.data.assets.Region
 import sdk.models.data.assets.localeString
 import sdk.models.data.assets.string
+import sdk.models.string
 
 class CoreApiProvider(
     override val httpHandler: HTTPHandler

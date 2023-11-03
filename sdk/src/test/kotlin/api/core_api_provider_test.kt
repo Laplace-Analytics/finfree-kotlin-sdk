@@ -20,6 +20,7 @@ import sdk.models.data.assets.AssetClass
 import sdk.models.CollectionType
 import sdk.models.data.assets.Region
 import sdk.models.data.assets.string
+import sdk.models.string
 import java.time.LocalDateTime
 
 class CoreApiProviderTest {

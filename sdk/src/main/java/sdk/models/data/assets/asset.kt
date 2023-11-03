@@ -216,7 +216,7 @@ fun Currency.currencySuffix(): String {
 fun Currency.abbreviation(): String {
     return when (this) {
         Currency.Tl -> "TRY"
-        Currency.Usd -> "USDTRY"
+        Currency.Usd -> "USD"
         Currency.Eur -> "EUR"
     }
 }

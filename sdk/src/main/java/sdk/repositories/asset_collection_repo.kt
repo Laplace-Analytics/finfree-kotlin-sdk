@@ -9,6 +9,7 @@ import sdk.models.AssetCollection
 import sdk.models.CollectionType
 import sdk.models.data.assets.Region
 import sdk.models.data.assets.string
+import sdk.models.string
 
 open class AssetCollectionRepo(
     override val storageHandler: GenericStorage,

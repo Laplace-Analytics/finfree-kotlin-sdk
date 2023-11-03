@@ -16,6 +16,7 @@ import sdk.base.network.HTTPHandler
 import sdk.models.CollectionType
 import sdk.models.data.assets.Region
 import sdk.models.data.assets.string
+import sdk.models.string
 import sdk.repositories.AssetCollectionRepo
 import sdk.repositories.AssetCollectionRepoIdentifier
 
