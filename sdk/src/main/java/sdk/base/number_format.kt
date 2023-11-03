@@ -3,6 +3,7 @@ package sdk.base
 import sdk.models.data.assets.Currency
 import sdk.models.data.assets.abbreviation
 import sdk.models.data.assets.currencySuffix
+import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.absoluteValue
@@ -179,6 +180,12 @@ fun Number?.formatPercent(
         minimumFractionDigits = adjustedPrecision
     }.format(this.toDouble() / 100)
 
+}
+
+fun getNumberSymbolsForLocale(locale: Locale): DecimalFormatSymbols {
+    ///todo will be tested
+    val decimalFormatSymbols = DecimalFormatSymbols.getInstance(locale)
+    return decimalFormatSymbols
 }
 
 
