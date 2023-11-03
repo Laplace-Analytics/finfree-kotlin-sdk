@@ -79,11 +79,20 @@ open class AggregatedPriceDataSeriesRepo(
     }
 
     override fun getPath(identifier: AggregatedPriceDataSeriesIdentifier?): String {
-        TODO("Not yet implemented")
+        val assetSymbols = mutableListOf<String>()
+        if (identifier != null && identifier.assets.isNotEmpty()) {
+            assetSymbols.addAll(identifier.assets.map { it.symbol })
+        }
+        return "aggregated/${identifier?.period}/${assetSymbols.joinToString(",")}"
     }
 
     override fun getIdentifier(data: AggregatedPriceDataSeries): AggregatedPriceDataSeriesIdentifier? {
-        TODO("Not yet implemented")
+        val assets = data.assets
+        val period = data.period
+        return AggregatedPriceDataSeriesIdentifier(
+            assets = assets,
+            period = period
+        )
     }
 
     override fun getFromJson(json: Map<String, Any>): AggregatedPriceDataSeries {
