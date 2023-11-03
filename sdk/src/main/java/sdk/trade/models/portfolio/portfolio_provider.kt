@@ -4,13 +4,15 @@ import io.reactivex.subjects.BehaviorSubject
 import sdk.base.tryNTimesIfResultIsNull
 import sdk.trade.GenericPortfolioApiProvider
 import sdk.trade.OrderData
+import sdk.trade.repositories.repos.EquityTimeSeriesRepo
 import sdk.trade.repositories.repos.PortfolioRepoIdentifier
 import sdk.trade.repositories.repos.UserEquityRepo
 import sdk.trade.repositories.repos.UserPortfolioRepo
 
 class PortfolioProvider(
     private val portfolioRepo: UserPortfolioRepo,
-    private val userEquityDataRepo: UserEquityRepo<out GenericPortfolioApiProvider>
+    private val userEquityDataRepo: UserEquityRepo<out GenericPortfolioApiProvider>,
+    private val equityTimeSeriesRepo: EquityTimeSeriesRepo<out GenericPortfolioApiProvider>
 ) {
     private val _userEquityDataStream = BehaviorSubject.create<UserEquityData>()
     private val _userPortfolioStream = BehaviorSubject.create<UserPortfolio>()

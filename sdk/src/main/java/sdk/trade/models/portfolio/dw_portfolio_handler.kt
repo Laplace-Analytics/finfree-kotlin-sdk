@@ -25,6 +25,7 @@ import sdk.trade.repositories.repos.UserEquityRepo
 import sdk.trade.repositories.repos.UserPortfolioRepo
 import sdk.trade.generic_api.DriveWealthPortfolioApiProvider
 import sdk.trade.repositories.drivewealth_repos.DriveWealthOrderHandler
+import sdk.trade.repositories.repos.EquityTimeSeriesRepo
 
 class DWPortfolioHandler(
     override val endpointUrl: String,
@@ -76,7 +77,12 @@ class DWPortfolioHandler(
             ordersRepo = DriveWealthOrdersRepository(storage, orderAPIProvider, assetProvider),
             priceDataRepo = priceDataRepo,
             userEquityRepo = DriveWealthUserEquityRepo(storage, portfolioAPIProvider, priceDataRepo, sessionProvider, assetProvider),
-            userPortfolioRepo = DriveWealthUserPortfolioRepo(storage, portfolioAPIProvider, assetProvider)
+            userPortfolioRepo = DriveWealthUserPortfolioRepo(storage, portfolioAPIProvider, assetProvider),
+            equityTimeSeriesRepo =  EquityTimeSeriesRepo(
+                sessionProvider,
+                storage,
+                portfolioAPIProvider,
+        ),
         )
 
         _ordersDataHandler = OrdersDataHandler(
@@ -106,7 +112,8 @@ class DWPortfolioHandler(
 
         _portfolioProvider = PortfolioProvider(
             portfolioRepo = _portfolioRepos!!.userPortfolioRepo,
-            userEquityDataRepo = _portfolioRepos!!.userEquityRepo
+            userEquityDataRepo = _portfolioRepos!!.userEquityRepo,
+            equityTimeSeriesRepo =  _portfolioRepos!!.equityTimeSeriesRepo,
         )
 
         _orderHandler = DriveWealthOrderHandler(
@@ -160,6 +167,7 @@ private class PortfolioRepos(
     val ordersRepo: OrdersRepository,
     val priceDataRepo: PriceDataRepo,
     val userEquityRepo: UserEquityRepo<out GenericPortfolioApiProvider>,
-    val userPortfolioRepo: UserPortfolioRepo
+    val userPortfolioRepo: UserPortfolioRepo,
+    val equityTimeSeriesRepo: EquityTimeSeriesRepo<out GenericPortfolioApiProvider>
 )
 
