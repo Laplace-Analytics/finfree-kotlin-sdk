@@ -47,7 +47,7 @@ val Asset.notionalMarketOrderEnabled: Boolean
 
 
 
-private fun getContentType(region: Region?, assetClass: AssetClass?): Content {
+fun getContentType(region: Region?, assetClass: AssetClass?): Content {
     if (region == null || assetClass == null) {
         throw Exception("Region or AssetClass is null: region: $region, assetClass: $assetClass")
     }
