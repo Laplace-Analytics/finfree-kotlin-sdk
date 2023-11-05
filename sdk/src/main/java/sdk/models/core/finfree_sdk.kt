@@ -194,8 +194,9 @@ class FinfreeSDK {
             livePriceDataEnabled: Boolean,
             notifyListeners: () -> Unit,
             showOrderUpdatedMessage:  (OrderData) -> Any,
+            ordersDatabase: OrdersDBHandler? = null
         ) {
-            val ordersDBHandler = MockOrdersDBHandler(assetProvider)
+            val ordersDBHandler = ordersDatabase ?: MockOrdersDBHandler(assetProvider)
 
             initializePortfolioHandler(
                 notifyListeners = notifyListeners,
