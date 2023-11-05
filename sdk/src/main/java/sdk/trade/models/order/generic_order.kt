@@ -117,7 +117,7 @@ data class OrderData(
     override fun toJson(): Map<String, Any?> {
         return mapOf(
             "id" to orderId.id,
-            "symbol" to asset.symbol,
+            "stock_id" to asset.id,
             "price_executed" to price,
             "price_ordered" to limitPrice,
             "quantity" to quantity,
@@ -135,8 +135,17 @@ data class OrderData(
 
     companion object {
         fun fromJson(json: Map<String, Any>, assetProvider: AssetProvider): OrderData {
-            val asset = assetProvider.findBySymbol(json["symbol"] as String)
-                ?: throw Exception("Asset not found")
+            val asset: Asset? = if (json["stock_id"] != null) {
+                assetProvider.findById(json["stock_id"] as String)
+            } else if (json["symbol"] != null) {
+                assetProvider.findBySymbol(json["symbol"] as String)
+            } else {
+                null
+            }
+
+            if(asset == null){
+                throw Exception("Asset not found")
+            }
 
             return OrderData(
                 orderId = OrderId.fromValue(json["id"]!!),
