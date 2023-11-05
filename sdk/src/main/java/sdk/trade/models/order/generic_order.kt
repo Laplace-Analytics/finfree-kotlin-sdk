@@ -149,16 +149,16 @@ data class OrderData(
 
             return OrderData(
                 orderId = OrderId.fromValue(json["id"]!!),
-                orderNo = json["order_no"] as String,
+                orderNo = json["order_no"] as String?,
                 asset = asset,
                 status = OrderStatus.values()[json["status"] as Int],
-                errorCode = json["error_code"] as String,
-                statusMessage = json["status_message"] as String,
+                errorCode = json["error_code"] as String?,
+                statusMessage = json["status_message"] as String?,
                 orderType = OrderType.values()[json["order_type"] as Int],
-                price = json["price_executed"] as Double,
+                price = json["price_executed"] as Double?,
                 quantity = json["quantity"] as Double,
                 remainingQuantity = json["remaining_quantity"] as Double,
-                limitPrice = json["price_ordered"] as Double,
+                limitPrice = json["price_ordered"] as Double?,
                 placed = DateTime.fromSinceEpochMilliSecond(json["placed_date"] as Long),
                 executed = json["executed_date"]?.let { DateTime.fromSinceEpochMilliSecond(it as Long) },
                 orderSource = OrderSource.values()[json["order_source"] as Int]
