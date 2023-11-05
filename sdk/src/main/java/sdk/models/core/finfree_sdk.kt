@@ -210,14 +210,16 @@ class FinfreeSDK {
             // TODO insert DB id
             _portfolioHandlers?.keys?.forEach { portfolioType ->
                 // TODO insert DB id
-                    ordersDataHandler(portfolioType).ordersDBHandler.initDatabase("dbID")
-                    portfolioProvider(portfolioType).getUserPortfolio()
-                    portfolioProvider(portfolioType).getUserEquityData(
+                ordersDataHandler(portfolioType).ordersDBHandler.initDatabase(portfolioType.name)
+                coroutineScope {
+                    async { portfolioProvider(portfolioType).getUserPortfolio() }.await()
+                    async { portfolioProvider(portfolioType).getUserEquityData(
                         ordersDataHandler(portfolioType).getDailyOrders(),
                         true
                     )
+                    }.await()
+                }
             }
-
         }
     }
 }
