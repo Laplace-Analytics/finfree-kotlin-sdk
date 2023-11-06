@@ -7,6 +7,7 @@ import sdk.base.network.HTTPHandler
 import sdk.models.data.assets.PortfolioType
 import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
+import sdk.models.data.assets.Content
 import sdk.repositories.PriceDataRepo
 import sdk.trade.api.drivewealth_api.DriveWealthOrderAPIProvider
 import sdk.trade.repositories.drivewealth_repos.DriveWealthOrdersRepository
@@ -58,6 +59,9 @@ class DWPortfolioHandler(
 
     private var _portfolioRepos: PortfolioRepos? = null
 
+    val hasLiveData: Boolean
+        get() = true
+
     override suspend fun init(
         notifyListeners: () -> Any,
         showOrderUpdatedMessage: (OrderData) -> Any,
@@ -66,7 +70,8 @@ class DWPortfolioHandler(
         assetProvider: AssetProvider,
         sessionProvider: SessionProvider,
         priceDataRepo: PriceDataRepo,
-        token: AccessToken
+        token: AccessToken,
+        hasLiveData: ((Content) -> Boolean)?
     ) {
         val httpHandler = HTTPHandler(httpURL = endpointUrl)
         httpHandler.token = token
@@ -152,14 +157,14 @@ class DWPortfolioHandler(
         ordersDataHandler.cancelOrderUpdateDB(orderID)
     }
 
-    override suspend fun getUserEquityData(livePriceDataEnabled: Boolean): UserEquityData? {
+    override suspend fun getUserEquityData(): UserEquityData? {
         val dailyOrders = ordersDataHandler.getDailyOrders()
-        return portfolioProvider.getUserEquityData(dailyOrders, livePriceDataEnabled)
+        return portfolioProvider.getUserEquityData(dailyOrders, hasLiveData)
     }
 
-    override suspend fun fetchUserEquityData(livePriceDataEnabled: Boolean): UserEquityData? {
+    override suspend fun fetchUserEquityData(): UserEquityData? {
         val dailyOrders = ordersDataHandler.getDailyOrders()
-        return portfolioProvider.fetchUserEquityData(dailyOrders, livePriceDataEnabled)
+        return portfolioProvider.fetchUserEquityData(dailyOrders, hasLiveData)
     }
 }
 

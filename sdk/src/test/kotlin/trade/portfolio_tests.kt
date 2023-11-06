@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import sdk.base.logger
-import sdk.models.data.assets.PortfolioType
 import sdk.models.core.FinfreeSDK
+import sdk.models.data.assets.PortfolioType
 import sdk.trade.models.portfolio.UserPortfolio
 import java.util.Random
 
@@ -71,7 +71,8 @@ suspend fun handleSetup() = runBlocking {
         },
         showOrderUpdatedMessage = { order ->
             logger.info("Order updated: $order")
-        }
+        },
+        ordersDBHandlers = mutableMapOf(),
     )
 
     var portfolio: UserPortfolio? = FinfreeSDK.portfolioProvider(portfolioType).userPortfolio

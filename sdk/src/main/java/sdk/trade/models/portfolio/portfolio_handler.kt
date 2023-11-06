@@ -5,6 +5,7 @@ import sdk.base.GenericStorage
 import sdk.models.data.assets.PortfolioType
 import sdk.models.core.AssetProvider
 import sdk.models.core.SessionProvider
+import sdk.models.data.assets.Content
 import sdk.repositories.PriceDataRepo
 import sdk.trade.OrderData
 import sdk.trade.OrderHandler
@@ -33,7 +34,8 @@ abstract class PortfolioHandler(open val endpointUrl: String) {
         assetProvider: AssetProvider,
         sessionProvider: SessionProvider,
         priceDataRepo: PriceDataRepo,
-        token: AccessToken
+        token: AccessToken,
+        hasLiveData: ((Content) -> Boolean)? = null
     )
 
     abstract suspend fun getUserPortfolio() : UserPortfolio?
@@ -51,7 +53,7 @@ abstract class PortfolioHandler(open val endpointUrl: String) {
 
     abstract suspend fun cancelOrder(orderID: OrderId)
 
-    abstract suspend fun getUserEquityData(livePriceDataEnabled: Boolean): UserEquityData?
+    abstract suspend fun getUserEquityData(): UserEquityData?
 
-    abstract suspend fun fetchUserEquityData(livePriceDataEnabled: Boolean): UserEquityData?
+    abstract suspend fun fetchUserEquityData(): UserEquityData?
 }

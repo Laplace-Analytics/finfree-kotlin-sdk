@@ -15,6 +15,7 @@ import sdk.base.exceptions.PortfolioHandlerNotInitializedException
 import sdk.base.exceptions.SDKNotInitializedException
 import sdk.base.network.HTTPHandler
 import sdk.models.data.account.AccountData
+import sdk.models.data.assets.Content
 import sdk.models.data.assets.PortfolioType
 import sdk.models.data.assets.Region
 import sdk.repositories.*
@@ -145,7 +146,8 @@ class FinfreeSDK {
         private suspend fun initializePortfolioHandlers(
             notifyListeners: () -> Unit,
             showOrderUpdatedMessage: (OrderData) -> Any,
-            ordersDBHandlers: Map<PortfolioType, OrdersDBHandler>
+            ordersDBHandlers: Map<PortfolioType, OrdersDBHandler>,
+            hasLiveData: ((Content) -> Boolean)? = null
         ) {
 
             _portfolioHandlers?.keys?.forEach { portfolioType ->
@@ -157,7 +159,8 @@ class FinfreeSDK {
                     assetProvider = assetProvider,
                     sessionProvider = sessionProvider,
                     priceDataRepo = data.priceDataRepo,
-                    token = _accessToken!!
+                    token = _accessToken!!,
+                    hasLiveData = hasLiveData
                 )
             }
 
@@ -169,13 +172,6 @@ class FinfreeSDK {
             response.accessToken?.let {
                 setAccessToken(response.accessToken)
                 initializeAccountData()
-                if(accountData == null){
-                    return AuthenticationResponse(
-                        AuthenticationResponseTypes.UnknownError,
-                        "account data is null",
-                        response.accessToken
-                    )
-                }
             }
             return response
         }
@@ -186,13 +182,6 @@ class FinfreeSDK {
             response.accessToken?.let {
                 setAccessToken(response.accessToken)
                 initializeAccountData()
-                if(accountData == null){
-                    return AuthenticationResponse(
-                        AuthenticationResponseTypes.UnknownError,
-                        "account data is null",
-                        response.accessToken
-                    )
-                }
             }
             return response
         }
@@ -212,29 +201,25 @@ class FinfreeSDK {
         }
 
         private suspend fun initializeAccountData() {
-           val authApiProvider: AuthApiProvider = AuthApiProvider(baseHttpHandler)
+            val authApiProvider: AuthApiProvider = AuthApiProvider(baseHttpHandler)
 
             val accountDataRepo = AccountDataRepo(
-            authApiProvider,
-            storage
+                authApiProvider,
+                storage
             )
             val accountDataResponse = accountDataRepo.getData(null)
             if (accountDataResponse != null) {
-             _accountData = accountDataResponse
+                _accountData = accountDataResponse
+            }
         }
 
         suspend fun initializePortfolioData(
             livePriceDataEnabled: Boolean,
             notifyListeners: () -> Unit,
             showOrderUpdatedMessage:  (OrderData) -> Any,
-            ordersDatabase: OrdersDBHandler? = null,
-            ordersDBHandlers: MutableMap<PortfolioType, OrdersDBHandler> = mutableMapOf()
+            ordersDBHandlers: MutableMap<PortfolioType, OrdersDBHandler>,
+            hasLiveData: ((Content) -> Boolean)? = null
         ) {
-            initializePortfolioHandlers(
-                notifyListeners = notifyListeners,
-                showOrderUpdatedMessage = showOrderUpdatedMessage,
-                ordersDBHandlers = ordersDBHandlers,
-            )
             if (!initialized) throw SDKNotInitializedException()
             if (!authorized) throw NotAuthorizedException()
             if (!coreInitialized) throw CoreDataNotInitializedException()
@@ -244,6 +229,13 @@ class FinfreeSDK {
                     MockOrdersDBHandler(assetProvider, portfolioType.name)
                 }
             }
+
+            initializePortfolioHandlers(
+                notifyListeners = notifyListeners,
+                showOrderUpdatedMessage = showOrderUpdatedMessage,
+                ordersDBHandlers = ordersDBHandlers,
+                hasLiveData = hasLiveData
+            )
 
             // TODO insert DB id
             _portfolioHandlers?.keys?.forEach { portfolioType ->
@@ -259,7 +251,6 @@ class FinfreeSDK {
                 }
             }
         }
-    }
 }
 
 private data class CoreRepos(
