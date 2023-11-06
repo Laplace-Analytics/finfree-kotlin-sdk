@@ -102,6 +102,15 @@ fun AssetClass.string(): String {
     }
 }
 
+fun String.contentTypeFromJurisdiction(): Content {
+    return when (this) {
+        "tr" -> Content.TrEquity
+        "us" -> Content.UsEquity
+        else -> Content.TrEquity
+    }
+}
+
+
 fun String.assetClass() : AssetClass {
     return when(this) {
         "crypto" -> AssetClass.Crypto
