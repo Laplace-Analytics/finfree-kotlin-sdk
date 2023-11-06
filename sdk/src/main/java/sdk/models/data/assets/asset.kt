@@ -259,6 +259,9 @@ data class Asset(
     val isCrypto: Boolean
         get() = type == AssetType.Crypto
 
+    val isUsEquity: Boolean
+        get() = region == Region.American && type == AssetType.Stock
+
     val isPassive: Boolean
         get() = !isActive
 
