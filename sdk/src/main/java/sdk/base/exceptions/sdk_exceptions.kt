@@ -17,3 +17,6 @@ class CoreDataNotInitializedException : InitializationException("Core data not i
 class PortfolioHandlerNotInitializedException : InitializationException("Portfolio handler not initialized, should call FinfreeSDK.initializePortfolioHandler() first")
 
 class InvalidPortfolioTypeException(type: PortfolioType) : InitializationException("Invalid portfolio type provided, no portfolio provider with type $type found")
+
+class OrderDBHandlerNotInitializedException(type: PortfolioType) : InitializationException("$type's order db handler is not available. Should create a class that implements OrdersDBHandler")
+
