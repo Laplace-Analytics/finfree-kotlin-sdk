@@ -446,7 +446,7 @@ class CoreApiProviderTest {
                     }
                     assertEquals(BasicResponseTypes.Success, getCollectionsResponse.responseType)
                     assertNotNull(getCollectionsResponse.data)
-                    assertTrue(getCollectionsResponse.data?.size ?: 0 > 0)
+                    assertTrue((getCollectionsResponse.data?.size ?: 0) > 0)
                     delay(1000)
                 }
             }
@@ -472,7 +472,7 @@ class CoreApiProviderTest {
             val getCollectionsResponse2 = coreApiProvider.getCollections(Region.Turkish, CollectionType.sector)
             assertEquals(BasicResponseTypes.Success, getCollectionsResponse2.responseType)
             assertNotNull(getCollectionsResponse2.data)
-            assertTrue(getCollectionsResponse2.data?.size ?: 0 > 0)
+            assertTrue((getCollectionsResponse2.data?.size ?: 0) > 0)
         }
     }
     @Nested
@@ -481,7 +481,7 @@ class CoreApiProviderTest {
         fun `Fetch with expired token state`() = runBlocking {
             baseHttpHandler.token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb250ZW50X2NyZWF0b3IiOnRydWUsImR3X2FjY291bnRfaWQiOiI4Yzg5OGEyNi05YTU0LTQxMTktOTBiMy0xNTI0NjhjYjU0ZGUuMTY4MTIxMzQ1MTk2MSIsImR3X2FjY291bnRfbm8iOiJGRkFZMDAwMDAxIiwiZXhwIjoxNjkwMzIzNTY3LCJqdXJpc2RpY3Rpb24iOiJ0ciIsImxvY2FsZSI6InRyIiwicmVhZDpmaWx0ZXJfZGV0YWlsIjp0cnVlLCJyZWFkOnJ0X3ByaWNlIjp0cnVlLCJyZWFkOnNlY3RvciI6dHJ1ZSwidXNlcm5hbWUiOiJjbnRya3kifQ.XMOIoR1WdsIUQ9qqy5s31atLv1DfSLeCrijIUNbqrAXCidJI7T39lNM7dGODgofb9gzs9MOfLJr5eateUGHaKw"
 
-            val getJurisdictionResponse = coreApiProvider.getJurisdiction(Region.American)
+            val getJurisdictionResponse = coreApiProvider.getJurisdictionConfig()
             assertEquals(BasicResponseTypes.Error, getJurisdictionResponse.responseType)
             assertNull(getJurisdictionResponse.data)
             assertEquals("Unauthorized\n", getJurisdictionResponse.message)
@@ -489,35 +489,18 @@ class CoreApiProviderTest {
 
         @Test
         fun `Fetch without token state`() = runBlocking {
-            val getJurisdictionResponse = coreApiProvider.getJurisdiction(Region.Turkish)
+            baseHttpHandler.token = null
+            val getJurisdictionResponse = coreApiProvider.getJurisdictionConfig()
             assertEquals(BasicResponseTypes.Error, getJurisdictionResponse.responseType)
             assertNull(getJurisdictionResponse.data)
             assertEquals("Unauthorized\n", getJurisdictionResponse.message)
-        }
-
-        @Test
-        fun `Fetch specific region test`() = runBlocking {
-            val loginResponse = authApiProvider.postLogin("test44", "1234qwer")
-            if (loginResponse.responseType != LoginResponseTypes.SUCCESS) {
-                fail("Could not login to Finfree Account")
-            }
-            val loginData = loginResponse.data!!
-            baseHttpHandler.token = loginData.accessToken
-
-            for (region in regionListWithoutTest) {
-                val getJurisdictionResponse = coreApiProvider.getJurisdiction(region)
-                assertEquals(BasicResponseTypes.Success, getJurisdictionResponse.responseType)
-                assertNotNull(getJurisdictionResponse.data)
-                assertEquals(region.string(), getJurisdictionResponse.data?.get("code"))
-                delay(1000L)  // 1 second delay
-            }
         }
 
         @Test
         fun `Fetch after token expire scenario`() = runBlocking {
             baseHttpHandler.token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb250ZW50X2NyZWF0b3IiOnRydWUsImR3X2FjY291bnRfaWQiOiI4Yzg5OGEyNi05YTU0LTQxMTktOTBiMy0xNTI0NjhjYjU0ZGUuMTY4MTIxMzQ1MTk2MSIsImR3X2FjY291bnRfbm8iOiJGRkFZMDAwMDAxIiwiZXhwIjoxNjkwMzIzNTY3LCJqdXJpc2RpY3Rpb24iOiJ0ciIsImxvY2FsZSI6InRyIiwicmVhZDpmaWx0ZXJfZGV0YWlsIjp0cnVlLCJyZWFkOnJ0X3ByaWNlIjp0cnVlLCJyZWFkOnNlY3RvciI6dHJ1ZSwidXNlcm5hbWUiOiJjbnRya3kifQ.XMOIoR1WdsIUQ9qqy5s31atLv1DfSLeCrijIUNbqrAXCidJI7T39lNM7dGODgofb9gzs9MOfLJr5eateUGHaKw"
 
-            var getJurisdictionResponse = coreApiProvider.getJurisdiction(Region.Turkish)
+            var getJurisdictionResponse = coreApiProvider.getJurisdictionConfig()
             assertEquals(BasicResponseTypes.Error, getJurisdictionResponse.responseType)
             assertNull(getJurisdictionResponse.data)
             assertEquals("Unauthorized\n", getJurisdictionResponse.message)
@@ -529,7 +512,7 @@ class CoreApiProviderTest {
             val loginData = loginResponse.data!!
             baseHttpHandler.token = loginData.accessToken
 
-            getJurisdictionResponse = coreApiProvider.getJurisdiction(Region.Turkish)
+            getJurisdictionResponse = coreApiProvider.getJurisdictionConfig()
             assertEquals(BasicResponseTypes.Success, getJurisdictionResponse.responseType)
             assertNotNull(getJurisdictionResponse.data)
         }

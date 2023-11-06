@@ -127,8 +127,8 @@ class CoreApiProvider(
 
 
 
-    suspend fun getJurisdiction(region: Region): BasicResponse<Map<String, Any>> {
-        val path = "/jurisdiction/${region.string()}"
+    suspend fun getJurisdictionConfig(): BasicResponse<Map<String, Any>> {
+        val path = "/jurisdiction/config"
 
         val response = httpHandler.get(path = path)
 
