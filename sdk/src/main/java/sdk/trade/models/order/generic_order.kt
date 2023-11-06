@@ -1,6 +1,7 @@
 package sdk.trade
 
 import sdk.base.GenericModel
+import sdk.base.getIntFromDynamic
 import sdk.models.data.assets.Asset
 import sdk.models.core.AssetProvider
 import sdk.models.core.sessions.DateTime
@@ -147,21 +148,31 @@ data class OrderData(
                 throw Exception("Asset not found")
             }
 
+            val statusIndex: Int = getIntFromDynamic(json["status"])
+                ?: throw Exception("Status cannot be null")
+
+            val orderSourceIndex: Int = getIntFromDynamic(json["order_source"])
+                ?: throw Exception("OrderSource cannot be null")
+
+            val orderTypeIndex: Int = getIntFromDynamic(json["order_type"])
+                ?: throw Exception("OrderSource cannot be null")
+
+
             return OrderData(
                 orderId = OrderId.fromValue(json["id"]!!),
                 orderNo = json["order_no"] as String?,
                 asset = asset,
-                status = OrderStatus.values()[json["status"] as Int],
+                status = OrderStatus.values()[statusIndex],
                 errorCode = json["error_code"] as String?,
                 statusMessage = json["status_message"] as String?,
-                orderType = OrderType.values()[json["order_type"] as Int],
+                orderType = OrderType.values()[orderTypeIndex],
                 price = json["price_executed"] as Double?,
                 quantity = json["quantity"] as Double,
                 remainingQuantity = json["remaining_quantity"] as Double,
                 limitPrice = json["price_ordered"] as Double?,
                 placed = DateTime.fromSinceEpochMilliSecond(json["placed_date"] as Long),
                 executed = json["executed_date"]?.let { DateTime.fromSinceEpochMilliSecond(it as Long) },
-                orderSource = OrderSource.values()[json["order_source"] as Int]
+                orderSource = OrderSource.values()[orderSourceIndex]
             )
         }
     }
