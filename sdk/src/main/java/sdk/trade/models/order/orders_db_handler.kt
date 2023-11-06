@@ -32,7 +32,7 @@ abstract class OrdersDBHandler(
 
     abstract suspend fun getOrdersSincePlacedDate(date: LocalDateTime): List<OrderData>
 
-    abstract suspend fun getDistinctSymbols(): List<AssetId>
+    abstract suspend fun getDistinctAssetIds(): List<AssetId>
 
     abstract suspend fun getNumberOfOrders(): Int
 
@@ -79,8 +79,8 @@ class MockOrdersDBHandler(
         return filtered.subList(offset, min(offset + limit, filtered.size))
     }
 
-    override suspend fun getDistinctSymbols(): List<AssetId> {
-        return mockData.map { it.asset.symbol }.toSet().toList()
+    override suspend fun getDistinctAssetIds(): List<AssetId> {
+        return mockData.map { it.asset.id }.toSet().toList()
     }
 
     override suspend fun getNumberOfOrders(): Int {
