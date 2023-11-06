@@ -137,17 +137,17 @@ class FinfreeSDK {
             )
         }
 
-        private suspend fun initializePortfolioHandler(
+        private suspend fun initializePortfolioHandlers(
             notifyListeners: () -> Unit,
             showOrderUpdatedMessage: (OrderData) -> Any,
-            ordersDBHandler: OrdersDBHandler,
+            ordersDBHandlers: Map<PortfolioType, OrdersDBHandler>
         ) {
 
             _portfolioHandlers?.keys?.forEach { portfolioType ->
                 portfolioHandler(portfolioType).init(
                     notifyListeners = notifyListeners,
                     showOrderUpdatedMessage = showOrderUpdatedMessage,
-                    ordersDBHandler = ordersDBHandler,
+                    ordersDBHandler = ordersDBHandlers[portfolioType]!!,
                     storage = storage,
                     assetProvider = assetProvider,
                     sessionProvider = sessionProvider,
@@ -194,18 +194,23 @@ class FinfreeSDK {
             livePriceDataEnabled: Boolean,
             notifyListeners: () -> Unit,
             showOrderUpdatedMessage:  (OrderData) -> Any,
-            ordersDatabase: OrdersDBHandler? = null
+            ordersDatabase: OrdersDBHandler? = null,
+            ordersDBHandlers: MutableMap<PortfolioType, OrdersDBHandler> = mutableMapOf()
         ) {
-            val ordersDBHandler = ordersDatabase ?: MockOrdersDBHandler(assetProvider)
-
-            initializePortfolioHandler(
+            initializePortfolioHandlers(
                 notifyListeners = notifyListeners,
                 showOrderUpdatedMessage = showOrderUpdatedMessage,
-                ordersDBHandler = ordersDBHandler,
+                ordersDBHandlers = ordersDBHandlers,
             )
             if (!initialized) throw SDKNotInitializedException()
             if (!authorized) throw NotAuthorizedException()
             if (!coreInitialized) throw CoreDataNotInitializedException()
+
+            _portfolioHandlers?.keys?.forEach { portfolioType ->
+                ordersDBHandlers.getOrPut(portfolioType) {
+                    MockOrdersDBHandler(assetProvider, portfolioType.name)
+                }
+            }
 
             // TODO insert DB id
             _portfolioHandlers?.keys?.forEach { portfolioType ->

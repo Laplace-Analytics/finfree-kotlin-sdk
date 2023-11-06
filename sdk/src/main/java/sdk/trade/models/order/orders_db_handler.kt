@@ -6,7 +6,10 @@ import java.lang.Math.min
 import java.time.LocalDateTime
 import java.util.*
 
-abstract class OrdersDBHandler(open val assetProvider: AssetProvider) {
+abstract class OrdersDBHandler(
+    open val assetProvider: AssetProvider,
+    open val databaseName: String
+) {
 
     abstract val initialized: Boolean
 
@@ -50,7 +53,8 @@ val random = Random()
 
 class MockOrdersDBHandler(
     override val assetProvider: AssetProvider,
-) : OrdersDBHandler(assetProvider) {
+    override val databaseName: String
+) : OrdersDBHandler(assetProvider,databaseName) {
     private lateinit var mockData: MutableList<OrderData>
 
     override fun dispose() {
