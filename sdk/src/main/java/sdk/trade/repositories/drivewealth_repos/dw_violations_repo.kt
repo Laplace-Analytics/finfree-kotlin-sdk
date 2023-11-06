@@ -27,7 +27,7 @@ class DriveWealthViolationsRepo(
         }
     }
 
-    override fun getFromJson(json: Map<String, Any>): DriveWealthViolationsData {
+    override fun getFromJson(json: Map<String, Any?>): DriveWealthViolationsData {
         return DriveWealthViolationsData.fromJSON(json["data"] as Map<String, Any?>)
     }
 

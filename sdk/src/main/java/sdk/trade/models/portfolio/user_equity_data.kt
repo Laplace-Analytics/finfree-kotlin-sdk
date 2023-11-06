@@ -98,7 +98,7 @@ class UserEquityData(
     }
 
     companion object {
-        fun fromJSON(json: Map<String, Any>): UserEquityData {
+        fun fromJSON(json: Map<String, Any?>): UserEquityData {
             return UserEquityData(
                 equityData = (json["equity_data"] as Map<String, Any>).mapKeys { (key, _) ->
                     StockDataPeriods.fromPeriodString(key) ?: throw IllegalArgumentException("Invalid period: $key")

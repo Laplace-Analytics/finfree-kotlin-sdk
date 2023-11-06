@@ -115,7 +115,7 @@ class DriveWealthUserEquityRepo(
         throw NotImplementedError("Not implemented yet.")
     }
 
-    override fun getFromJson(json: Map<String, Any>): UserEquityData {
+    override fun getFromJson(json: Map<String, Any?>): UserEquityData {
         return UserEquityData.fromJSON(json)
     }
 

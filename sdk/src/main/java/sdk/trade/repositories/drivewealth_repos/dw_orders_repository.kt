@@ -1,6 +1,5 @@
 package sdk.trade.repositories.drivewealth_repos
 
-import jdk.vm.ci.meta.Local
 import sdk.base.GenericStorage
 import sdk.base.getDoubleFromDynamic
 import sdk.base.logger
@@ -14,9 +13,7 @@ import sdk.trade.OrderStatus
 import sdk.trade.OrderType
 import sdk.trade.repositories.repos.OrdersRepository
 import sdk.trade.repositories.repos.PaginatedOrdersFilter
-import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneId
 
 class DriveWealthOrdersRepository(
     storageHandler: GenericStorage,
@@ -119,7 +116,7 @@ class DriveWealthOrdersRepository(
         return fetchData(identifier)
     }
 
-    override fun getFromJson(json: Map<String, Any>): List<OrderData> {
+    override fun getFromJson(json: Map<String, Any?>): List<OrderData> {
         val orders = json["orders"] as List<Map<String, Any>>
         return orders.map { orderDataFromJSON(it) }
     }

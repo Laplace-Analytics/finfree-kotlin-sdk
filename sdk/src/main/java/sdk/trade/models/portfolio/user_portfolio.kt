@@ -42,7 +42,7 @@ class UserPortfolio(
     }
 
     companion object {
-        fun fromJSON(json: Map<String, Any>, assetProvider: AssetProvider): UserPortfolio {
+        fun fromJSON(json: Map<String, Any?>, assetProvider: AssetProvider): UserPortfolio {
             val ownedStocks = mutableMapOf<AssetId, PortfolioAssetData>()
 
             val positions: List<Map<String, Any>> = (json["positions"] as? List<Map<String, Any>>)?.toList() ?: emptyList()

@@ -140,7 +140,7 @@ open class AssetRepo(
         }
     }
 
-    override fun getFromJson(json: Map<String, Any>): List<Asset> {
+    override fun getFromJson(json: Map<String, Any?>): List<Asset> {
         return (json["assets"] as List<Map<String, Any>>).map { data ->
             Asset.fromJson(data + ("region" to json["region"]))
         }

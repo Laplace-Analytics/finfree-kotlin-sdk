@@ -35,7 +35,7 @@ open class AssetCollectionRepo(
         }
     }
 
-    override fun getFromJson(json: Map<String, Any>): List<AssetCollection> {
+    override fun getFromJson(json: Map<String, Any?>): List<AssetCollection> {
         return (json["data"] as List<Map<String, Any>>).map { data ->
             AssetCollection.fromJson(data, (json["type"] as CollectionType))
         }

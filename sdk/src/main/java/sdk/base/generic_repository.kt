@@ -19,8 +19,8 @@ abstract class GenericRepository<T, V, K : GenericApiProvider>(
     abstract suspend fun fetchData(identifier: V?): T?
     abstract fun getPath(identifier: V?): String
     abstract fun getIdentifier(data: T): V?
-    abstract fun getFromJson(json: Map<String, Any>): T
-    abstract fun toJson(data: T): Map<String, Any>
+    abstract fun getFromJson(json: Map<String, Any?>): T
+    abstract fun toJson(data: T): Map<String, Any?>
 
     open suspend fun getData(identifier: V?): T? {
         try {

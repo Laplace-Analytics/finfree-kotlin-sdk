@@ -28,7 +28,7 @@ class DriveWealthUserPortfolioRepo(
             return null
         }
     }
-    override fun getFromJson(json: Map<String, Any>): UserPortfolio {
+    override fun getFromJson(json: Map<String, Any?>): UserPortfolio {
         return UserPortfolio.fromJSON(json, assetProvider)
     }
 

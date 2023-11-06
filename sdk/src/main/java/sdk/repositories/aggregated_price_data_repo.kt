@@ -95,7 +95,7 @@ open class AggregatedPriceDataSeriesRepo(
         )
     }
 
-    override fun getFromJson(json: Map<String, Any>): AggregatedPriceDataSeries {
+    override fun getFromJson(json: Map<String, Any?>): AggregatedPriceDataSeries {
         val graphData: Map<Region, Map<AssetClass, PriceDataSeries?>>? = json["graph_data"] as Map<Region, Map<AssetClass, PriceDataSeries?>>?
         val assets: List<Any>? = json["assets"] as List<Any>?
 

@@ -106,7 +106,7 @@ open class SessionsRepo(
     }
 
 
-    override fun getFromJson(json: Map<String, Any>): List<Sessions> {
+    override fun getFromJson(json: Map<String, Any?>): List<Sessions> {
         val data = json["data"] as List<Map<String, Any>>
         return data.map { e -> Sessions.fromJson(e) }
     }

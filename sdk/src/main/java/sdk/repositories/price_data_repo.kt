@@ -225,7 +225,7 @@ open class PriceDataRepo(
         return res
     }
 
-    override fun getFromJson(json: Map<String, Any>): Map<AssetId, Map<StockDataPeriods, PriceDataSeries>> {
+    override fun getFromJson(json: Map<String, Any?>): Map<AssetId, Map<StockDataPeriods, PriceDataSeries>> {
         return json.mapValues {
             (it.value as Map<String, Any>).mapKeys {
                 getPeriodFromString(it.key)!!

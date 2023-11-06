@@ -33,7 +33,7 @@ class DriveWealthDocumentsRepo(
         }
     }
 
-    override fun getFromJson(json: Map<String, Any>): List<DriveWealthAccountDocument> {
+    override fun getFromJson(json: Map<String, Any?>): List<DriveWealthAccountDocument> {
         val data = json["data"] as List<Map<String, Any>>
         return data.map { e -> DriveWealthAccountDocument.fromJson(e) }
     }

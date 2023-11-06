@@ -61,7 +61,7 @@ class EquityTimeSeriesRepo<T : GenericPortfolioApiProvider>(
         }
     }
 
-    override fun getFromJson(json: Map<String, Any>): UserEquityTimeSeries {
+    override fun getFromJson(json: Map<String, Any?>): UserEquityTimeSeries {
         val data = json["data"] as List<Map<String, Any>>
         val period = json["period"] as StockDataPeriods
         val cleanData = toTimeSeriesDataPointList(rawData = data)

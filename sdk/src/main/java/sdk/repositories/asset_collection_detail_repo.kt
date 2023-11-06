@@ -35,7 +35,7 @@ open class AssetCollectionDetailRepo(
         }
     }
 
-    override fun getFromJson(json: Map<String, Any>): AssetCollection {
+    override fun getFromJson(json: Map<String, Any?>): AssetCollection {
         val typeString = json["type"] as CollectionType
         return AssetCollection.fromJson((json["data"] as Map<String, Any>)["collection"] as Map<String, Any>, typeString)
     }
