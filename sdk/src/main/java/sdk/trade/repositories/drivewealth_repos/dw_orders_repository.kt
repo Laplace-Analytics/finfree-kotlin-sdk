@@ -1,5 +1,6 @@
 package sdk.trade.repositories.drivewealth_repos
 
+import jdk.vm.ci.meta.Local
 import sdk.base.GenericStorage
 import sdk.base.getDoubleFromDynamic
 import sdk.base.logger
@@ -57,9 +58,22 @@ class DriveWealthOrdersRepository(
 
         val remainingQuantity = quantity - executedQuantity
 
-        val placed = json["created_at"]?.let { val instant = Instant.parse(it as String)
-            instant.atZone(ZoneId.systemDefault()).toLocalDateTime() }
-            ?: throw Exception("Placed date was null: $json")
+        var placed: LocalDateTime? = if(json["created_at"] != null && json["created_at"] is String)
+            LocalDateTime.parse(json["created_at"] as String) else null
+
+        placed = placed ?: if (json["placed_date"] != null && json["placed_date"] is String)
+            LocalDateTime.parse(json["placed_date"] as String) else null
+
+        if (placed == null) throw Exception("Placed date was null: $json")
+
+        var executed: LocalDateTime? = if(json["order_date"] != null && json["order_date"] is String)
+            LocalDateTime.parse(json["order_date"] as String) else null
+
+        executed = executed ?: if (json["executed_date"] != null && json["executed_date"] is String)
+            LocalDateTime.parse(json["executed_date"] as String) else null
+
+        if(executed == null) throw Exception("Executed date was null: $json")
+
 
         return OrderData(
             orderId = OrderId.fromValue(json["order_id"]),
@@ -74,13 +88,12 @@ class DriveWealthOrdersRepository(
             remainingQuantity = remainingQuantity,
             limitPrice = getDoubleFromDynamic(json["order_price"]),
             placed = placed,
-            executed = json["order_date"]?.let { val instant = Instant.parse(it as String)
-                instant.atZone(ZoneId.systemDefault()).toLocalDateTime() },
+            executed = executed,
             orderSource = OrderSource.DriveWealth
         )
     }
 
-    fun getOrderStatus(statusCode: String): OrderStatus {
+    private fun getOrderStatus(statusCode: String): OrderStatus {
         return orderStatusCodes[statusCode] ?: OrderStatus.UnspecifiedOrderStatus
     }
 

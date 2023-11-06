@@ -14,7 +14,7 @@ abstract class OrdersRepository(
 
     abstract suspend fun getOrderByID(id: String): OrderData?
 
-    abstract fun orderDataFromJSON(json: Map<String, Any>): OrderData
+    abstract fun orderDataFromJSON(json: Map<String, Any>): OrderData?
 }
 
 data class PaginatedOrdersFilter(

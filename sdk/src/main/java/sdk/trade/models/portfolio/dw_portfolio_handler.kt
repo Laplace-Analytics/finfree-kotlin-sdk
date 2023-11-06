@@ -16,7 +16,7 @@ import sdk.trade.GenericPortfolioApiProvider
 import sdk.trade.OrderData
 import sdk.trade.OrderHandler
 import sdk.trade.OrderId
-import sdk.trade.OrderUpdatesHandler
+import sdk.trade.models.order.OrderUpdatesHandler
 import sdk.trade.OrderUpdatesListener
 import sdk.trade.OrdersDBHandler
 import sdk.trade.OrdersDataHandler
