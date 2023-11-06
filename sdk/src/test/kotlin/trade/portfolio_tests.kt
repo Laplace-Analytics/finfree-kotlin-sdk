@@ -65,7 +65,6 @@ suspend fun handleSetup() = runBlocking {
     val portfolioType: PortfolioType = PortfolioType.DriveWealth
     initSDK(portfolioType)
     FinfreeSDK.initializePortfolioData(
-        livePriceDataEnabled = true,
         notifyListeners = {
             logger.info("Notify listeners")
         },

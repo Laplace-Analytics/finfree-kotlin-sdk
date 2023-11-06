@@ -214,7 +214,6 @@ class FinfreeSDK {
         }
 
         suspend fun initializePortfolioData(
-            livePriceDataEnabled: Boolean,
             notifyListeners: () -> Unit,
             showOrderUpdatedMessage:  (OrderData) -> Any,
             ordersDBHandlers: MutableMap<PortfolioType, OrdersDBHandler>,
