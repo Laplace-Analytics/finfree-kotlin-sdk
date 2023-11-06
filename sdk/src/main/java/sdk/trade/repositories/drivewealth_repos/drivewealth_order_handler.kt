@@ -1,10 +1,14 @@
 package sdk.trade.repositories.drivewealth_repos
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import sdk.base.logger
 import sdk.base.network.BasicResponse
 import sdk.base.network.BasicResponseTypes
+import sdk.models.core.FinfreeSDK
 import sdk.models.data.assets.Asset
+import sdk.models.data.assets.PortfolioType
 import sdk.trade.DeleteOrderResponse
 import sdk.trade.DeleteOrderResponseTypes
 import sdk.trade.GenericOrderAPIProvider
@@ -114,13 +118,11 @@ class DriveWealthOrderHandler(
 
     override suspend fun fetchPeriodic() {
         delay(2000L)
-        // You can uncomment the below code if you need to run these in parallel.
-        /*
+
         coroutineScope {
-            launch { portfolioHandler.fetchUserStockData() }
-            launch { portfolioHandler.fetchUserEquityData() }
-            launch { portfolioHandler.fetchTransactionsPeriodic() }
+            async { FinfreeSDK.portfolioHandler(PortfolioType.DriveWealth).fetchUserPortfolio() }.await()
+            async { FinfreeSDK.portfolioHandler(PortfolioType.DriveWealth).fetchUserEquityData() }.await()
+            async { FinfreeSDK.portfolioHandler(PortfolioType.DriveWealth).fetchTransactionsPeriodic() }.await()
         }
-        */
     }
 }
