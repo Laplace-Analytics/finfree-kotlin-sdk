@@ -49,7 +49,7 @@ class DriveWealthOrdersRepository(
             else -> null
         } ?: throw Exception("Unknown orderType or side: $json")
 
-        val price = getDoubleFromDynamic(json["average_price"]) ?: throw Exception("Executed was null: $json")
+        val price = getDoubleFromDynamic(json["order_price"] ?: json["average_price"]) ?: throw Exception("Executed was null: $json")
         val quantity = getDoubleFromDynamic(json["quantity"]) ?: throw Exception("Quantity was null: $json")
         val executedQuantity = getDoubleFromDynamic(json["executed_quantity"]) ?: throw Exception("executedQuantity quantity was null: $json")
 
@@ -63,8 +63,8 @@ class DriveWealthOrdersRepository(
 
         if (placed == null) throw Exception("Placed date was null: $json")
 
-        var executed: LocalDateTime? = if(json["order_date"] != null && json["order_date"] is String)
-            LocalDateTime.parse(json["order_date"] as String) else null
+        var executed: LocalDateTime? = if(json["last_updated"] != null && json["last_updated"] is String)
+            LocalDateTime.parse(json["last_updated"] as String) else null
 
         executed = executed ?: if (json["executed_date"] != null && json["executed_date"] is String)
             LocalDateTime.parse(json["executed_date"] as String) else null
@@ -78,7 +78,7 @@ class DriveWealthOrdersRepository(
             asset = asset,
             status = getOrderStatus(json["status"] as String),
             errorCode = json["error_code"] as String,
-            statusMessage = json["status_message"] as String,
+            statusMessage = json["status_message"]?.toString(),
             orderType = transactionType,
             price = price,
             quantity = quantity,
