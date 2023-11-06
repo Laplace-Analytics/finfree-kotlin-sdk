@@ -3,6 +3,7 @@ package sdk.models.core
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import sdk.api.AccessToken
+import sdk.api.AuthApiProvider
 import sdk.api.CoreApiProvider
 import sdk.api.RefreshToken
 import sdk.api.StockDataApiProvider
@@ -13,6 +14,7 @@ import sdk.base.exceptions.NotAuthorizedException
 import sdk.base.exceptions.PortfolioHandlerNotInitializedException
 import sdk.base.exceptions.SDKNotInitializedException
 import sdk.base.network.HTTPHandler
+import sdk.models.data.account.AccountData
 import sdk.models.data.assets.PortfolioType
 import sdk.models.data.assets.Region
 import sdk.repositories.*
@@ -39,6 +41,10 @@ class FinfreeSDK {
 
         private var _coreInitialized = false
         val coreInitialized get() = _coreInitialized
+
+        private var _accountDataInitialized = false
+        val accountDataInitialized get() = _accountDataInitialized
+
 
         val baseHttpHandler: HTTPHandler = HTTPHandler(httpURL = network_config.baseEndpoint)
 
@@ -105,6 +111,12 @@ class FinfreeSDK {
 
         private lateinit var coreRepos: CoreRepos
 
+        private lateinit var accountDataRepo: AccountDataRepo
+
+
+        private var _accountData: AccountData? = null
+        private val accountData get() = _accountData ?: throw Exception("Account data is not initialized")
+
 
         fun setAccessToken(accessToken: AccessToken) {
             _accessToken = accessToken
@@ -123,6 +135,7 @@ class FinfreeSDK {
             authorizationHandler = AuthorizationHandler(storage,baseHttpHandler)
 
             initializeCoreRepos(getLocalTimezone)
+            initializeAccountRepo()
             _assetProvider = AssetProvider(assetRepo = coreRepos.assetRepo)
             _sessionProvider = SessionProvider(sessionsRepo = coreRepos.sessionsRepo)
 
@@ -157,6 +170,14 @@ class FinfreeSDK {
             }
 
         }
+        private fun initializeAccountRepo() {
+            val authApiProvider = AuthApiProvider(baseHttpHandler)
+
+            accountDataRepo = AccountDataRepo(
+                authApiProvider,
+                storage
+            )
+        }
 
         suspend fun userLogin(identifier: String, password: String): AuthenticationResponse {
             if (!initialized) throw SDKNotInitializedException()
@@ -189,6 +210,19 @@ class FinfreeSDK {
             }
             _coreInitialized = true
         }
+
+        suspend fun initializeAccountData() {
+            val accountDataResponse = accountDataRepo.getData(null)
+            if (accountDataResponse != null) {
+                setAccountData(accountDataResponse)
+                _accountDataInitialized = true
+            }
+        }
+
+        fun setAccountData(accountData: AccountData) {
+            _accountData = accountData
+        }
+
 
         suspend fun initializePortfolioData(
             livePriceDataEnabled: Boolean,
