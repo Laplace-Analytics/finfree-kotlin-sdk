@@ -48,6 +48,9 @@ class FinfreeSDK {
         private var _coreInitialized = false
         val coreInitialized get() = _coreInitialized
 
+        val portfolioInitialized: Boolean
+            get() = portfolioHandlers != null && portfolioHandlers!!.isNotEmpty()
+
         val baseHttpHandler: HTTPHandler = HTTPHandler(httpURL = network_config.baseEndpoint)
 
 
@@ -55,10 +58,10 @@ class FinfreeSDK {
 
         private lateinit var authorizationHandler: AuthorizationHandler
 
-        private var _portfolioHandlers: Map<PortfolioType, PortfolioHandler>? = null
+        private var portfolioHandlers: Map<PortfolioType, PortfolioHandler>? = null
 
         fun portfolioHandler(portfolioType: PortfolioType): PortfolioHandler {
-            _portfolioHandlers?.let {
+            portfolioHandlers?.let {
                 if (!it.containsKey(portfolioType)) {
                     throw InvalidPortfolioTypeException(portfolioType)
                 } else if (it[portfolioType] == null) {
@@ -148,7 +151,7 @@ class FinfreeSDK {
             hasLiveData: ((Content) -> Boolean)? = null
         ) {
 
-            _portfolioHandlers?.keys?.forEach { portfolioType ->
+            portfolioHandlers?.keys?.forEach { portfolioType ->
                 portfolioHandler(portfolioType).init(
                     notifyListeners = notifyListeners,
                     showOrderUpdatedMessage = showOrderUpdatedMessage,
@@ -198,7 +201,7 @@ class FinfreeSDK {
             _accountData = null
 
             _coreInitialized = false
-            _portfolioHandlers = null
+            portfolioHandlers = null
             authorizationHandler.logout()
 
         }
@@ -240,9 +243,9 @@ class FinfreeSDK {
             if (!initialized) throw SDKNotInitializedException()
             if (!authorized) throw NotAuthorizedException()
             if (!coreInitialized) throw CoreDataNotInitializedException()
-            _portfolioHandlers = portfolioHandlers
+            this.portfolioHandlers = portfolioHandlers
 
-            _portfolioHandlers?.let { portfolioHandlers ->
+            this.portfolioHandlers?.let { portfolioHandlers ->
                 portfolioHandlers.keys.forEach { key ->
                     if (!ordersDBHandlers.containsKey(key) || ordersDBHandlers[key] == null) {
                         throw OrderDBHandlerNotInitializedException(key)
@@ -259,7 +262,7 @@ class FinfreeSDK {
             )
 
             // TODO insert DB id
-            _portfolioHandlers?.keys?.forEach { portfolioType ->
+            this.portfolioHandlers?.keys?.forEach { portfolioType ->
                 // TODO insert DB id
                 ordersDataHandler(portfolioType).ordersDBHandler.initDatabase(portfolioType.name)
                 coroutineScope {
