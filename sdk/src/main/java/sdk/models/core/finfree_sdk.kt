@@ -38,8 +38,12 @@ class FinfreeSDK {
             }
 
         private var _accessToken: AccessToken? = null
+
+        private var _accountData: AccountData? = null
+        private val accountData: AccountData
+            get() = _accountData ?: throw Exception("Account data is not initialized")
         val authorized: Boolean
-            get() = _accessToken != null
+            get() = _accessToken != null && _accountData != null
 
         private var _coreInitialized = false
         val coreInitialized get() = _coreInitialized
@@ -109,11 +113,6 @@ class FinfreeSDK {
 
         private lateinit var coreRepos: CoreRepos
 
-        private var _accountData: AccountData? = null
-        private val accountData: AccountData
-            get() = _accountData ?: throw Exception("Account data is not initialized")
-
-
         fun setAccessToken(accessToken: AccessToken) {
             _accessToken = accessToken
             baseHttpHandler.token = accessToken
@@ -171,6 +170,10 @@ class FinfreeSDK {
             response.accessToken?.let {
                 setAccessToken(response.accessToken)
                 initializeAccountData()
+                if (_accountData == null) {
+                    _accessToken = null
+                    return AuthenticationResponse(AuthenticationResponseTypes.UnknownError, "account data is null", response.accessToken)
+                }
             }
             return response
         }
@@ -181,6 +184,10 @@ class FinfreeSDK {
             response.accessToken?.let {
                 setAccessToken(response.accessToken)
                 initializeAccountData()
+                if (_accountData == null) {
+                    _accessToken = null
+                    return AuthenticationResponse(AuthenticationResponseTypes.UnknownError, "account data is null", response.accessToken)
+                }
             }
             return response
         }
