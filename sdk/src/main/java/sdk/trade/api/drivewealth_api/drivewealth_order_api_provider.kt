@@ -8,9 +8,9 @@ import kotlinx.coroutines.flow.map
 import sdk.base.network.*
 import sdk.models.data.assets.Asset
 import sdk.models.data.assets.AssetSymbol
-import sdk.trade.DeleteOrderResponse
-import sdk.trade.DeleteOrderResponseTypes
-import sdk.trade.GenericOrderAPIProvider
+import sdk.trade.api.generic_api.DeleteOrderResponse
+import sdk.trade.api.generic_api.DeleteOrderResponseTypes
+import sdk.trade.api.generic_api.GenericOrderAPIProvider
 import sdk.trade.OrderId
 import java.util.Locale
 import kotlin.math.absoluteValue
@@ -49,7 +49,7 @@ class DriveWealthOrderAPIProvider(
                     message = null
                 )
             },
-            onError = { res ->
+            onError = {
                 BasicResponse(
                     responseType = BasicResponseTypes.Error
                 )
@@ -65,9 +65,9 @@ class DriveWealthOrderAPIProvider(
             "orderType" to  "MARKET",
             "symbol" to  asset.symbol,
             "side" to if (quantity.toDouble() > 0) "BUY" else "SELL",
-            "quantity" to when {
-                quantity is Int -> quantity.absoluteValue.toString()
-                quantity is Double -> String.format(Locale.US,"%.3f", quantity.absoluteValue)
+            "quantity" to when (quantity) {
+                is Int -> quantity.absoluteValue.toString()
+                is Double -> String.format(Locale.US,"%.3f", quantity.absoluteValue)
                 else -> throw IllegalArgumentException("Unsupported type for quantity")
             }
         )
@@ -87,7 +87,7 @@ class DriveWealthOrderAPIProvider(
                     data = data,
                 )
             },
-            onError = { res ->
+            onError = {
                 BasicResponse(
                     responseType = BasicResponseTypes.Error
                 )
@@ -148,13 +148,40 @@ class DriveWealthOrderAPIProvider(
                     data = data,
                 )
             },
-            onError = { res ->
+            onError = {
                 BasicResponse(
                     responseType = BasicResponseTypes.Error
                 )
             }
         ) as BasicResponse<Map<String, Any>>
 
+    }
+
+    override suspend fun getAllOrders(): BasicResponse<List<Map<String, Any>>> {
+        val response = httpHandler.get(path = basePath)
+
+        return ApiResponseHandler.handleResponse(response,
+            onSuccess = { res ->
+
+                val responseBodyStr = res.body?.string() ?: ""
+                val type = object : TypeToken<List<Map<String, Any>>>() {}.type
+
+                val data: List<Map<String, Any>> = Gson().fromJson(responseBodyStr,type)
+                BasicResponse(
+                    responseType = BasicResponseTypes.Success,
+                    data = data
+                )
+            },
+            onNoContent = {
+                BasicResponse(
+                    responseType = BasicResponseTypes.Success,
+                    data = emptyList()
+                )
+            },
+            onError = {
+                BasicResponse(responseType = BasicResponseTypes.Error)
+            }
+        ) as BasicResponse<List<Map<String, Any>>>
     }
 
     override suspend fun getTransactionsBetween(
@@ -183,7 +210,7 @@ class DriveWealthOrderAPIProvider(
                     data = result,
                 )
             },
-            onError = { res ->
+            onError = {
                 BasicResponse(
                     responseType = BasicResponseTypes.Error
                 )
@@ -200,11 +227,11 @@ class DriveWealthOrderAPIProvider(
 
         return ApiResponseHandler.handleStreamedResponse<Flow<StreamData>>(
             response = response,
-            onSuccess = { response ->
+            onSuccess = { res ->
                 var currentMessage = ""
 
                 val transformedFlow = flow {
-                    response.body?.byteStream()?.bufferedReader()?.use { reader ->
+                    res.body?.byteStream()?.bufferedReader()?.use { reader ->
                         for (line in reader.lineSequence()) {
                             currentMessage += line
                             val currentLines = currentMessage.split("\n")
@@ -263,7 +290,7 @@ class DriveWealthOrderAPIProvider(
                     data = result,
                 )
             },
-            onError = { res ->
+            onError = {
                 BasicResponse(
                     responseType = BasicResponseTypes.Error
                 )
@@ -295,7 +322,7 @@ class DriveWealthOrderAPIProvider(
                     data = data,
                 )
             },
-            onError = { res ->
+            onError = {
                 BasicResponse(
                     responseType = BasicResponseTypes.Error
                 )

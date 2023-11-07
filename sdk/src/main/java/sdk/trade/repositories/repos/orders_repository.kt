@@ -3,7 +3,7 @@ package sdk.trade.repositories.repos
 import sdk.base.GenericRepository
 import sdk.base.GenericStorage
 import sdk.models.core.AssetProvider
-import sdk.trade.GenericOrderAPIProvider
+import sdk.trade.api.generic_api.GenericOrderAPIProvider
 import sdk.trade.OrderData
 
 abstract class OrdersRepository(
@@ -14,7 +14,7 @@ abstract class OrdersRepository(
 
     abstract suspend fun getOrderByID(id: String): OrderData?
 
-    abstract fun orderDataFromJSON(json: Map<String, Any>): OrderData?
+    abstract fun orderDataFromJSON(json: Map<String, Any?>): OrderData
 }
 
 data class PaginatedOrdersFilter(

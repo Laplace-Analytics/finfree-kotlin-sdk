@@ -3,9 +3,10 @@ package sdk.trade.repositories.drivewealth_repos
 import sdk.base.GenericStorage
 import sdk.base.getDoubleFromDynamic
 import sdk.base.logger
+import sdk.base.network.BasicResponse
 import sdk.base.network.BasicResponseTypes
 import sdk.models.core.AssetProvider
-import sdk.trade.GenericOrderAPIProvider
+import sdk.trade.api.generic_api.GenericOrderAPIProvider
 import sdk.trade.OrderData
 import sdk.trade.OrderId
 import sdk.trade.OrderSource
@@ -36,14 +37,13 @@ class DriveWealthOrdersRepository(
             null
         }
     }
-    override fun orderDataFromJSON(json: Map<String, Any>): OrderData {
+    override fun orderDataFromJSON(json: Map<String, Any?>): OrderData {
         val asset = assetProvider.findBySymbol(json["symbol"] as String)
             ?: throw Exception("Asset not found")
 
 
         val isBuy = json["side"] == "BUY"
-        val orderType = json["type"]
-        val transactionType = when(orderType) {
+        val transactionType = when(json["type"]) {
             "MARKET" -> if (isBuy) OrderType.MarketBuy else OrderType.MarketSell
             "LIMIT" -> if (isBuy) OrderType.LimitBuy else OrderType.LimitSell
             else -> null
@@ -95,11 +95,15 @@ class DriveWealthOrdersRepository(
     }
 
     override suspend fun fetchData(identifier: PaginatedOrdersFilter?): List<OrderData>? {
-        val from = identifier?.from ?: 1
-        val N = 50
-        val to = identifier?.to ?: (from + N - 1)
 
-        val response = apiProvider.getTransactionsBetween(from, to)
+        val response: BasicResponse<List<Map<String, Any>>> = if (identifier == null) {
+            apiProvider.getAllOrders()
+        } else {
+            val from = identifier.from
+            val to = identifier.to
+            apiProvider.getTransactionsBetween(from, to)
+        }
+
 
         if (response.responseType != BasicResponseTypes.Success || response.data == null) {
             return null

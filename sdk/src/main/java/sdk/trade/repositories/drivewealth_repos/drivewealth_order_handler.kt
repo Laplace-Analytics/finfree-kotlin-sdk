@@ -9,9 +9,9 @@ import sdk.base.network.BasicResponseTypes
 import sdk.models.core.FinfreeSDK
 import sdk.models.data.assets.Asset
 import sdk.models.data.assets.PortfolioType
-import sdk.trade.DeleteOrderResponse
-import sdk.trade.DeleteOrderResponseTypes
-import sdk.trade.GenericOrderAPIProvider
+import sdk.trade.api.generic_api.DeleteOrderResponse
+import sdk.trade.api.generic_api.DeleteOrderResponseTypes
+import sdk.trade.api.generic_api.GenericOrderAPIProvider
 import sdk.trade.OrderHandler
 import sdk.trade.OrderId
 import sdk.trade.OrderResponse

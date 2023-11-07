@@ -1,6 +1,8 @@
 package sdk.trade
 
 import sdk.models.data.assets.Asset
+import sdk.trade.api.generic_api.DeleteOrderResponse
+import sdk.trade.api.generic_api.GenericOrderAPIProvider
 
 abstract class OrderHandler(
     open val orderAPIProvider: GenericOrderAPIProvider

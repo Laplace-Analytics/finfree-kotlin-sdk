@@ -1,22 +1,18 @@
 package sdk.trade
 
-import io.reactivex.Flowable
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
 import sdk.base.logger
 import sdk.base.network.BasicResponseTypes
-import sdk.base.network.StreamData
 import java.util.*
-import java.util.stream.Stream
-import io.reactivex.Observable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.subscribe
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import sdk.trade.api.generic_api.GenericOrderAPIProvider
 
 
 class OrderUpdatesListener(private val orderApiProvider: GenericOrderAPIProvider) {

@@ -45,12 +45,8 @@ class OrderUpdatesHandler(
 
                     val orderData = getOrderData(rawData)
                     CoroutineScope(Dispatchers.IO).launch {
-                        if(orderData != null){
-                            ordersDataHandler.updateOrder(orderData, !realTradeNonFinalOrderStatus.contains(orderData.status))
-                            orderStream.onNext(orderData)
-                        }else{
-                            logger.error("RealOrderData from websocket could not be constructed: $rawData")
-                        }
+                        ordersDataHandler.updateOrder(orderData, !realTradeNonFinalOrderStatus.contains(orderData.status))
+                        orderStream.onNext(orderData)
                     }
 
                 }
@@ -61,7 +57,7 @@ class OrderUpdatesHandler(
         )
     }
 
-    private fun getOrderData(rawData: MutableMap<String, Any>): OrderData? {
+    private fun getOrderData(rawData: MutableMap<String, Any>): OrderData {
         val orderDateString:String? = rawData["order_date"] as String?  ?: rawData["last_updated"] as String?
         if (orderDateString != null && !orderDateString.endsWith("Z")) {
             rawData["executed_date"] = LocalDateTime.parse(orderDateString).toString()
