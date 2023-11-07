@@ -194,10 +194,6 @@ class FinfreeSDK {
             _portfolioHandlers = null
             authorizationHandler.logout()
 
-            initSDK(
-                getLocalTimezone = coreRepos.sessionsRepo.getLocalTimezone,
-                storage =  storage
-            )
         }
 
         suspend fun initializeCoreData(regions: Set<Region>) {
