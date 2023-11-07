@@ -20,6 +20,11 @@ class PortfolioProvider(
     private val _userEquityDataStream = BehaviorSubject.create<UserEquityData>()
     private val _userPortfolioStream = BehaviorSubject.create<UserPortfolio>()
 
+    val userEquityDataStream: BehaviorSubject<UserEquityData>
+        get() = _userEquityDataStream
+    val userPortfolioStream: BehaviorSubject<UserPortfolio>
+        get() = _userPortfolioStream
+
     val userPortfolio: UserPortfolio?
         get() = _userPortfolioStream.value
 
