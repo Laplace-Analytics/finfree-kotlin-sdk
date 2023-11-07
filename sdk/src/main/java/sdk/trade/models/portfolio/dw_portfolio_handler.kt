@@ -57,7 +57,7 @@ class DWPortfolioHandler(
             return _orderHandler ?: throw PortfolioHandlerNotInitializedException()
         }
 
-    private var _portfolioRepos: PortfolioRepos? = null
+    private var portfolioRepos: PortfolioRepos? = null
 
     private val hasLiveData: Boolean
         get() = true
@@ -77,7 +77,7 @@ class DWPortfolioHandler(
         val portfolioAPIProvider = DriveWealthPortfolioApiProvider(httpHandler, "api/v1/tr")
         val orderAPIProvider = DriveWealthOrderAPIProvider(httpHandler, "/api/v1/tr/order")
 
-        _portfolioRepos = PortfolioRepos(
+        portfolioRepos = PortfolioRepos(
             ordersRepo = DriveWealthOrdersRepository(storage, orderAPIProvider, assetProvider),
             priceDataRepo = priceDataRepo,
             userEquityRepo = DriveWealthUserEquityRepo(storage, portfolioAPIProvider, priceDataRepo, sessionProvider, assetProvider),
@@ -91,7 +91,7 @@ class DWPortfolioHandler(
 
         _ordersDataHandler = OrdersDataHandler(
             showOrderUpdatedMessage = showOrderUpdatedMessage,
-            ordersRepository = _portfolioRepos!!.ordersRepo,
+            ordersRepository = portfolioRepos!!.ordersRepo,
             fetchUserStockDataCallback = {
                 // TODO implement
             },
@@ -103,24 +103,25 @@ class DWPortfolioHandler(
         )
 
         val orderUpdatesListener = OrderUpdatesListener(
-            _portfolioRepos!!.ordersRepo.apiProvider
+            portfolioRepos!!.ordersRepo.apiProvider
         )
 
         _orderUpdatesHandler = OrderUpdatesHandler(
             orderUpdatesListener,
             ordersDataHandler,
-            _portfolioRepos!!.ordersRepo,
+            portfolioRepos!!.ordersRepo,
             assetProvider
         )
 
         _portfolioProvider = PortfolioProvider(
-            portfolioRepo = _portfolioRepos!!.userPortfolioRepo,
-            userEquityDataRepo = _portfolioRepos!!.userEquityRepo,
-            equityTimeSeriesRepo =  _portfolioRepos!!.equityTimeSeriesRepo,
+            portfolioRepo = portfolioRepos!!.userPortfolioRepo,
+            userEquityDataRepo = portfolioRepos!!.userEquityRepo,
+            equityTimeSeriesRepo =  portfolioRepos!!.equityTimeSeriesRepo,
+            ordersRepo = portfolioRepos!!.ordersRepo
         )
 
         _orderHandler = DriveWealthOrderHandler(
-            orderAPIProvider = _portfolioRepos!!.ordersRepo.apiProvider
+            orderAPIProvider = portfolioRepos!!.ordersRepo.apiProvider
         )
     }
 
