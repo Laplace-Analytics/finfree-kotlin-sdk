@@ -10,9 +10,6 @@ suspend fun initSDK(portfolioType: PortfolioType) {
     FinfreeSDK.initSDK(
         storage = MockStorage(),
         getLocalTimezone = suspend { "Europe/Istanbul" },
-        portfolioHandlers = mapOf(
-            portfolioType to DWPortfolioHandler(driveWealthUATURL)
-        )
     )
 
     if (!FinfreeSDK.initialized) {

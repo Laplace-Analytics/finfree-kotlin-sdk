@@ -1,5 +1,6 @@
 package trade
 
+import driveWealthUATURL
 import initSDK
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -15,6 +16,7 @@ import sdk.models.core.FinfreeSDK
 import sdk.models.data.assets.PortfolioType
 import sdk.trade.MockOrdersDBHandler
 import sdk.trade.OrdersDBHandler
+import sdk.trade.models.portfolio.DWPortfolioHandler
 import sdk.trade.models.portfolio.UserPortfolio
 import java.util.Random
 
@@ -77,6 +79,9 @@ suspend fun handleSetup() = runBlocking {
         showOrderUpdatedMessage = { order ->
             logger.info("Order updated: $order")
         },
+        portfolioHandlers = mapOf(
+            portfolioType to DWPortfolioHandler(driveWealthUATURL)
+        ),
         ordersDBHandlers = mapOf(
             portfolioType to drivewealthOrderDBHandler
         ),

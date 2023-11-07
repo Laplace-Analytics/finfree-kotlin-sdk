@@ -124,10 +124,8 @@ class FinfreeSDK {
         fun initSDK(
             getLocalTimezone: GetLocalTimezone,
             storage: GenericStorage,
-            portfolioHandlers: Map<PortfolioType, PortfolioHandler>
         ) {
             _storage = storage
-            _portfolioHandlers = portfolioHandlers
             authorizationHandler = AuthorizationHandler(storage,baseHttpHandler)
 
             initializeCoreRepos(getLocalTimezone)
@@ -202,7 +200,7 @@ class FinfreeSDK {
         }
 
         private suspend fun initializeAccountData() {
-            val authApiProvider: AuthApiProvider = AuthApiProvider(baseHttpHandler)
+            val authApiProvider = AuthApiProvider(baseHttpHandler)
 
             val accountDataRepo = AccountDataRepo(
                 authApiProvider,
@@ -217,12 +215,14 @@ class FinfreeSDK {
         suspend fun initializePortfolioData(
             notifyListeners: () -> Unit,
             showOrderUpdatedMessage:  (OrderData) -> Any,
+            portfolioHandlers: Map<PortfolioType, PortfolioHandler>,
             ordersDBHandlers: Map<PortfolioType, OrdersDBHandler?>,
             hasLiveData: ((Content) -> Boolean)? = null
         ) {
             if (!initialized) throw SDKNotInitializedException()
             if (!authorized) throw NotAuthorizedException()
             if (!coreInitialized) throw CoreDataNotInitializedException()
+            _portfolioHandlers = portfolioHandlers
 
             _portfolioHandlers?.let { portfolioHandlers ->
                 portfolioHandlers.keys.forEach { key ->
