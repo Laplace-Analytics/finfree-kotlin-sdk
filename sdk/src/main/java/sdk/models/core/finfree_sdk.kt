@@ -185,6 +185,21 @@ class FinfreeSDK {
             return response
         }
 
+        fun logout(){
+            _accessToken = null
+            baseHttpHandler.token = null
+            _accountData = null
+
+            _coreInitialized = false
+            _portfolioHandlers = null
+            authorizationHandler.logout()
+
+            initSDK(
+                getLocalTimezone = coreRepos.sessionsRepo.getLocalTimezone,
+                storage =  storage
+            )
+        }
+
         suspend fun initializeCoreData(regions: Set<Region>) {
             if (!initialized) throw SDKNotInitializedException()
             if (!authorized) throw NotAuthorizedException()

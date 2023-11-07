@@ -23,7 +23,7 @@ typealias GetLocalTimezone = suspend () -> String
 open class SessionsRepo(
     storageHandler: GenericStorage,
     apiProvider: CoreApiProvider,
-    private val getLocalTimezone: GetLocalTimezone
+    val getLocalTimezone: GetLocalTimezone
 ) : GenericRepository<List<Sessions>, SessionsRepoIdentifier, CoreApiProvider>(storageHandler, apiProvider) {
 
     override suspend fun fetchData(identifier: SessionsRepoIdentifier?): List<Sessions>? {

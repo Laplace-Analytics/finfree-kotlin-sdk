@@ -14,7 +14,7 @@ class AuthorizationHandler(
     private val httpHandler: HTTPHandler
 ) {
     private val authApiProvider = AuthApiProvider(httpHandler)
-    private val _authPath = "auth/login_data"
+    private val authPath = "auth/login_data"
 
     suspend fun login(identifier: String, password: String): AuthenticationResponse {
         val authenticationResponse = authenticateWithRefreshToken()
@@ -34,7 +34,7 @@ class AuthorizationHandler(
                 val accessToken = response.data.accessToken
 
                 storage.save(
-                    _authPath,
+                    authPath,
                     Gson().toJson(
                         response.data.toJson()
                     )
@@ -72,7 +72,7 @@ class AuthorizationHandler(
             refreshTokenToUse = refreshToken
             tokenIdToUse = tokenId
         } else {
-            val savedLoginDataJson: String? = storage.read(_authPath)
+            val savedLoginDataJson: String? = storage.read(authPath)
 
             if (savedLoginDataJson != null) {
                 val type = object : TypeToken<Map<String, Any>>() {}.type
@@ -100,7 +100,7 @@ class AuthorizationHandler(
             )
 
             storage.save(
-                _authPath,
+                authPath,
                 Json.encodeToString(loginData.toJson())
             )
 
@@ -113,6 +113,12 @@ class AuthorizationHandler(
             AuthenticationResponse(response.responseType.authenticationResponseType, response.message, null)
         }
     }
+
+     fun logout(){
+         storage.clearFile(
+             authPath
+         )
+     }
 
 
 
