@@ -263,7 +263,11 @@ class OrdersDataHandler(
     }
 
     suspend fun checkIfRealOrderStatusChanged(order: OrderData) {
-        val updatedOrder = ordersRepository.getOrderByID(order.orderId.id)
+        val updatedOrder: OrderData? = try {
+            ordersRepository.getOrderByID(order.orderId.id)
+        } catch (e: Exception) {
+            null
+        }
         if (updatedOrder != null && !realTradeNonFinalOrderStatus.contains(updatedOrder.status)) {
             updateOrder(updatedOrder, fetchUserStock = true)
         }
