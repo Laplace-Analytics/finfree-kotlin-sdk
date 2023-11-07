@@ -1,10 +1,8 @@
 package sdk.repositories
 
 import sdk.api.AuthApiProvider
-import sdk.api.LoginResponseTypes
 import sdk.base.GenericRepository
 import sdk.base.GenericStorage
-import sdk.base.logger
 import sdk.models.data.account.AccountData
 
 class AccountDataRepo(

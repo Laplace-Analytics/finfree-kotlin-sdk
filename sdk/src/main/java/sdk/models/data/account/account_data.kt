@@ -7,16 +7,16 @@ typealias ProfileImageGetter = suspend(String) -> Any
 data class AccountData(
     val username: String,
     val email: String,
-    val phoneNumber: String,
-    val firstName: String,
-    val lastName: String,
-    val referralCode: String,
-    val referralPoints: Int,
-    val referredUsers: List<String>,
+    val phoneNumber: String?,
+    val firstName: String?,
+    val lastName: String?,
+    val referralCode: String?,
+    val referralPoints: Int?,
+    val referredUsers: List<String>?,
     val referredCode: String?,
     val realTradeAccountId: Int?,
     val driveWealthRealTradeAccountId: String?,
-    val driveWealthRealTradeAccountNo: String
+    val driveWealthRealTradeAccountNo: String?
 ) : GenericModel {
     var isPremium: Boolean = false
     var isTester: Boolean = false
@@ -58,8 +58,8 @@ data class AccountData(
                 json["username"] as String,
                 json["email"] as String,
                 json["phone_number"] as String,
-                name as String,
-                surname as String,
+                name as String?,
+                surname as String?,
                 json["referral_code"] as String,
                 json["referral_points"] as Int,
                 (json["referred_users"] as? List<String>) ?: emptyList(),
