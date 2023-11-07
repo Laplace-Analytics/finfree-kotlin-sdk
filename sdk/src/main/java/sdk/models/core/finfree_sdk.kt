@@ -5,6 +5,7 @@ import kotlinx.coroutines.coroutineScope
 import sdk.api.AccessToken
 import sdk.api.AuthApiProvider
 import sdk.api.CoreApiProvider
+import sdk.api.LoginResponseData
 import sdk.api.RefreshToken
 import sdk.api.StockDataApiProvider
 import sdk.base.GenericStorage
@@ -165,6 +166,10 @@ class FinfreeSDK {
                 )
             }
 
+        }
+
+        suspend fun getFinfreeLoginData(): LoginResponseData? {
+            return authorizationHandler.getFinfreeLoginData()
         }
 
         suspend fun userLogin(identifier: String, password: String): AuthenticationResponse {

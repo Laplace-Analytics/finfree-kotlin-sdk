@@ -2,6 +2,7 @@ package sdk.models.core
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import sdk.api.*
@@ -63,6 +64,17 @@ class AuthorizationHandler(
             }
         }
     }
+
+    suspend fun getFinfreeLoginData(): LoginResponseData? {
+        val savedLoginDataJson = storage.read(authPath)
+        return if (savedLoginDataJson != null) {
+            val savedLoginData = Json.decodeFromString<Map<String, Any>>(savedLoginDataJson)
+            LoginResponseData.fromJson(savedLoginData)
+        } else {
+            null
+        }
+    }
+
     suspend fun authenticateWithRefreshToken(refreshToken: RefreshToken? = null, tokenId: String? = null): AuthenticationResponse {
 
         var refreshTokenToUse: String? = null
