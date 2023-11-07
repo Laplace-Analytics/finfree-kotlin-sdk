@@ -2,6 +2,7 @@ package sdk.trade
 
 import sdk.models.data.assets.AssetId
 import sdk.models.core.AssetProvider
+import sdk.trade.models.order.realTradeNonFinalOrderStatus
 import java.lang.Math.min
 import java.time.LocalDateTime
 import java.util.*

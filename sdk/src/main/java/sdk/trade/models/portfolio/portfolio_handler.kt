@@ -12,7 +12,7 @@ import sdk.trade.OrderHandler
 import sdk.trade.OrderId
 import sdk.trade.models.order.OrderUpdatesHandler
 import sdk.trade.OrdersDBHandler
-import sdk.trade.OrdersDataHandler
+import sdk.trade.models.order.OrdersDataHandler
 
 
 abstract class PortfolioHandler(open val endpointUrl: String) {
@@ -27,7 +27,6 @@ abstract class PortfolioHandler(open val endpointUrl: String) {
     abstract fun dispose()
 
     abstract suspend fun init(
-        notifyListeners: () -> Any,
         showOrderUpdatedMessage: (OrderData) -> Any,
         ordersDBHandler: OrdersDBHandler,
         storage: GenericStorage,

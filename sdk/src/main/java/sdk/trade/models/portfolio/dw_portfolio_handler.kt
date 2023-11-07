@@ -20,7 +20,7 @@ import sdk.trade.OrderId
 import sdk.trade.models.order.OrderUpdatesHandler
 import sdk.trade.OrderUpdatesListener
 import sdk.trade.OrdersDBHandler
-import sdk.trade.OrdersDataHandler
+import sdk.trade.models.order.OrdersDataHandler
 import sdk.trade.repositories.repos.OrdersRepository
 import sdk.trade.repositories.repos.UserEquityRepo
 import sdk.trade.repositories.repos.UserPortfolioRepo
@@ -63,7 +63,6 @@ class DWPortfolioHandler(
         get() = true
 
     override suspend fun init(
-        notifyListeners: () -> Any,
         showOrderUpdatedMessage: (OrderData) -> Any,
         ordersDBHandler: OrdersDBHandler,
         storage: GenericStorage,
@@ -101,7 +100,6 @@ class DWPortfolioHandler(
             },
             ordersDBHandler = ordersDBHandler,
             sessionProvider = sessionProvider,
-            notifyListeners = notifyListeners
         )
 
         val orderUpdatesListener = OrderUpdatesListener(

@@ -78,9 +78,6 @@ suspend fun handleSetup() = runBlocking {
     }
 
     FinfreeSDK.initializePortfolioData(
-        notifyListeners = {
-            logger.info("Notify listeners")
-        },
         showOrderUpdatedMessage = { order ->
             logger.info("Order updated: $order")
         },

@@ -12,8 +12,6 @@ import sdk.models.core.AssetProvider
 import sdk.trade.OrderData
 import sdk.trade.OrderId
 import sdk.trade.OrderUpdatesListener
-import sdk.trade.OrdersDataHandler
-import sdk.trade.realTradeNonFinalOrderStatus
 import sdk.trade.repositories.repos.OrdersRepository
 import java.time.LocalDateTime
 

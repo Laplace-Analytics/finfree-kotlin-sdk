@@ -22,6 +22,7 @@ import sdk.models.data.assets.PortfolioType
 import sdk.models.data.assets.Region
 import sdk.repositories.*
 import sdk.trade.*
+import sdk.trade.models.order.OrdersDataHandler
 import sdk.trade.models.portfolio.PortfolioHandler
 import sdk.trade.models.portfolio.PortfolioProvider
 import sdk.base.network.NetworkConfig as network_config
@@ -146,7 +147,6 @@ class FinfreeSDK {
         }
 
         private suspend fun initializePortfolioHandlers(
-            notifyListeners: () -> Unit,
             showOrderUpdatedMessage: (OrderData) -> Any,
             ordersDBHandlers: Map<PortfolioType, OrdersDBHandler?>,
             hasLiveData: ((Content) -> Boolean)?
@@ -154,7 +154,6 @@ class FinfreeSDK {
 
             portfolioHandlers?.keys?.forEach { portfolioType ->
                 portfolioHandler(portfolioType).init(
-                    notifyListeners = notifyListeners,
                     showOrderUpdatedMessage = showOrderUpdatedMessage,
                     ordersDBHandler = ordersDBHandlers[portfolioType]!!,
                     storage = storage,
@@ -239,7 +238,6 @@ class FinfreeSDK {
         }
 
         suspend fun initializePortfolioData(
-            notifyListeners: () -> Unit,
             showOrderUpdatedMessage:  (OrderData) -> Any,
             portfolioHandlers: Map<PortfolioType, PortfolioHandler>,
             ordersDBHandlers: Map<PortfolioType, OrdersDBHandler?>,
@@ -260,7 +258,6 @@ class FinfreeSDK {
 
 
             initializePortfolioHandlers(
-                notifyListeners = notifyListeners,
                 showOrderUpdatedMessage = showOrderUpdatedMessage,
                 ordersDBHandlers = ordersDBHandlers,
                 hasLiveData = hasLiveData

@@ -1,4 +1,4 @@
-package sdk.trade
+package sdk.trade.models.order
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -6,11 +6,18 @@ import kotlinx.coroutines.launch
 import sdk.base.logger
 import sdk.models.core.SessionProvider
 import sdk.models.core.sessions.DateTime
+import sdk.trade.OrderData
+import sdk.trade.OrderId
+import sdk.trade.OrderStatus
+import sdk.trade.OrdersDBHandler
 import sdk.trade.repositories.repos.OrdersRepository
 import sdk.trade.repositories.repos.PaginatedOrdersFilter
 import java.lang.Integer.max
 import java.time.Duration
 import java.util.*
+
+typealias VoidCallback = () -> Unit
+
 
 val realTradeNonFinalOrderStatus = listOf(
     OrderStatus.SentCancelRequestToExchange,
@@ -31,15 +38,35 @@ class OrdersDataHandler(
     private val fetchUserEquityDataCallback: AsyncCallback,
     val ordersDBHandler: OrdersDBHandler,
     private val sessionProvider: SessionProvider,
-    private val notifyListeners: () -> Any
 ) {
+
+    private val listeners = mutableListOf<VoidCallback>()
+
+    fun addListener(listener: VoidCallback) {
+        listeners.add(listener)
+    }
+
+    fun removeListener(listener: VoidCallback) {
+        listeners.remove(listener)
+    }
+
+    private fun notifyListeners() {
+        for (listener in listeners) {
+            try {
+                listener()
+            } catch (e: Exception) {
+                logger.error("Error occurred while OrdersDataHandler's _notifyListeners $e")
+            }
+        }
+    }
+
 
 
     private var timer: Timer? = null
-    var isTimerActive = false
+    private var isTimerActive = false
 
 
-    suspend fun updateOrders() {
+    private suspend fun updateOrders() {
         notifyListeners()
     }
 
@@ -96,7 +123,7 @@ class OrdersDataHandler(
         }
     }
 
-    suspend fun fetchAll() {
+    private suspend fun fetchAll() {
         val res = ordersRepository.getData(null)
         if (res != null) {
             ordersDBHandler.insertOrders(res)
@@ -106,7 +133,7 @@ class OrdersDataHandler(
         }
     }
 
-    suspend fun fetchN(from: Int = 0, N: Int? = null) {
+    private suspend fun fetchN(from: Int = 0, N: Int? = null) {
         val nValue = max(N ?: 5, 5)
         logger.info("Fetching last $nValue orders")
         val orders = ordersRepository.getData(PaginatedOrdersFilter(from, from + nValue))
@@ -124,7 +151,7 @@ class OrdersDataHandler(
         return ordersDBHandler.getOrdersSinceDate(previousClose)
     }
 
-    suspend fun processFetchedData(orders: List<OrderData>, pendingStatus: List<OrderStatus>) {
+    private suspend fun processFetchedData(orders: List<OrderData>, pendingStatus: List<OrderStatus>) {
         insertFetchedData(orders, pendingStatus)
     }
 
@@ -149,9 +176,7 @@ class OrdersDataHandler(
 
         for (order in orders) {
             val correspondingTransaction = filteredTransactionMap[order.orderId]
-            if (correspondingTransaction == null) {
-                return TransactionCheckResult(updateUI = true, fetchData = true)
-            }
+                ?: return TransactionCheckResult(updateUI = true, fetchData = true)
             if (order.status != correspondingTransaction.status ||
                 order.quantity != correspondingTransaction.quantity ||
                 order.remainingQuantity != correspondingTransaction.remainingQuantity
@@ -163,7 +188,7 @@ class OrdersDataHandler(
         return TransactionCheckResult(updateUI = false, fetchData = false)
     }
 
-    suspend fun insertFetchedData(orders: List<OrderData>, pendingStatus: List<Any>) {
+    private suspend fun insertFetchedData(orders: List<OrderData>, pendingStatus: List<Any>) {
         if (ordersDBHandler.isOpen) {
             val matchedTransactions = ordersDBHandler.filterOrders(
                 ids = orders.filterNot { pendingStatus.contains(it.status) }.map { it.orderId },
@@ -188,7 +213,7 @@ class OrdersDataHandler(
         }
     }
 
-    fun orderStatusChanged(oldTransaction: OrderData, newTransaction: OrderData) {
+    private fun orderStatusChanged(oldTransaction: OrderData, newTransaction: OrderData) {
         if (oldTransaction.status == OrderStatus.TransmittingToExchange) {
             when (newTransaction.status) {
                 OrderStatus.OrderPeriodOver -> {}
@@ -199,7 +224,7 @@ class OrdersDataHandler(
         }
     }
 
-    fun showTransactionStatusChangedMessage(order: OrderData) {
+    private fun showTransactionStatusChangedMessage(order: OrderData) {
         showOrderUpdatedMessage(order)
     }
 
