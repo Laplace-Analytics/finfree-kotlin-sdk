@@ -59,7 +59,7 @@ class DWPortfolioHandler(
 
     private var _portfolioRepos: PortfolioRepos? = null
 
-    val hasLiveData: Boolean
+    private val hasLiveData: Boolean
         get() = true
 
     override suspend fun init(
@@ -163,6 +163,10 @@ class DWPortfolioHandler(
     override suspend fun fetchUserEquityData(): UserEquityData? {
         val dailyOrders = ordersDataHandler.getDailyOrders()
         return portfolioProvider.fetchUserEquityData(dailyOrders, hasLiveData)
+    }
+
+    override fun addUserPortfolio(data: UserPortfolio) {
+        portfolioProvider.addUserPortfolio(data)
     }
 }
 

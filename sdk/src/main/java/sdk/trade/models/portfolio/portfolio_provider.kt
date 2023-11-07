@@ -97,4 +97,8 @@ class PortfolioProvider(
 
         return result
     }
+
+    fun addUserPortfolio(data: UserPortfolio) {
+        _userPortfolioStream.onNext(data)
+    }
 }

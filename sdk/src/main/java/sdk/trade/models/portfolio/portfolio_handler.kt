@@ -55,4 +55,6 @@ abstract class PortfolioHandler(open val endpointUrl: String) {
     abstract suspend fun getUserEquityData(): UserEquityData?
 
     abstract suspend fun fetchUserEquityData(): UserEquityData?
+
+    abstract fun addUserPortfolio(data: UserPortfolio)
 }
