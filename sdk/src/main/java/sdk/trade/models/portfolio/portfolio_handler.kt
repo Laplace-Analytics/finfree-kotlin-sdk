@@ -35,7 +35,7 @@ abstract class PortfolioHandler(open val endpointUrl: String) {
         sessionProvider: SessionProvider,
         priceDataRepo: PriceDataRepo,
         token: AccessToken,
-        hasLiveData: ((Content) -> Boolean)? = null
+        hasLiveData: ((Content) -> Boolean)?
     )
 
     abstract suspend fun getUserPortfolio() : UserPortfolio?

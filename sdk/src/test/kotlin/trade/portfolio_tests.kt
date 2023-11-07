@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import sdk.base.logger
 import sdk.models.core.FinfreeSDK
+import sdk.models.data.assets.Content
 import sdk.models.data.assets.PortfolioType
 import sdk.trade.MockOrdersDBHandler
 import sdk.trade.OrdersDBHandler
@@ -72,6 +73,10 @@ suspend fun handleSetup() = runBlocking {
         FinfreeSDK.assetProvider,
         portfolioType.name,
     )
+    val hasLiveData: (Content) -> Boolean = {
+        true
+    }
+
     FinfreeSDK.initializePortfolioData(
         notifyListeners = {
             logger.info("Notify listeners")
@@ -85,6 +90,7 @@ suspend fun handleSetup() = runBlocking {
         ordersDBHandlers = mapOf(
             portfolioType to drivewealthOrderDBHandler
         ),
+        hasLiveData = hasLiveData
     )
 
     var portfolio: UserPortfolio? = FinfreeSDK.portfolioProvider(portfolioType).userPortfolio

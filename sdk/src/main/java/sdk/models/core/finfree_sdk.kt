@@ -149,7 +149,7 @@ class FinfreeSDK {
             notifyListeners: () -> Unit,
             showOrderUpdatedMessage: (OrderData) -> Any,
             ordersDBHandlers: Map<PortfolioType, OrdersDBHandler?>,
-            hasLiveData: ((Content) -> Boolean)? = null
+            hasLiveData: ((Content) -> Boolean)?
         ) {
 
             portfolioHandlers?.keys?.forEach { portfolioType ->
@@ -243,7 +243,7 @@ class FinfreeSDK {
             showOrderUpdatedMessage:  (OrderData) -> Any,
             portfolioHandlers: Map<PortfolioType, PortfolioHandler>,
             ordersDBHandlers: Map<PortfolioType, OrdersDBHandler?>,
-            hasLiveData: ((Content) -> Boolean)? = null
+            hasLiveData: ((Content) -> Boolean)?
         ) {
             if (!initialized) throw SDKNotInitializedException()
             if (!authorized) throw NotAuthorizedException()
