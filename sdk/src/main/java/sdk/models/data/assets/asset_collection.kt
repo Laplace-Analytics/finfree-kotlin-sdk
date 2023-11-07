@@ -1,16 +1,11 @@
-package sdk.models
+package sdk.models.data.assets
 
 import sdk.base.GenericModel
-import sdk.models.data.assets.AssetClass
-import sdk.models.data.assets.Region
-import sdk.models.data.assets.assetClass
-import sdk.models.data.assets.region
-import sdk.models.data.assets.string
 
 enum class CollectionType {
-    sector,
-    industry,
-    collection
+    Sector,
+    Industry,
+    Collection
 }
 
 data class AssetCollection(
@@ -24,10 +19,10 @@ data class AssetCollection(
     val description: String? = null
 ) : GenericModel {
     val hasStocks: Boolean
-        get() = stocks != null && stocks.isNotEmpty()
+        get() = !stocks.isNullOrEmpty()
 
     val hasImage: Boolean
-        get() = imageUrl != null && imageUrl.avatarUrl != null
+        get() = imageUrl?.avatarUrl != null
 
 
     fun copyWith(
@@ -90,7 +85,7 @@ data class AssetCollection(
             }
 
             if (assetClass == null) {
-                if (type == CollectionType.sector || type == CollectionType.industry) {
+                if (type == CollectionType.Sector || type == CollectionType.Industry) {
                     assetClass = AssetClass.Equity
                 } else {
                     throw Exception("Invalid assetClass or type: $type $assetClass")
@@ -113,25 +108,33 @@ data class AssetCollection(
             )
         }
     }
-    override fun toJson(): Map<String, Any> {
-        val resultMap: MutableMap<String, Any> = mutableMapOf(
+    override fun toJson(): Map<String, Any?> {
+        val jsonMap = mutableMapOf<String, Any?>()
+
+        val collectionMap = mutableMapOf(
             "id" to id,
             "title" to title,
-            "type" to type.string(),
-            "region" to region.string(),
-            "asset_class" to assetClass.string(),
-            "description" to description as String
+            "stocks" to stocks,
+            "type" to type.toString(),
+            "region" to region.toString(),
+            "asset_class" to assetClass.toString()
         )
 
-        stocks?.let { resultMap["stocks"] = it }
-        imageUrl?.let { resultMap["image_url"] = it.toJson() }
+        if (imageUrl != null) {
+            val imageUrlMap = imageUrl.toJson()
+            collectionMap.putAll(imageUrlMap)
+        }
 
-        return resultMap
+        collectionMap["description"] = description
+        jsonMap["data"] = mapOf("collection" to collectionMap)
+        jsonMap["type"] = type.toString()
+
+        return jsonMap
     }
 }
 
 class CollectionImageUrl(
-    val imageUrl: String?,
+    private val imageUrl: String?,
     private val _downScaledImageUrl: String?,
     private val _avatarUrl: String?
 ) {
@@ -166,17 +169,17 @@ class CollectionImageUrl(
 
 fun CollectionType.string(): String {
     return when (this) {
-        CollectionType.industry -> "industry"
-        CollectionType.sector -> "sector"
-        CollectionType.collection -> "collection"
+        CollectionType.Industry -> "industry"
+        CollectionType.Sector -> "sector"
+        CollectionType.Collection -> "collection"
     }
 }
 
 fun String.collectionType(): CollectionType {
     return when (this) {
-        "industry" -> CollectionType.industry
-        "sector" -> CollectionType.sector
-        "collection" -> CollectionType.collection
+        "industry" -> CollectionType.Industry
+        "sector" -> CollectionType.Sector
+        "collection" -> CollectionType.Collection
         else -> throw IllegalArgumentException("Unknown collection type: $this")
     }
 }

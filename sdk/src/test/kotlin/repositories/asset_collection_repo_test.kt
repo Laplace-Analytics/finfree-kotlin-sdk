@@ -13,10 +13,9 @@ import sdk.api.CoreApiProvider
 import sdk.api.LoginResponseTypes
 import sdk.base.logger
 import sdk.base.network.HTTPHandler
-import sdk.models.CollectionType
+import sdk.models.data.assets.CollectionType
 import sdk.models.data.assets.Region
 import sdk.models.data.assets.string
-import sdk.models.string
 import sdk.repositories.AssetCollectionRepo
 import sdk.repositories.AssetCollectionRepoIdentifier
 
@@ -55,7 +54,7 @@ class AssetCollectionRepoTests {
         assertEquals(null, collections)
 
         val collections2 = assetCollectionRepo.fetchData(
-            AssetCollectionRepoIdentifier(Region.Turkish, CollectionType.sector)
+            AssetCollectionRepoIdentifier(Region.Turkish, CollectionType.Sector)
         )
         assertNotNull(collections2)
     }

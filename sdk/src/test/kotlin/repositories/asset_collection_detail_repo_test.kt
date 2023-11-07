@@ -10,8 +10,8 @@ import sdk.api.AuthApiProvider
 import sdk.api.CoreApiProvider
 import sdk.api.LoginResponseTypes
 import sdk.base.network.HTTPHandler
-import sdk.models.AssetCollection
-import sdk.models.CollectionType
+import sdk.models.data.assets.AssetCollection
+import sdk.models.data.assets.CollectionType
 import sdk.models.data.assets.Region
 import sdk.repositories.AssetCollectionDetailRepo
 import sdk.repositories.AssetCollectionDetailRepoIdentifier
@@ -48,7 +48,7 @@ class AssetCollectionRepoTest {
         val collections = assetCollectionRepo.fetchData(
             AssetCollectionRepoIdentifier(
                 Region.Turkish,
-                CollectionType.collection
+                CollectionType.Collection
             )
         )
         if (collections.isNullOrEmpty()) {

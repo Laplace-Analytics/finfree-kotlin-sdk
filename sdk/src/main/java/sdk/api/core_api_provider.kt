@@ -6,11 +6,10 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import sdk.base.network.*
 import sdk.models.data.assets.AssetClass
-import sdk.models.CollectionType
+import sdk.models.data.assets.CollectionType
 import sdk.models.data.assets.Region
 import sdk.models.data.assets.localeString
 import sdk.models.data.assets.string
-import sdk.models.string
 
 class CoreApiProvider(
     override val httpHandler: HTTPHandler

@@ -2,8 +2,6 @@ package sdk.models.data.assets
 
 import sdk.base.GenericModel
 import sdk.base.logger
-import sdk.models.IndustryId
-import sdk.models.SectorId
 
 enum class Region {
     American,

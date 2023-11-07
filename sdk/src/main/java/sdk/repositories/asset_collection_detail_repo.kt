@@ -5,9 +5,11 @@ import sdk.base.GenericRepository
 import sdk.base.GenericStorage
 import sdk.base.logger
 import sdk.base.network.BasicResponseTypes
-import sdk.models.AssetCollection
-import sdk.models.CollectionId
-import sdk.models.CollectionType
+import sdk.models.data.assets.AssetCollection
+import sdk.models.data.assets.CollectionId
+import sdk.models.data.assets.CollectionType
+import sdk.models.data.assets.collectionType
+import sdk.models.data.assets.string
 
 open class AssetCollectionDetailRepo(
     override val storageHandler: GenericStorage,
@@ -28,7 +30,7 @@ open class AssetCollectionDetailRepo(
                 return null
             }
 
-            getFromJson(mapOf("data" to response.data, "type" to type))
+            getFromJson(mapOf("data" to response.data, "type" to type.string()))
         } catch (e: Exception) {
             logger.error("AssetCollectionRepo.getData exception", e)
             null
@@ -36,8 +38,8 @@ open class AssetCollectionDetailRepo(
     }
 
     override fun getFromJson(json: Map<String, Any?>): AssetCollection {
-        val typeString = json["type"] as CollectionType
-        return AssetCollection.fromJson((json["data"] as Map<String, Any>)["collection"] as Map<String, Any>, typeString)
+        val typeString = json["type"] as String
+        return AssetCollection.fromJson((json["data"] as Map<String, Any>)["collection"] as Map<String, Any>, typeString.collectionType())
     }
 
     override fun getIdentifier(data: AssetCollection): AssetCollectionDetailRepoIdentifier? {
@@ -48,7 +50,7 @@ open class AssetCollectionDetailRepo(
         return "asset_collections/${identifier?.id}"
     }
 
-    override fun toJson(data: AssetCollection): Map<String, Any> {
+    override fun toJson(data: AssetCollection): Map<String, Any?> {
         return data.toJson()
     }
 }

@@ -5,11 +5,10 @@ import sdk.base.GenericRepository
 import sdk.base.GenericStorage
 import sdk.base.logger
 import sdk.base.network.BasicResponseTypes
-import sdk.models.AssetCollection
-import sdk.models.CollectionType
+import sdk.models.data.assets.AssetCollection
+import sdk.models.data.assets.CollectionType
 import sdk.models.data.assets.Region
 import sdk.models.data.assets.string
-import sdk.models.string
 
 open class AssetCollectionRepo(
     override val storageHandler: GenericStorage,
@@ -20,7 +19,7 @@ open class AssetCollectionRepo(
         if (identifier == null) return null
         return try {
             val response = when (identifier.collectionType) {
-                CollectionType.collection -> apiProvider.getPredefinedCollections(identifier.region)
+                CollectionType.Collection -> apiProvider.getPredefinedCollections(identifier.region)
                 else -> apiProvider.getCollections(identifier.region, identifier.collectionType)
             }
 
