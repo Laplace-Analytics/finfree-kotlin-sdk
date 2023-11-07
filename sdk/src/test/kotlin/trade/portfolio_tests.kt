@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test
 import sdk.base.logger
 import sdk.models.core.FinfreeSDK
 import sdk.models.data.assets.PortfolioType
+import sdk.trade.MockOrdersDBHandler
+import sdk.trade.OrdersDBHandler
 import sdk.trade.models.portfolio.UserPortfolio
 import java.util.Random
 
@@ -64,6 +66,10 @@ class PortfolioTests{
 suspend fun handleSetup() = runBlocking {
     val portfolioType: PortfolioType = PortfolioType.DriveWealth
     initSDK(portfolioType)
+    val drivewealthOrderDBHandler: OrdersDBHandler = MockOrdersDBHandler(
+        FinfreeSDK.assetProvider,
+        portfolioType.name,
+    )
     FinfreeSDK.initializePortfolioData(
         notifyListeners = {
             logger.info("Notify listeners")
@@ -71,7 +77,9 @@ suspend fun handleSetup() = runBlocking {
         showOrderUpdatedMessage = { order ->
             logger.info("Order updated: $order")
         },
-        ordersDBHandlers = mutableMapOf(),
+        ordersDBHandlers = mapOf(
+            portfolioType to drivewealthOrderDBHandler
+        ),
     )
 
     var portfolio: UserPortfolio? = FinfreeSDK.portfolioProvider(portfolioType).userPortfolio

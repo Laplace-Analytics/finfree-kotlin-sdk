@@ -11,6 +11,7 @@ import sdk.base.GenericStorage
 import sdk.base.exceptions.CoreDataNotInitializedException
 import sdk.base.exceptions.InvalidPortfolioTypeException
 import sdk.base.exceptions.NotAuthorizedException
+import sdk.base.exceptions.OrderDBHandlerNotInitializedException
 import sdk.base.exceptions.PortfolioHandlerNotInitializedException
 import sdk.base.exceptions.SDKNotInitializedException
 import sdk.base.network.HTTPHandler
@@ -146,7 +147,7 @@ class FinfreeSDK {
         private suspend fun initializePortfolioHandlers(
             notifyListeners: () -> Unit,
             showOrderUpdatedMessage: (OrderData) -> Any,
-            ordersDBHandlers: Map<PortfolioType, OrdersDBHandler>,
+            ordersDBHandlers: Map<PortfolioType, OrdersDBHandler?>,
             hasLiveData: ((Content) -> Boolean)? = null
         ) {
 
@@ -216,18 +217,21 @@ class FinfreeSDK {
         suspend fun initializePortfolioData(
             notifyListeners: () -> Unit,
             showOrderUpdatedMessage:  (OrderData) -> Any,
-            ordersDBHandlers: MutableMap<PortfolioType, OrdersDBHandler>,
+            ordersDBHandlers: Map<PortfolioType, OrdersDBHandler?>,
             hasLiveData: ((Content) -> Boolean)? = null
         ) {
             if (!initialized) throw SDKNotInitializedException()
             if (!authorized) throw NotAuthorizedException()
             if (!coreInitialized) throw CoreDataNotInitializedException()
 
-            _portfolioHandlers?.keys?.forEach { portfolioType ->
-                ordersDBHandlers.getOrPut(portfolioType) {
-                    MockOrdersDBHandler(assetProvider, portfolioType.name)
+            _portfolioHandlers?.let { portfolioHandlers ->
+                portfolioHandlers.keys.forEach { key ->
+                    if (!ordersDBHandlers.containsKey(key) || ordersDBHandlers[key] == null) {
+                        throw OrderDBHandlerNotInitializedException(key)
+                    }
                 }
-            }
+            } ?: throw PortfolioHandlerNotInitializedException()
+
 
             initializePortfolioHandlers(
                 notifyListeners = notifyListeners,
