@@ -18,13 +18,14 @@ import sdk.trade.OrderData
 import sdk.trade.OrderHandler
 import sdk.trade.OrderId
 import sdk.trade.models.order.OrderUpdatesHandler
-import sdk.trade.OrderUpdatesListener
 import sdk.trade.OrdersDBHandler
 import sdk.trade.models.order.OrdersDataHandler
 import sdk.trade.repositories.repos.OrdersRepository
 import sdk.trade.repositories.repos.UserEquityRepo
 import sdk.trade.repositories.repos.UserPortfolioRepo
 import sdk.trade.generic_api.DriveWealthPortfolioApiProvider
+import sdk.trade.models.order.DrivewealthOrderUpdatesListener
+import sdk.trade.models.order.GenericOrderUpdatesListener
 import sdk.trade.repositories.drivewealth_repos.DriveWealthOrderHandler
 import sdk.trade.repositories.repos.EquityTimeSeriesRepo
 
@@ -102,7 +103,7 @@ class DWPortfolioHandler(
             sessionProvider = sessionProvider,
         )
 
-        val orderUpdatesListener = OrderUpdatesListener(
+        val orderUpdatesListener: GenericOrderUpdatesListener = DrivewealthOrderUpdatesListener(
             portfolioRepos!!.ordersRepo.apiProvider
         )
 

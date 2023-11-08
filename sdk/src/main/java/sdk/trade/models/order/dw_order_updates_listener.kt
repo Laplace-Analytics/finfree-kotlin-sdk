@@ -1,4 +1,4 @@
-package sdk.trade
+package sdk.trade.models.order
 
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
@@ -15,14 +15,16 @@ import kotlinx.serialization.json.Json
 import sdk.trade.api.generic_api.GenericOrderAPIProvider
 
 
-class OrderUpdatesListener(private val orderApiProvider: GenericOrderAPIProvider) {
+class DrivewealthOrderUpdatesListener(
+    private val orderApiProvider: GenericOrderAPIProvider
+): GenericOrderUpdatesListener() {
 
     private val stream = BehaviorSubject.create<String>()
     private var subscription: Disposable? = null
 
-    suspend fun openConnection(token: String) {
+    override suspend fun openConnection(token: String) {
         val response = orderApiProvider.listenOrders(UUID.randomUUID().toString())
-        val responseFlowable = response?.data?.asFlowable()
+        val responseFlowable = response.data?.asFlowable()
 
         if (response.responseType != BasicResponseTypes.Success || response.data == null) {
             delay(60000)  // wait for 60 seconds
@@ -60,20 +62,20 @@ class OrderUpdatesListener(private val orderApiProvider: GenericOrderAPIProvider
                 }
             )
     }
-    fun closeChannel() {
+    override fun closeChannel() {
         stream.onComplete()
         subscription?.dispose()
     }
 
-    fun listen(
-        onData: (String) -> Unit,
-        onError: ((Throwable) -> Unit)? = { error -> logger.error("An error occurred", error) },
-        onComplete: (() -> Unit)?  = { logger.info("Stream completed.") }
+    override fun listen(
+        onData: (value: String) -> Unit,
+        onError: ((Throwable) -> Unit)?,
+        onDone: (() -> Unit)?
     ): Disposable {
         return stream.subscribe(
             onData,
             onError,
-            onComplete,
+            onDone
         )
     }
 }
