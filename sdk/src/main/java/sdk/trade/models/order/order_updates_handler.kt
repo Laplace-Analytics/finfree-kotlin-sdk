@@ -11,22 +11,22 @@ import sdk.base.logger
 import sdk.models.core.AssetProvider
 import sdk.trade.OrderData
 import sdk.trade.OrderId
-import sdk.trade.OrderUpdatesListener
 import sdk.trade.repositories.repos.OrdersRepository
 import java.time.LocalDateTime
 
 class OrderUpdatesHandler(
-    private val orderUpdatesListener: OrderUpdatesListener,
+    private val orderUpdatesListener: GenericOrderUpdatesListener?,
     private val ordersDataHandler: OrdersDataHandler,
     private val ordersRepository: OrdersRepository,
     private val assetProvider: AssetProvider
 ) {
     private val orderStream = BehaviorSubject.create<OrderData>()
     private val _orderSequenceNumbers = mutableMapOf<OrderId, Int>()
-    private var _subscription: Disposable
+    private var _subscription: Disposable? = null
 
     init {
-        _subscription = orderUpdatesListener.listen(onData = { value ->
+        _subscription = orderUpdatesListener?.listen(
+            onData = { value ->
             try {
 
                 val type = object : TypeToken<MutableMap<String, Any>>() {}.type
@@ -79,6 +79,6 @@ class OrderUpdatesHandler(
     }
 
     fun close() {
-        _subscription.dispose()
+        _subscription?.dispose()
     }
 }
