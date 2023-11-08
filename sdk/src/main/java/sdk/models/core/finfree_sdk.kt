@@ -56,9 +56,9 @@ class FinfreeSDK {
         val baseHttpHandler: HTTPHandler = HTTPHandler(httpURL = network_config.baseEndpoint)
 
 
+        private var coreRepos: CoreRepos? = null
 
-
-        private lateinit var authorizationHandler: AuthorizationHandler
+        private val authorizationHandler: AuthorizationHandler = AuthorizationHandler(storage, baseHttpHandler)
 
         private var portfolioHandlers: Map<PortfolioType, PortfolioHandler>? = null
 
@@ -116,7 +116,6 @@ class FinfreeSDK {
                 )
             }
 
-        private lateinit var coreRepos: CoreRepos
 
         fun setAccessToken(accessToken: AccessToken) {
             _accessToken = accessToken
@@ -130,11 +129,10 @@ class FinfreeSDK {
             storage: GenericStorage,
         ) {
             _storage = storage
-            authorizationHandler = AuthorizationHandler(storage,baseHttpHandler)
-
             initializeCoreRepos(getLocalTimezone)
-            _assetProvider = AssetProvider(assetRepo = coreRepos.assetRepo)
-            _sessionProvider = SessionProvider(sessionsRepo = coreRepos.sessionsRepo)
+            if (coreRepos == null) throw SDKNotInitializedException()
+            _assetProvider = AssetProvider(assetRepo = coreRepos!!.assetRepo)
+            _sessionProvider = SessionProvider(sessionsRepo = coreRepos!!.sessionsRepo)
             _initialized = true
         }
 
