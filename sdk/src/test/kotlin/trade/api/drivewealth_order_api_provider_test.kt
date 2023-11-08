@@ -34,7 +34,6 @@ class DriveWealthOrderAPIProviderTests{
         region = Region.American,
         isActive = true,
         type = AssetType.Stock,
-        tradable = true
     )
 
     val dennAsset = Asset(
@@ -46,7 +45,6 @@ class DriveWealthOrderAPIProviderTests{
         region = Region.American,
         isActive = true,
         type = AssetType.Stock,
-        tradable = true
     )
 
     val aanAsset = Asset(
@@ -58,7 +56,6 @@ class DriveWealthOrderAPIProviderTests{
         region = Region.American,
         isActive = true,
         type = AssetType.Stock,
-        tradable = true
     )
 
     val bmlnAsset = Asset(
@@ -70,7 +67,6 @@ class DriveWealthOrderAPIProviderTests{
         region = Region.American,
         isActive = true,
         type = AssetType.Stock,
-        tradable = true
     )
 
 

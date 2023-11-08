@@ -8,7 +8,7 @@ import sdk.models.data.assets.AssetType
 import sdk.models.data.assets.Region
 
 class AssetModelCreationTests{
-    val americanMarketAssetAsJson = mutableMapOf(
+    private val americanMarketAssetAsJson = mutableMapOf(
         "id" to "6203d1ba1e67487527555dea",
         "asset_type" to "stock",
         "name" to "Safety Insurance Group, Inc.",
@@ -19,7 +19,7 @@ class AssetModelCreationTests{
         "region" to "us"
     )
 
-    val turkishMarketAssetAsJson = mutableMapOf(
+    private val turkishMarketAssetAsJson = mutableMapOf(
         //ids is not same with original data
         "id" to "6203d1ba1e67487527555dea",
         "asset_type" to "stock",
@@ -31,26 +31,24 @@ class AssetModelCreationTests{
         "region" to "tr"
     )
 
-    val expectedAmericanMarketAsset = Asset(
+    private val expectedAmericanMarketAsset = Asset(
         id = "6203d1ba1e67487527555dea",
         industryId = "6205161f955b8cb965b69046",
         sectorId = "620515fc955b8cb965b68f97",
         name = "Safety Insurance Group, Inc.",
         symbol = "SAFT",
-        tradable = true,
         isActive = true,
         type = AssetType.Stock,  // Adjust if necessary
         region = Region.American  // Adjust if necessary
     )
 
-    val expectedTurkishMarketAsset = Asset(
+    private val expectedTurkishMarketAsset = Asset(
         //ids is not same with original data
         id = "6203d1ba1e67487527555dea",
         industryId = "6205161f955b8cb965b69046",
         sectorId = "620515fc955b8cb965b68f97",
         name = "Türk Hava Yolları",
         symbol = "THYAO",
-        tradable = true,
         isActive = true,
         type = AssetType.Stock,  // Adjust if necessary
         region = Region.Turkish  // Adjust if necessary

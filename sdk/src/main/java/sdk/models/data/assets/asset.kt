@@ -245,7 +245,6 @@ data class Asset(
     val isActive: Boolean,
     val region: Region,
     val type: AssetType,
-    val tradable: Boolean
 ) : GenericModel {
 
     val assetClass: AssetClass
@@ -291,8 +290,7 @@ data class Asset(
                 this.industryId == other.industryId &&
                 this.isActive == other.isActive &&
                 this.region == other.region &&
-                this.type == other.type &&
-                this.tradable == other.tradable
+                this.type == other.type
     }
 
     override fun hashCode(): Int {
@@ -313,7 +311,6 @@ data class Asset(
             "a" to isActive,
             "region" to region.string(),
             "asset_type" to type.string(),
-            "tradable" to tradable
         )
     }
 
@@ -331,7 +328,6 @@ data class Asset(
                 isActive = json["a"] as Boolean,
                 region = region,
                 type = (json["asset_type"] as String).assetType(),
-                tradable = true /*json['tradable']*/
             )
         }
     }

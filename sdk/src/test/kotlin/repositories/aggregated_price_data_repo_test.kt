@@ -45,7 +45,6 @@ class AggregatedPriceDataSeriesRepoTest {
             isActive = true,
             region = Region.Turkish,
             type = AssetType.Stock,
-            tradable = true
         ),
         Asset(
             id = "id",
@@ -56,7 +55,6 @@ class AggregatedPriceDataSeriesRepoTest {
             isActive = true,
             region = Region.Turkish,
             type = AssetType.Stock,
-            tradable = true
         )
     )
     @BeforeEach

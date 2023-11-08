@@ -46,7 +46,6 @@ class PriceDataRepoTests {
     isActive= true,
     region= Region.Turkish,
     type= AssetType.Stock,
-    tradable= true,
     )
 
 
