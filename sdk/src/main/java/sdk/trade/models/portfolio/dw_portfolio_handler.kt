@@ -18,7 +18,7 @@ import sdk.trade.OrderData
 import sdk.trade.OrderHandler
 import sdk.trade.OrderId
 import sdk.trade.models.order.OrderUpdatesHandler
-import sdk.trade.OrdersDBHandler
+import sdk.trade.models.order.OrdersDBHandler
 import sdk.trade.models.order.OrdersDataHandler
 import sdk.trade.repositories.repos.OrdersRepository
 import sdk.trade.repositories.repos.UserEquityRepo

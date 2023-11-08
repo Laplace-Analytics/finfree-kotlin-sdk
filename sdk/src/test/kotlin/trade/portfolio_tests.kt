@@ -15,8 +15,8 @@ import sdk.base.logger
 import sdk.models.core.FinfreeSDK
 import sdk.models.data.assets.Content
 import sdk.models.data.assets.PortfolioType
-import sdk.trade.MockOrdersDBHandler
-import sdk.trade.OrdersDBHandler
+import sdk.trade.models.order.MockOrdersDBHandler
+import sdk.trade.models.order.OrdersDBHandler
 import sdk.trade.models.portfolio.DWPortfolioHandler
 import sdk.trade.models.portfolio.UserPortfolio
 import java.util.Random

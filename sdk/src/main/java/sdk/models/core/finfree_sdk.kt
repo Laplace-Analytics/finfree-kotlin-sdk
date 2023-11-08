@@ -22,6 +22,7 @@ import sdk.models.data.assets.PortfolioType
 import sdk.models.data.assets.Region
 import sdk.repositories.*
 import sdk.trade.*
+import sdk.trade.models.order.OrdersDBHandler
 import sdk.trade.models.order.OrdersDataHandler
 import sdk.trade.models.portfolio.PortfolioHandler
 import sdk.trade.models.portfolio.PortfolioProvider
@@ -264,7 +265,7 @@ class FinfreeSDK {
             // TODO insert DB id
             this.portfolioHandlers?.keys?.forEach { portfolioType ->
                 // TODO insert DB id
-                ordersDataHandler(portfolioType).ordersDBHandler.initDatabase(portfolioType.name)
+                ordersDataHandler(portfolioType).ordersDBHandler.initDatabase()
                 coroutineScope {
                     async { portfolioProvider(portfolioType).getUserPortfolio() }.await()
                     async { portfolioProvider(portfolioType).getUserEquityData(

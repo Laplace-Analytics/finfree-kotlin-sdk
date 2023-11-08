@@ -1,20 +1,25 @@
-package sdk.trade
+package sdk.trade.models.order
 
 import sdk.models.data.assets.AssetId
 import sdk.models.core.AssetProvider
-import sdk.trade.models.order.realTradeNonFinalOrderStatus
+import sdk.trade.IntOrderId
+import sdk.trade.OrderData
+import sdk.trade.OrderId
+import sdk.trade.OrderSource
+import sdk.trade.OrderStatus
+import sdk.trade.OrderType
 import java.lang.Math.min
 import java.time.LocalDateTime
 import java.util.*
 
 abstract class OrdersDBHandler(
     open val assetProvider: AssetProvider,
-    open val databaseName: String
+    open val username: String
 ) {
 
     abstract val initialized: Boolean
 
-    abstract suspend fun initDatabase(dbID: String)
+    abstract suspend fun initDatabase()
 
     abstract suspend fun insertOrders(orders: List<OrderData>)
 
@@ -54,8 +59,8 @@ val random = Random()
 
 class MockOrdersDBHandler(
     override val assetProvider: AssetProvider,
-    override val databaseName: String
-) : OrdersDBHandler(assetProvider,databaseName) {
+    override val username: String
+) : OrdersDBHandler(assetProvider,username) {
     private lateinit var mockData: MutableList<OrderData>
 
     override fun dispose() {
@@ -101,7 +106,7 @@ class MockOrdersDBHandler(
         return mockData.filter { it.placed.isAfter(date) }
     }
 
-    override suspend fun initDatabase(dbID: String) {
+    override suspend fun initDatabase() {
         mockData = List(200) { index ->
             val quantity = random.nextInt(100) + 1
             OrderData(

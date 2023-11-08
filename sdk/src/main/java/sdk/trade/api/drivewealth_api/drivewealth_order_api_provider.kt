@@ -225,7 +225,7 @@ class DriveWealthOrderAPIProvider(
             data = mapOf("stream" to streamUUID)
         )
 
-        return ApiResponseHandler.handleStreamedResponse<Flow<StreamData>>(
+        return ApiResponseHandler.handleStreamedResponse(
             response = response,
             onSuccess = { res ->
                 var currentMessage = ""
