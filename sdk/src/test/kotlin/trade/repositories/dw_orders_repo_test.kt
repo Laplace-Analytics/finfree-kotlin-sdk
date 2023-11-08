@@ -1,6 +1,6 @@
 package trade.repositories
 
-import MockStorage
+import sdk.base.MockStorage
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull

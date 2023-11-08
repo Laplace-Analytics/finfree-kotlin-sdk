@@ -1,6 +1,6 @@
 package repositories
 
-import MockStorage
+import sdk.base.MockStorage
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import kotlinx.coroutines.runBlocking

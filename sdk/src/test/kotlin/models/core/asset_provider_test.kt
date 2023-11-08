@@ -1,6 +1,6 @@
 package models.core
 
-import MockStorage
+import sdk.base.MockStorage
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue

@@ -1,6 +1,5 @@
 package repositories
 
-import MockStorage
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
@@ -9,6 +8,7 @@ import org.junit.jupiter.api.fail
 import sdk.api.AuthApiProvider
 import sdk.api.CoreApiProvider
 import sdk.api.LoginResponseTypes
+import sdk.base.MockStorage
 import sdk.base.network.HTTPHandler
 import sdk.models.data.assets.AssetCollection
 import sdk.models.data.assets.CollectionType

@@ -1,6 +1,6 @@
 package repositories
 
-import MockStorage
+import sdk.base.MockStorage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -85,7 +85,7 @@ class AssetRepoTests {
                     region =  region,
                 )
             )
-            if (assets == null || assets.isEmpty()) {
+            if (assets.isNullOrEmpty()) {
                 logger.error("UNDEFINED OR ERROR REGION FOR GET ALL ASSETS: ${region.string()}")
                 break
             }

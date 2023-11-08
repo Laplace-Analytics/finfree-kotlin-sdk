@@ -1,6 +1,6 @@
 package repositories
 
-import MockStorage
+import sdk.base.MockStorage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -76,7 +76,7 @@ class AssetCollectionRepoTests {
                 val collections = assetCollectionRepo.fetchData(
                     AssetCollectionRepoIdentifier(region, collectionType)
                 )
-                if (collections == null || collections.isEmpty()) {
+                if (collections.isNullOrEmpty()) {
                     logger.error("UNDEFINED COLLECTION GROUP: ${region.string()}:${collectionType.string()}")
                     break
                 }

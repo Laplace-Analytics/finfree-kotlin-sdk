@@ -1,6 +1,5 @@
 package trade.repositories
 
-import MockStorage
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -13,6 +12,7 @@ import sdk.api.CoreApiProvider
 import sdk.api.LoginResponse
 import sdk.api.LoginResponseData
 import sdk.api.LoginResponseTypes
+import sdk.base.MockStorage
 import sdk.base.network.HTTPHandler
 import sdk.models.data.assets.Region
 import sdk.models.core.AssetProvider

@@ -1,6 +1,5 @@
 package trade.repositories
 
-import MockStorage
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -10,6 +9,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import sdk.api.AuthApiProvider
 import sdk.api.LoginResponseTypes
+import sdk.base.MockStorage
 import sdk.base.network.HTTPHandler
 import sdk.trade.DriveWealthAccountApiProvider
 import sdk.trade.models.portfolio.DriveWealthViolationsData
