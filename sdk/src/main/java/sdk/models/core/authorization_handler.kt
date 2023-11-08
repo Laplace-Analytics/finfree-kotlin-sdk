@@ -66,12 +66,18 @@ class AuthorizationHandler(
     }
 
     suspend fun getFinfreeLoginData(): LoginResponseData? {
-        val savedLoginDataJson = storage.read(authPath)
+        var savedLoginDataJson = storage.read("finfree_login_data")
         return if (savedLoginDataJson != null) {
             val savedLoginData = Json.decodeFromString<Map<String, Any>>(savedLoginDataJson)
             LoginResponseData.fromJson(savedLoginData)
         } else {
-            null
+             savedLoginDataJson = storage.read(authPath)
+             if (savedLoginDataJson != null) {
+                 val savedLoginData = Json.decodeFromString<Map<String, Any>>(savedLoginDataJson)
+                 return LoginResponseData.fromJson(savedLoginData)
+             }else{
+                 return null
+             }
         }
     }
 
@@ -92,6 +98,20 @@ class AuthorizationHandler(
                 val savedLogin = LoginResponseData.fromJson(data)
                 refreshTokenToUse = savedLogin.refreshToken
                 tokenIdToUse = savedLogin.tokenId
+            }
+        }
+        /// TODO remove after SDK release for Finfree
+        if (refreshTokenToUse == null || tokenIdToUse == null) {
+            val loginData = getFinfreeLoginData()
+            refreshTokenToUse = loginData?.refreshToken
+            tokenIdToUse = loginData?.tokenId
+            if (loginData != null) {
+                 storage.save(
+                        authPath,
+                Json.encodeToString(
+                    loginData.toJson(),
+                    ),
+                )
             }
         }
 
