@@ -1,13 +1,12 @@
 import sdk.base.MockStorage
-import sdk.models.data.assets.PortfolioType
 import sdk.models.data.assets.Region
 import sdk.models.core.AuthenticationResponseTypes
 import sdk.models.core.FinfreeSDK
 
-suspend fun initSDK(portfolioType: PortfolioType) {
+suspend fun initSDK() {
     FinfreeSDK.initSDK(
-        storage = MockStorage(),
         getLocalTimezone = suspend { "Europe/Istanbul" },
+        storage = MockStorage(),
     )
 
     if (!FinfreeSDK.initialized) {

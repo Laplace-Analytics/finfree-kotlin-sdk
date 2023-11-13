@@ -66,9 +66,9 @@ class PortfolioTests{
 
 }
 
-suspend fun handleSetup() = runBlocking {
+suspend fun handleSetup() {
     val portfolioType: PortfolioType = PortfolioType.DriveWealth
-    initSDK(portfolioType)
+    initSDK()
     val drivewealthOrderDBHandler: OrdersDBHandler = MockOrdersDBHandler(
         FinfreeSDK.assetProvider,
         portfolioType.name,
