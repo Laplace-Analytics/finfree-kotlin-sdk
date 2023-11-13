@@ -35,10 +35,7 @@ class FinfreeSDK {
         val initialized get() = _initialized
 
         private var _storage: GenericStorage? = null
-        val storage: GenericStorage
-            get() {
-                _storage?.let { return it } ?: throw SDKNotInitializedException()
-            }
+        val storage: GenericStorage get() = _storage?.let { return it } ?: throw SDKNotInitializedException()
 
         private var _accessToken: AccessToken? = null
 
@@ -57,10 +54,10 @@ class FinfreeSDK {
         val baseHttpHandler: HTTPHandler = HTTPHandler(httpURL = network_config.baseEndpoint)
 
 
+
         private var coreRepos: CoreRepos? = null
 
-        private val authorizationHandler: AuthorizationHandler = AuthorizationHandler(storage, baseHttpHandler)
-
+        private lateinit var authorizationHandler: AuthorizationHandler
         private var portfolioHandlers: Map<PortfolioType, PortfolioHandler>? = null
 
         fun portfolioHandler(portfolioType: PortfolioType): PortfolioHandler {
@@ -130,6 +127,7 @@ class FinfreeSDK {
             storage: GenericStorage,
         ) {
             _storage = storage
+            authorizationHandler = AuthorizationHandler(storage,baseHttpHandler)
             initializeCoreRepos(getLocalTimezone)
             if (coreRepos == null) throw SDKNotInitializedException()
             _assetProvider = AssetProvider(assetRepo = coreRepos!!.assetRepo)
