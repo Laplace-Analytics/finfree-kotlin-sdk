@@ -54,6 +54,8 @@ class OrderUpdatesHandler(
                 logger.error("Could not update the order data: $value\n $ex")
             }
         },
+            onError = { error -> logger.error("An error occurred", error) },
+            onDone = { logger.info("Stream completed.") }
         )
     }
 
