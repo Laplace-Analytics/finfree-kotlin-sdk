@@ -103,7 +103,7 @@ class CoreApiProvider(
     }
 
     suspend fun getCollections(region: Region, collectionType: CollectionType): BasicResponse<List<Map<String, Any>>> {
-        val path = "stock/$collectionType/${region.string()}"
+        val path = "stock/${collectionType.string()}/${region.string()}"
 
         val response = httpHandler.get(path = path)
 
